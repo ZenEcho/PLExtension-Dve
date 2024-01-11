@@ -60,7 +60,8 @@ export function createIconMarkup(data) {
   </svg>`;
     }
 }
-// 存储配置记录
+
+//-------
 function sortObjectProperties(obj) {
     // 数据排序
     const sortedObj = {};
@@ -82,9 +83,11 @@ function isSameData(data1, data2) {
     }
     return true;
 }
+// 获取理论唯一id
 function generateUniqueId() {
     return crypto.randomUUID();
 }
+// 存储配置记录
 export function storeBedConfig(data, callback) {
     const sortedData = sortObjectProperties(data);
     dbHelper("BedConfigStore").then(result => {
@@ -165,6 +168,7 @@ export function storeBedConfig(data, callback) {
     });
 }
 // ----------
+// 将配置存储到chrome存储API中
 export async function storProgramConfiguration(data) {
     return new Promise((resolve, reject) => {
         const PCLocalStorage = (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) ? chrome.storage.local : (typeof browser !== 'undefined' && browser.storage && browser.storage.local) ? browser.storage.local : null;
@@ -184,7 +188,7 @@ export async function storProgramConfiguration(data) {
                     const updatedData = { ...existingData, ...data };
                     PCLocalStorage.set({ "ProgramConfiguration": updatedData }, function () {
                         localStorage.options_webtitle_status = 1
-                        resolve({type: "success"});
+                        resolve({ type: "success" });
                     });
                 }
             });
@@ -200,21 +204,65 @@ export async function storProgramConfiguration(data) {
         }
     });
 }
+// chrome本地存储API 获取数据
 export function getChromeStorage(key) {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.get([key], function(result) {
-        if (chrome.runtime.lastError) {
-          // 处理错误
-          reject(chrome.runtime.lastError);
-        } else {
-          // 返回对应键的值
-          resolve(result[key]);
-        }
-      });
+        chrome.storage.local.get([key], function (result) {
+            if (chrome.runtime.lastError) {
+                // 处理错误
+                reject(chrome.runtime.lastError);
+            } else {
+                // 返回对应键的值
+                resolve(result[key]);
+            }
+        });
     });
-  }
-  
+}
 
+export async function storExeButtons(data) {
+    return new Promise((resolve, reject) => {
+        let filteredData = buttonsData.filter(Data => {
+            return Data.value === data.data.program;
+        });
+
+        let indexedData = filteredData.map((item, index) => {
+            return {
+                ...item,
+                index: 1000 + index
+            };
+        });
+        if (indexedData.length < 1) {
+            reject("按钮组未找到匹配的数据")
+        }
+        storProgramConfiguration(data.data)
+            .then(() => {
+                if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+                    chrome.storage.local.set({ "exeButtons": indexedData }, function () {
+                        if (chrome.runtime.lastError) {
+                            reject(chrome.runtime.lastError);
+                        } else {
+                            resolve(true);
+                        }
+                    });
+                } else {
+                    dbHelper("exeButtons").then(result => {
+                        // 处理获取到的配置数据
+                        const { db } = result;
+                        db.put(indexedData).then(() => {
+                            resolve(true);
+                        })
+                    }).catch(error => {
+                        reject(error);
+                    });
+                }
+            })
+            .catch((error) => {
+                reject(error);
+            });
+    });
+}
+
+// 文本域自动高度
 export function autoExpand(event) {
     const textarea = event.target;
     textarea.style.height = 'auto';

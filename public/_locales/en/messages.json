@@ -216,22 +216,22 @@
     "message": "Import configuration"
   },
   "options_host": {
-    "message": "Website domain name<p>(Do not include any prefixes or suffixes, enter the domain name only)</p>"
+    "message": "Website domain name"
   },
   "options_host_placeholder_lsky": {
     "message": "For example: pnglog.com"
   },
   "options_token": {
-    "message": "Token<p class='text-sm text-gray-600'>(Token is required)</p>"
+    "message": "Token"
   },
   "options_token_placeholder_lsky": {
     "message": "For example: Bearer 1|1bJbwlqBfnggmOMEZqXT5XusaIwqiZjCDs7r1Ob5"
   },
   "options_album_id": {
-    "message": "Album selection<p class='text-sm text-gray-600'>(Select an album)</p>"
+    "message": "Album selection"
   },
   "options_permission": {
-    "message": "Privacy selection<p class='text-sm text-gray-600'>(Is the uploaded content public? Default is private.)</p>"
+    "message": "Privacy selection"
   },
   "options_permission_0": {
     "message": "Private"
@@ -240,7 +240,7 @@
     "message": "Public"
   },
   "options_source_lsky": {
-    "message": "Storage Source Selection<p class='text-sm text-gray-600'>(Optional storage source)</p>"
+    "message": "Storage Source Selection"
   },
   "options_host_placeholder_EasyImages": {
     "message": "For example: png.cm"
@@ -255,7 +255,7 @@
     "message": "For example: ddd35111f39990b2f104a138181d31bc"
   },
   "options_uid": {
-    "message": "UID<p class='text-sm text-gray-600'>(UID is required for ImgURL program)</p>"
+    "message": "UID"
   },
   "options_uid_placeholder": {
     "message": "For example: 391e3afaf70fgcf4355f95a2g0876b87"
@@ -273,13 +273,13 @@
     "message": "For example: chv_Vxd5_618c6cf4dbbec416be206e4..."
   },
   "options_album_id_Chevereto": {
-    "message": "Album ID<p class='text-sm text-gray-600'>(Album ID, default is empty)</p>"
+    "message": "Album ID"
   },
   "options_album_id_placeholder_Chevereto": {
     "message": "For example: iXnGp"
   },
   "options_nsfw": {
-    "message": "Content Health<p class='text-sm text-gray-600'>(Whether the uploaded content is healthy? default is healthy)</p>"
+    "message": "Content Health"
   },
   "options_nsfw_0": {
     "message": "Healthy"
@@ -288,7 +288,7 @@
     "message": "Inappropriate"
   },
   "options_expiration": {
-    "message": "Deletion Time<p class='text-sm text-gray-600'>(Deletion time, default is not automatically deleted)</p>"
+    "message": "Deletion Time"
   },
   "options_expiration_no": {
     "message": "Not automatically deleted"
@@ -363,7 +363,7 @@
     "message": "1 year"
   },
   "options_proxy_server": {
-    "message": "CORS Proxy<p class='text-sm text-gray-600'>(Project address: <a href='https://github.com/Rob--W/cors-anywhere'>Github</a>), for example: <code class='options_token_tips_code'>https://cors-anywhere.herokuapp.com/</code></p>"
+    "message": "CORS Proxy"
   },
   "options_proxy_server_placeholder": {
     "message": "Enter CORS proxy server address"
@@ -375,7 +375,7 @@
     "message": "For example: 02468631e6c13413bddefc0722e2389b"
   },
   "options_source_Hellohao": {
-    "message": "Storage Source<p class='text-sm text-gray-600'>(requires storage source)</p>"
+    "message": "Storage Source"
   },
   "options_source_placeholder_Hellohao": {
     "message": "For example: 12"
@@ -384,13 +384,13 @@
     "message": "For example: api.imgur.com"
   },
   "options_token_Imgur": {
-    "message": "Token<p class='text-sm text-gray-600'><a style='color: #03a9f4;' href='https://api.imgur.com/oauth2/addclient' target='_blank'>Register Client-ID</a> (imgur requires Token)</p>"
+    "message": "Token"
   },
   "options_token_placeholder_Imgur": {
     "message": "For example: 3596a2113fdg16f"
   },
   "options_apihost": {
-    "message": "URL<p class='text-sm text-gray-600'>(Complete URL)</p>"
+    "message": "URL"
   },
   "options_apihost_placeholder": {
     "message": "For example: https://pnglog.com/api/v1/upload"
@@ -399,70 +399,70 @@
     "message": "Request method"
   },
   "options_parameter": {
-    "message": "Request Parameters</span><p class='text-sm text-gray-600'>(Parameters for uploading images)</p>"
+    "message": "Request Parameters"
   },
   "options_parameter_placeholder": {
     "message": "For example: image or file"
   },
   "options_Headers": {
-    "message": "Headers</span><p class='text-sm text-gray-600'>(Custom request headers, leave empty if not needed)</p>"
+    "message": "Headers"
   },
   "options_Headers_floatingTextarea": {
     "message": "Use JSON format such as: {&quot;Accept&quot;:&quot;application/json&quot;,&quot;Authorization&quot;:&quot;Bearer 1|1bJbwlb5&quot;}"
   },
   "options_Body": {
-    "message": "Body</span><p class='text-sm text-gray-600'>(Custom Body, leave empty if not needed)</p>"
+    "message": "Body"
   },
   "options_Body_floatingTextarea": {
     "message": "Use JSON format such as: {&quot;mail&quot;:&quot;123@qq.com&quot;,&quot;password&quot;:&quot;123456&quot;}"
   },
   "options_return_success": {
-    "message": "Return Path<p class='text-sm text-gray-600'>(Path of the image URL after a successful request)</p>"
+    "message": "Return Path"
   },
   "options_return_success_placeholder": {
     "message": "For example: data.links.url, if not required, enter 'null'."
   },
   "custom_ReturnPrefix": {
-    "message": "Prefix Concatenation</span><p class='text-sm text-gray-600'>(Add a prefix to the returned URL)</p>"
+    "message": "Prefix Concatenation"
   },
   "custom_ReturnAppend": {
-    "message": "Suffix Concatenation</span><p class='text-sm text-gray-600'>(Add a suffix to the returned URL)</p>"
+    "message": "Suffix Concatenation"
   },
   "custom_Base64Upload": {
-    "message": "Base64 Upload<p>(Convert and upload files as Base64)</p>"
+    "message": "Base64 Upload"
   },
   "custom_Base64UploadRemovePrefix": {
-    "message": "Base64 Header Removal<p>(Remove Base64 header information)</p>"
+    "message": "Base64 Header Removal"
   },
   "custom_BodyUpload": {
-    "message": "Body Upload<p>(Encapsulate Body information for upload, otherwise use FormData for encapsulation)</p>"
+    "message": "Body Upload"
   },
   "custom_BodyStringify": {
-    "message": "Body Stringify<p>(Convert Body to a string)</p>"
+    "message": "Body Stringify"
   },
   "open_json_button": {
     "message": "Return JSON<p>(Convert string to JSON)"
   },
   "options_owner": {
-    "message": "Username<p class='text-sm text-gray-600'>(GitHub username)</p>"
+    "message": "Username"
   },
   "options_owner_placeholder": {
     "message": "For example: abcd"
   },
   "options_repository": {
-    "message": "Repository Name<p class='text-sm text-gray-600'>(Repository name)</p>"
+    "message": "Repository Name"
   },
   "options_repository_placeholder": {
     "message": "For example: 3596a2113fdg16f"
   },
   "options_UploadPath": {
-    "message": "Upload Path<p class='text-sm text-gray-600'>(Give the file a warm home, empty value defaults to the root directory.)</p>"
+    "message": "Upload Path"
   },
   "options_UploadPath_placeholder": {
     "message": "For example: images"
   },
   "options_token_GitHub": {
-    "message": "Token<p class='text-sm text-gray-600'>(GitHub requires Token, obtain <a style='color: #03a9f4;' href='https://github.com/settings/tokens' target='_blank'>Token</a>)</p>"
+    "message": "Token"
   },
   "options_token_placeholder_GitHub": {
     "message": "For example: 2389b"
@@ -471,37 +471,37 @@
     "message": "GitHub is a code hosting platform, storing images on GitHub is not in line with its original purpose. It is recommended to delete unnecessary image files promptly."
   },
   "options_SecretId_COS": {
-    "message": "SecretId<p class='text-sm text-gray-600'>(Access ID, obtain <a style='color: #03a9f4;' href='https://console.cloud.tencent.com/cam/capi' target='_blank'>SecretId</a>)</p>"
+    "message": "SecretId"
   },
   "options_SecretId_placeholder_COS": {
     "message": "For example: asdasfsdgfdhytiuyrtwerrfcv1243rsdasd"
   },
   "options_SecretKey_COS": {
-    "message": "SecretKey<p class='text-sm text-gray-600'>(Access key, obtain <a style='color: #03a9f4;' href='https://console.cloud.tencent.com/cam/capi' target='_blank'>SecretKey</a>)</p>"
+    "message": "SecretKey"
   },
   "options_SecretKey_placeholder_COS": {
     "message": "For example: hgcscdsfwer1rdff346v54yvwdfsdx13"
   },
   "options_Bucket_COS": {
-    "message": "Bucket<p class='text-sm text-gray-600'>(Bucket name, view <a style='color: #03a9f4;' href='https://console.cloud.tencent.com/cos/bucket' target='_blank'>Bucket List</a>)</p>"
+    "message": "Bucket"
   },
   "options_Bucket_placeholder_COS": {
     "message": "For example: abcd-112233445566"
   },
   "options_AppId_COS": {
-    "message": "AppId<p class='text-sm text-gray-600'>(Application ID)</p>"
+    "message": "AppId"
   },
   "options_AppId_placeholder_COS": {
     "message": "For example: 112233445566 (the number after the bucket name)"
   },
   "options_Region_COS": {
-    "message": "Region<p class='text-sm text-gray-600'>(Region)</p>"
+    "message": "Region"
   },
   "options_Region_placeholder_COS": {
     "message": "For example: ap-hongkong"
   },
   "options_Custom_domain_name_COS": {
-    "message": "Custom Access Domain Name<p class='text-sm text-gray-600'>(Leave empty if not set in <a style='color: #03a9f4;' href='https://console.cloud.tencent.com/cos' target='_blank'>Tencent Cloud COS</a>)</p>"
+    "message": "Custom Access Domain Name"
   },
   "options_Custom_domain_name_placeholder": {
     "message": "For example: images.google.com"
@@ -522,73 +522,73 @@
     "message": "Public Read/Public Write"
   },
   "options_SecretId_OSS": {
-    "message": "AccessKeyId<p class='text-sm text-gray-600'>(Access ID, obtain <a style='color: #03a9f4;' href='https://ram.console.aliyun.com/manage/ak' target='_blank'>AccessKeyId</a>)</p>"
+    "message": "AccessKeyId"
   },
   "options_SecretId_placeholder_OSS": {
     "message": "For example: asdasfsdgfdhytiuyrtwerrfcv1243rsdasd"
   },
   "options_SecretKey_OSS": {
-    "message": "AccessKeySecret<p class='text-sm text-gray-600'>(Access key, obtain <a style='color: #03a9f4;' href='https://ram.console.aliyun.com/manage/ak' target='_blank'>AccessKeySecret</a>)</p>"
+    "message": "AccessKeySecret"
   },
   "options_SecretKey_placeholder_OSS": {
     "message": "For example: hgcscdsfwer1rdff346v54yvwdfsdx13"
   },
   "options_Bucket_OSS": {
-    "message": "Bucket<p class='text-sm text-gray-600'>(Bucket name, view <a style='color: #03a9f4;' href='https://oss.console.aliyun.com/bucket' target='_blank'>Bucket List</a>)</p>"
+    "message": "Bucket"
   },
   "options_Bucket_placeholder_OSS": {
     "message": "For example: abcde-images"
   },
   "options_Endpoint_OSS": {
-    "message": "Endpoint<p class='text-sm text-gray-600'>(Region node, view <a style='color: #03a9f4;' href='https://help.aliyun.com/document_detail/31837.html' target='_blank'>Access Domain Names and Data Centers</a>)</p>"
+    "message": "Endpoint"
   },
   "options_Endpoint_placeholder_OSS": {
     "message": "For example: oss-cn-beijing.aliyuncs.com"
   },
   "options_Region_OSS": {
-    "message": "Region<p class='text-sm text-gray-600'>(Region)</p>"
+    "message": "Region"
   },
   "options_Region_placeholder_OSS": {
     "message": "For example: oss-cn-beijing"
   },
   "options_Custom_domain_name_OSS": {
-    "message": "Custom Access Domain Name<p class='text-sm text-gray-600'>(If set in <a style='color: #03a9f4;' href='https://oss.console.aliyun.com/overview' target='_blank'>Aliyun OSS</a>, leave it blank)</p>"
+    "message": "Custom Access Domain Name"
   },
   "Object_Storage_cors_OSS": {
     "message": "Set CORS"
   },
   "options_SecretId_S3": {
-    "message": "Access ID<p class='text-sm text-gray-600'>(Access ID)</p>"
+    "message": "Access ID"
   },
   "options_SecretId_placeholder_S3": {
     "message": "For example: asdasfsdgfdhytiuyrtwerrfcv1243rsdasd"
   },
   "options_SecretKey_S3": {
-    "message": "Access Key<p class='text-sm text-gray-600'>(Access key)</p>"
+    "message": "Access Key"
   },
   "options_SecretKey_placeholder_S3": {
     "message": "For example: hgcscdsfwer1rdff346v54yvwdfsdx13"
   },
   "options_Bucket_S3": {
-    "message": "Bucket<p class='text-sm text-gray-600'>(Bucket name)</p>"
+    "message": "Bucket"
   },
   "options_Bucket_placeholder_S3": {
     "message": "Note: If you want to use a custom domain name, set the bucket name as the domain name. For example: images.google.com"
   },
   "options_Region_S3": {
-    "message": "Region<p class='text-sm text-gray-600'>(Region)</p>"
+    "message": "Region"
   },
   "options_Region_placeholder_S3": {
     "message": "For example: ap-east-1 or auto"
   },
   "options_Endpoint_S3": {
-    "message": "Endpoint<p class='text-sm text-gray-600'>(Region node, <span style='color: red;'> S3 interface compatibility (required)</span>, please provide the complete URL, leave it blank for default AWS S3.;)</p>"
+    "message": "Endpoint"
   },
   "options_Endpoint_placeholder_S3": {
     "message": "For example: https://{accountid}.r2.cloudflarestorage.com"
   },
   "options_Custom_domain_name_S3": {
-    "message": "Custom Access Domain Name<p class='text-sm text-gray-600'>(<span style='color: red;'> S3 interface compatibility (required)</span>, leave it blank if not set;)</p>"
+    "message": "Custom Access Domain Name"
   },
   "options_Custom_domain_name_placeholder_S3": {
     "message": "Note: S3 custom domain name should match the bucket name. For example: images.google.com"
@@ -606,7 +606,7 @@
     "message": "Thank you for using PLExtension!"
   },
   "options_Custom_domain_name_Telegra_ph": {
-    "message": "Custom Access Domain Name<p class='text-sm text-gray-600'>(Fill in complete information, leave it blank if not set;)</p>"
+    "message": "Custom Access Domain Name"
   },
   "options_Custom_domain_name_placeholder_Telegra_ph": {
     "message": "For example: https://www.google.com, do not add a trailing slash"
@@ -795,7 +795,7 @@
     "message": "Copy"
   },
   "popup_upload_warning": {
-    "message": "<p>Currently using: <span class='exeinfo_p'></span>. Encountered an error during upload? Open the browser's developer tools (press F12) to view the error message, then check the <a target='_blank' style='color: red;' href='FAQ.html'>【FAQ】</a> for solutions.</p><p>Uploading of pornographic/illegal/violent content that violates the <span style='color: #03a9f4;'>TOS</span> is prohibited. The uploader is responsible for any consequences caused by the uploaded images!</p>"
+    "message": ""
   },
   "user": {
     "message": "User"

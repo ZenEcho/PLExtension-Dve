@@ -27,7 +27,7 @@
             </li>
         </ul>
         <div>
-            <button type="button" class="add-button bg-blue-500/90 dark:bg-gray-600/70">
+            <button @click="addButtonClick()" type="button" class="add-button bg-blue-500/90 dark:bg-gray-600/70">
                 <span class="button__text dark:text-gray-100">添加</span>
                 <span
                     class="button__icon bg-blue-600/60 text-white dark:text-gray-100 active:bg-blue-600 dark:bg-gray-600 dark:active:bg-gray-700"><svg
@@ -75,6 +75,10 @@ getChromeStorage("ProgramConfiguration").then((result) => {
         button.classList.add('bg-green-400/50', 'font-bold')
     }
 })
+
+function addButtonClick() {
+    emit('addButton', { type: "addButton", state: true });
+}
 
 </script>
 <style scoped>

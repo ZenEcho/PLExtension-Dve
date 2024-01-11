@@ -1,48 +1,19 @@
 <template>
     <form @submit.prevent="handleSubmit($event)">
-        <div v-if="formObject" class=" w-full h-full ">
-            <div ref="formContainer"></div>
-            <!-- <div v-for="item in formObject.element" :key="item.label.id">
-                <div v-if="item.input && item.label" class="w-full flex  mb-3"
-                    :class="item.input.type === 'checkbox' ? 'flex-row' : 'flex-col'">
+        <div v-if="props.formGroups" class=" w-full h-full">
+            <n-spin :show="show">
+                <div ref="formContainer"></div>
+            </n-spin>
 
-                    <label v-html="item.label.text" class="flex items-center text-lg bg-white"
-                        :class="{ 'mr-2': item.input.type === 'checkbox' }"></label>
-                    <input v-if="item.input.type === 'checkbox'" :id="item.input.id" :type="item.input.type"
-                        class="border focus-visible:border-blue-400 focus-visible:outline-none" />
-
-                    <input v-else :id="item.input.id" :required="item.input.required" :type="item.input.type"
-                        class="px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none" />
-                </div>
-                <div v-if="item.select && item.label" class="w-full flex flex-col mb-3">
-                    <label v-html="item.label.text" class="flex items-center text-lg bg-white"> </label>
-                    <select :id="item.select.id" class="px-1 h-8 border">
-                        <option v-for="option in item.select.optionTag" :key="option.value" :value="option.value"
-                            :selected="option.Selected">
-                            {{ option.text }}
-                        </option>
-                    </select>
-
-                </div>
-                <div v-if="item.textarea && item.label" class="w-full flex flex-col mb-3">
-                    <label v-html="item.label.text" class="flex items-center text-lg bg-white"> </label>
-                    <textarea rows="3" :id="item.textarea.id" @input="autoExpand"
-                        class="px-1 border focus-visible:border-blue-400 focus-visible:outline-none"></textarea>
-                </div>
-                <div v-if="item.additionalElement">
-                    <div v-for="(item, index) in item.additionalElement" :key="index" v-html="item"></div>
-                </div>
-            </div> -->
         </div>
-
         <div v-else>
-            <n-result status="404" title="404 资源不存在" description="因为你还没有选择程序呢！">
+            <n-result status="404" title="404 资源不存在" description="会不会是没有选择图床呢？">
                 <template #footer>
                     <n-button>不会选择？点我！</n-button>
                 </template>
             </n-result>
         </div>
-        <div class="flex justify-center py-4" v-if="formObject">
+        <div class="flex justify-center py-4" v-if="props.formGroups">
             <button class="text-white bg-green-600 p-2 px-4 w-9/12 active:bg-green-700" type="submit">保存 /
                 启动</button>
         </div>
@@ -51,13 +22,14 @@
 </template>
   
 <script setup>
-import { defineProps, ref, watchEffect, inject, defineEmits, onMounted } from "vue";
+import { defineProps, ref, watchEffect, inject, defineEmits } from "vue";
 import { storeBedConfig, autoExpand, storProgramConfiguration, getChromeStorage } from '@/assets/js/public';;
 const showNotification = inject('showNotification');
 const props = defineProps({
     formGroups: Object
 });
 const formContainer = ref(null);
+const show = ref(false);
 const createFormElement = (element) => {
     // 使用element.type来创建元素，使函数更通用
     const el = document.createElement(element.type);
@@ -98,58 +70,58 @@ const createFormElement = (element) => {
 };
 
 const emits = defineEmits(['submit-success']);
+
 watchEffect(() => {
-    if (props.formGroups) {
-        formObject = props.formGroups
-        if (formContainer.value) { // 确保formContainer不是null
-            const elements = props.formGroups.element;
-            formContainer.value.innerHTML = ''; // 清空现有内容
-            elements.forEach(element => {
+    if (props.formGroups && props.formGroups.element) {
+        show.value=true
+        if (formContainer.value) {
+            formContainer.value.innerHTML = '';
+            props.formGroups.element.forEach(element => {
                 formContainer.value.appendChild(createFormElement(element));
             });
         }
-        // getChromeStorage("ProgramConfiguration").then((result) => {
-        //     if (!result) return;
-        //     console.log(props.formGroups);
-        //     let newData = { ...result };
-        //     delete newData.program;
-        //     let ids = extractIds(props.formGroups.element);
-        //     setFormValues(newData, ids);
-        // });
+        // 延迟100毫秒加载数据
+        setTimeout(() => {
+            getChromeStorage("ProgramConfiguration").then((result) => {
+                show.value=false;
+                if (!result) return;
+                let newData = { ...result };
+                delete newData.program;
+                let ids = extractIds(props.formGroups.element);
+                setFormValues(newData, ids);
+            });
+        }, 100);
 
-        console.log(formObject.element);
     }
 });
 
-let formObject = ref(null);
 
-function extractIds(data) {
+
+function extractIds(elements) {
     const ids = [];
-
-    data.forEach(item => {
-        if (item.input && item.input.id) {
-            ids.push(item.input.id);
+    elements.forEach(element => {
+        if (element.attributes && element.attributes.id) {
+            ids.push(element.attributes.id);
         }
-        if (item.select && item.select.id) {
-            ids.push(item.select.id);
+        if (element.children) {
+            ids.push(...extractIds(element.children));
         }
     });
 
     return ids;
 }
+
 function setFormValues(result, ids) {
+    console.log(result);
     ids.forEach(id => {
         const element = document.getElementById(id);
-        console.log(id);
-        console.log(element);
         if (element) {
             const type = element.type ? element.type.toLowerCase() : null;
             // 对于文本输入框、密码框、选择框和文本域
             if (type === 'text' || type === 'password' || type === 'url') {
                 element.value = result[id] || '';
             }
-            console.log(element.tagName);
-            if (element.tagName.toLowerCase() === 'textarea') {
+            else if (element.tagName.toLowerCase() === 'textarea') {
                 element.value = result[id] || '';
             }
             // 对于复选框
@@ -158,11 +130,14 @@ function setFormValues(result, ids) {
             }
             // 对于单选按钮
             else if (type === 'radio') {
-                element.checked = element.value === result[id];
+                if (result[element.name] !== undefined) {
+                    element.checked = element.value === result[element.name];
+                }
             }
         }
     });
 }
+
 
 // 保存
 function handleSubmit(event) {
@@ -234,7 +209,6 @@ function handleSubmit(event) {
         buttons.forEach(button => {
             button.classList.remove('bg-green-400/50', 'font-bold');
         });
-        console.log(props.formGroups.name);
         document.querySelector(".buttons li[data-value='" + props.formGroups.name + "']").classList.add('bg-green-400/50', 'font-bold')
     }
 

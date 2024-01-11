@@ -116,6 +116,7 @@ class IndexedDBHelper {
       let count = 0;
 
       batch.forEach((item, index) => {
+        console.log(item);
         let request;
         if (item.index === undefined) {
           item.index = this.sortedByIndex++;
@@ -235,31 +236,14 @@ class IndexedDBHelper {
   }
 
 }
-const IndexedDBHelperProxy = new Proxy(IndexedDBHelper, {
-  instance: null, // 用于存储单例实例
-
-  construct(target, args) {
-    if (!this.instance) {
-      // 如果还没有实例，就创建一个
-      this.instance = new target(...args);
-    }
-    // 返回已有的实例
-    return this.instance;
-  }
-});
 
 export function dbHelper(storeName) {
   return new Promise((resolve, reject) => {
-    // 使用代理来获取或创建 IndexedDBHelper 的单例
-    const db = new IndexedDBHelperProxy(storeName);
-    if (db.db) {
+    const db = new IndexedDBHelper(storeName);
+    db.open().then(() => {
       resolve({ db });
-    } else {
-      db.open().then(() => {
-        resolve({ db });
-      }).catch(error => {
-        reject({ "error": error, "message": "数据库好像出了点问题" });
-      });
-    }
+    }).catch(error => {
+      reject({ "error": error, "message": "数据库好像出了点问题" });
+    });
   });
 }

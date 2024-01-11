@@ -138,7 +138,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -151,6 +151,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Host',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_host_placeholder_lsky"),
@@ -163,7 +164,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -176,6 +177,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Token',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_token_placeholder_lsky"),
@@ -188,7 +190,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -201,6 +203,7 @@ export const bedFormData = [
           {
             type: 'select',
             attributes: {
+              class: "px-1 h-8 border",
               id: 'Album_id',
             },
           },
@@ -210,7 +213,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -223,6 +226,7 @@ export const bedFormData = [
           {
             type: 'select',
             attributes: {
+              class: "px-1 h-8 border",
               id: 'Permission',
             },
             selected: '0',
@@ -237,7 +241,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -250,6 +254,7 @@ export const bedFormData = [
           {
             type: 'select',
             attributes: {
+              class: "px-1 h-8 border",
               id: 'Source',
             },
           },
@@ -265,7 +270,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -278,6 +283,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Host',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_host_placeholder_EasyImages"),
@@ -290,7 +296,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -303,6 +309,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Token',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_token_placeholder_EasyImages"),
@@ -321,7 +328,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -334,6 +341,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Host',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_host_placeholder_ImgURL"),
@@ -346,7 +354,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -359,6 +367,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Token',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_token_placeholder_ImgURL"),
@@ -371,7 +380,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -384,6 +393,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Uid',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_uid_placeholder"),
@@ -402,7 +412,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -415,6 +425,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Host',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_host_placeholder_SM_MS"),
@@ -427,7 +438,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -440,6 +451,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Token',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_token_placeholder_SM_MS"),
@@ -458,7 +470,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -471,6 +483,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Host',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_host_placeholder_SM_MS"),
@@ -483,7 +496,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -496,6 +509,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Token',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_token_placeholder_SM_MS"),
@@ -508,7 +522,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -521,6 +535,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Album_id',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_album_id_placeholder_Chevereto"),
@@ -533,7 +548,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -546,6 +561,7 @@ export const bedFormData = [
           {
             type: 'select',
             attributes: {
+              class: "px-1 h-8 border",
               id: 'Nsfw',
             },
             selected: '0',
@@ -559,7 +575,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -572,6 +588,7 @@ export const bedFormData = [
           {
             type: 'select',
             attributes: {
+              class: "px-1 h-8 border",
               id: 'Expiration',
             },
             selected: 'NODEL',
@@ -615,7 +632,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -628,6 +645,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Host',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_host_placeholder_Imgur"),
@@ -640,7 +658,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -653,6 +671,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Token',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_token_placeholder_Imgur"),
@@ -665,19 +684,21 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'w-full flex flex-row items-center',
         },
         children: [
           {
             type: 'label',
             attributes: {
               for: 'imgur_post_mode',
+              class: "mr-2",
             },
             text: "上传视频"
           },
           {
             type: 'input',
             attributes: {
+              class: "w-4 h-4 border",
               id: 'imgur_post_mode',
               type: 'checkbox',
             },
@@ -694,7 +715,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -707,6 +728,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Host',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_host_placeholder_Hellohao"),
@@ -719,7 +741,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -732,6 +754,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Token',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_token_placeholder_Hellohao"),
@@ -744,7 +767,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -757,6 +780,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               type: "text", id: "Source", placeholder: chrome.i18n.getMessage("options_source_placeholder_Hellohao"), required: true,
             }
           },
@@ -773,7 +797,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -786,6 +810,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Url',
               type: 'url',
               placeholder: chrome.i18n.getMessage("options_apihost_placeholder"),
@@ -798,30 +823,75 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-row',
         },
         children: [
           {
             type: 'label',
-            text: "请求方法"
+            text: "请求方法",
+            attributes: {
+              class: 'mr-2',
+            },
           },
           {
             type: 'div',
+            attributes: {
+              class: 'flex flex-row',
+            },
             children: [
               {
-                type: 'input',
+                type: 'div',
                 attributes: {
-                  type: "radio",
-                  id: "requestMethod_POST",
-                  checked: true
-                }
-              },
+                  class: "flex items-center",
+                },
+                children: [
+                  {
+                    type: 'input',
+                    attributes: {
+                      type: "radio",
+                      id: "requestMethod_POST",
+                      name: "requestMethod",
+                      class: "w-4 h-4 mr-1",
+                      value: "POST",
+                      checked: true
+                    }
+                  },
+                  {
+                    type: 'label',
+                    attributes: {
+                      for: "requestMethod_POST",
+                      class: "mr-2 leading-3",
+                    },
+                    text: "POST"
+                  },
+                ]
+              }
+              ,
               {
-                type: 'input',
+                type: 'div',
                 attributes: {
-                  type: "radio",
-                  id: "requestMethod_PUT",
-                }
+                  class: "flex items-center",
+                },
+                children: [
+                  {
+                    type: 'input',
+                    attributes: {
+                      type: "radio",
+                      name: "requestMethod",
+                      id: "requestMethod_PUT",
+                      class: "w-4 h-4 mr-1",
+                      value: "PUT",
+                    }
+                  },
+                  {
+                    type: 'label',
+                    attributes: {
+                      for: "requestMethod_PUT",
+                      class: "mr-2 leading-3",
+                    },
+                    text: "PUT"
+                  },
+                ]
               }
             ]
           }
@@ -831,7 +901,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -844,6 +914,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               type: "text", id: "Parameter", placeholder: chrome.i18n.getMessage("options_parameter_placeholder"), required: true,
             }
           },
@@ -853,7 +924,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -866,6 +937,7 @@ export const bedFormData = [
           {
             type: 'textarea',
             attributes: {
+              class: "px-1 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: "Headers"
             }
           },
@@ -875,7 +947,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -888,6 +960,7 @@ export const bedFormData = [
           {
             type: 'textarea',
             attributes: {
+              class: "px-1 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: "Body"
             }
           },
@@ -897,7 +970,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -910,6 +983,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               type: "text", id: "return_success", placeholder: chrome.i18n.getMessage("options_return_success_placeholder"), required: true,
             }
           },
@@ -918,11 +992,14 @@ export const bedFormData = [
       ,
       {
         type: 'div',
+        attributes: {
+          class: 'mb-3 w-full flex flex-row',
+        },
         children: [
           {
             type: 'div',
             attributes: {
-              class: 'w-full',
+              class: 'w-1/2 mr-1  flex flex-col',
             },
             children: [
               {
@@ -935,6 +1012,7 @@ export const bedFormData = [
               {
                 type: 'input',
                 attributes: {
+                  class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
                   type: "text",
                   id: "custom_ReturnPrefix",
                   placeholder: "如:https://www.google.com/",
@@ -946,7 +1024,7 @@ export const bedFormData = [
           {
             type: 'div',
             attributes: {
-              class: 'w-full',
+              class: 'w-1/2 ml-1 flex flex-col',
             },
             children: [
               {
@@ -959,6 +1037,7 @@ export const bedFormData = [
               {
                 type: 'input',
                 attributes: {
+                  class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
                   type: "text",
                   id: "custom_ReturnAppend",
                   placeholder: "如:.png",
@@ -971,11 +1050,14 @@ export const bedFormData = [
       ,
       {
         type: 'div',
+        attributes: {
+          class: 'mb-3 w-full flex flex-row',
+        },
         children: [
           {
             type: 'div',
             attributes: {
-              class: 'w-full',
+              class: 'w-1/2 mr-1  flex flex-col',
             },
             children: [
               {
@@ -988,6 +1070,7 @@ export const bedFormData = [
               {
                 type: 'input',
                 attributes: {
+                  class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
                   type: "text",
                   id: "Keyword_replacement1",
                   placeholder: "多个关键词使用,分割",
@@ -999,7 +1082,7 @@ export const bedFormData = [
           {
             type: 'div',
             attributes: {
-              class: 'w-full',
+              class: 'w-1/2 mr-1  flex flex-col',
             },
             children: [
               {
@@ -1012,6 +1095,7 @@ export const bedFormData = [
               {
                 type: 'input',
                 attributes: {
+                  class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
                   type: "text",
                   id: "Keyword_replacement2",
                   placeholder: "必须与关键词数量一致",
@@ -1031,7 +1115,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1044,6 +1128,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Owner',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_owner_placeholder"),
@@ -1056,7 +1141,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1069,6 +1154,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Repository',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_repository_placeholder"),
@@ -1081,7 +1167,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1094,6 +1180,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'UploadPath',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_UploadPath_placeholder"),
@@ -1105,7 +1192,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1118,6 +1205,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Token',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_token_placeholder_GitHub"),
@@ -1136,7 +1224,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1149,6 +1237,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'SecretId',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_SecretId_placeholder_COS"),
@@ -1161,7 +1250,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1174,6 +1263,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'SecretKey',
               type: 'password',
               placeholder: chrome.i18n.getMessage("options_SecretKey_placeholder_COS"),
@@ -1186,7 +1276,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1199,6 +1289,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Bucket',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_Bucket_placeholder_COS"),
@@ -1211,7 +1302,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1224,6 +1315,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'AppId',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_AppId_placeholder_COS"),
@@ -1235,7 +1327,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1248,6 +1340,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Region',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_Region_placeholder_COS"),
@@ -1260,7 +1353,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1273,6 +1366,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'UploadPath',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_UploadPath_placeholder"),
@@ -1284,7 +1378,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1297,6 +1391,192 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
+              id: 'Custom_domain_name',
+              type: 'text',
+              placeholder: chrome.i18n.getMessage("options_Custom_domain_name_placeholder"),
+            },
+          },
+        ]
+      }
+    ]
+  }
+  ,
+  {
+    name: "Aliyun_OSS",
+    element: [
+      {
+        type: 'div',
+        attributes: {
+          class: 'mb-3 w-full flex flex-col',
+        },
+        children: [
+          {
+            type: 'label',
+            attributes: {
+              for: 'SecretId',
+            },
+            text: chrome.i18n.getMessage("options_SecretId_OSS")
+          },
+          {
+            type: 'input',
+            attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
+              id: 'SecretId',
+              type: 'text',
+              placeholder: chrome.i18n.getMessage("options_SecretId_placeholder_OSS"),
+              required: true,
+            },
+          },
+        ]
+      }
+      ,
+      {
+        type: 'div',
+        attributes: {
+          class: 'mb-3 w-full flex flex-col',
+        },
+        children: [
+          {
+            type: 'label',
+            attributes: {
+              for: 'SecretKey',
+            },
+            text: chrome.i18n.getMessage("options_SecretKey_OSS")
+          },
+          {
+            type: 'input',
+            attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
+              id: 'SecretKey',
+              type: 'password',
+              placeholder: chrome.i18n.getMessage("options_SecretKey_placeholder_OSS"),
+              required: true,
+            },
+          },
+        ]
+      }
+      ,
+      {
+        type: 'div',
+        attributes: {
+          class: 'mb-3 w-full flex flex-col',
+        },
+        children: [
+          {
+            type: 'label',
+            attributes: {
+              for: 'Bucket',
+            },
+            text: chrome.i18n.getMessage("options_Bucket_OSS")
+          },
+          {
+            type: 'input',
+            attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
+              id: 'Bucket',
+              type: 'text',
+              placeholder: chrome.i18n.getMessage("options_Bucket_placeholder_OSS"),
+              required: true,
+            },
+          },
+        ]
+      }
+      ,
+      {
+        type: 'div',
+        attributes: {
+          class: 'mb-3 w-full flex flex-col',
+        },
+        children: [
+          {
+            type: 'label',
+            attributes: {
+              for: 'Endpoint',
+            },
+            text: chrome.i18n.getMessage("options_Endpoint_OSS")
+          },
+          {
+            type: 'input',
+            attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
+              id: 'Endpoint',
+              type: 'text',
+              placeholder: chrome.i18n.getMessage("options_Endpoint_placeholder_OSS"),
+              required: true,
+            },
+          },
+        ]
+      }
+      ,
+      {
+        type: 'div',
+        attributes: {
+          class: 'mb-3 w-full flex flex-col',
+        },
+        children: [
+          {
+            type: 'label',
+            attributes: {
+              for: 'Region',
+            },
+            text: chrome.i18n.getMessage("options_Region_OSS")
+          },
+          {
+            type: 'input',
+            attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
+              id: 'Region',
+              type: 'text',
+              placeholder: chrome.i18n.getMessage("options_Region_placeholder_OSS"),
+              required: true,
+            },
+          },
+        ]
+      }
+      ,
+      {
+        type: 'div',
+        attributes: {
+          class: 'mb-3 w-full flex flex-col',
+        },
+        children: [
+          {
+            type: 'label',
+            attributes: {
+              for: 'UploadPath',
+            },
+            text: chrome.i18n.getMessage("options_UploadPath")
+          },
+          {
+            type: 'input',
+            attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
+              id: 'UploadPath',
+              type: 'text',
+              placeholder: chrome.i18n.getMessage("options_UploadPath_placeholder"),
+            },
+          },
+        ]
+      }
+      ,
+      {
+        type: 'div',
+        attributes: {
+          class: 'mb-3 w-full flex flex-col',
+        },
+        children: [
+          {
+            type: 'label',
+            attributes: {
+              for: 'Custom_domain_name',
+            },
+            text: chrome.i18n.getMessage("options_Custom_domain_name_COS")
+          },
+          {
+            type: 'input',
+            attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Custom_domain_name',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_Custom_domain_name_placeholder"),
@@ -1313,7 +1593,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1326,6 +1606,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'SecretId',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_SecretId_placeholder_S3"),
@@ -1338,7 +1619,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1351,6 +1632,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'SecretKey',
               type: 'password',
               placeholder: chrome.i18n.getMessage("options_SecretKey_placeholder_S3"),
@@ -1363,7 +1645,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1376,6 +1658,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Bucket',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_Bucket_placeholder_S3"),
@@ -1388,7 +1671,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1401,6 +1684,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Region',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_Region_placeholder_S3"),
@@ -1413,7 +1697,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1426,6 +1710,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Endpoint',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_Endpoint_placeholder_S3"),
@@ -1437,7 +1722,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1450,6 +1735,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'UploadPath',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_UploadPath_placeholder"),
@@ -1461,7 +1747,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1474,6 +1760,7 @@ export const bedFormData = [
           {
             type: 'input',
             attributes: {
+              class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Custom_domain_name',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_Custom_domain_name_placeholder"),
@@ -1490,7 +1777,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1509,7 +1796,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1521,7 +1808,7 @@ export const bedFormData = [
 
     ]
   }
- 
+
   ,
   {
     name: "fiftyEight",
@@ -1529,7 +1816,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1548,7 +1835,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1567,7 +1854,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1586,7 +1873,7 @@ export const bedFormData = [
       {
         type: 'div',
         attributes: {
-          class: 'w-full',
+          class: 'mb-3 w-full flex flex-col',
         },
         children: [
           {
@@ -1598,5 +1885,5 @@ export const bedFormData = [
 
     ]
   }
- 
+
 ];

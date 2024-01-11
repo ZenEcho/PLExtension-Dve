@@ -8,11 +8,15 @@
                 <div v-for="config in BedConfigStore" :key="config.id"
                     class="flex flex-row justify-between items-center p-1 hover:bg-gray-100">
                     <span class="w-[32px] mr-1" v-html="createIconMarkup(config)"></span>
-                    <div class="BedConfigName w-full">
-                        <span :data-old-value="config.ConfigName" title="双击修改">{{ config.ConfigName }}</span>
+                    <div class="BedConfigName w-full" @dblclick="enableEditing(config, $event)">
+                        <span v-if="!config.isEditing" :data-old-value="config.ConfigName" title="双击修改">{{ config.ConfigName
+                        }}</span>
+                        <input v-else class="border focus-visible:border-blue-400 focus-visible:outline-none w-full"
+                            type="text" v-model="config.ConfigName" @blur="disableEditing(config)"
+                            @keyup.enter="disableEditing(config)">
                     </div>
                     <div class="flex flex-row">
-                        <button type="button" class="BedConfigAdd hover:text-blue-300"
+                        <button @click="addButton(config)" type="button" class="BedConfigAdd hover:text-blue-300"
                             :title="'加载:[' + config.ConfigName + ' | ' + config.data.program + ']'">
                             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
                                 xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20">
@@ -110,9 +114,9 @@
     </div>
 </template>
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject, nextTick, toRaw } from 'vue';
 import { dbHelper } from '@/assets/js/db';
-import { createIconMarkup } from '@/assets/js/public';
+import { createIconMarkup, storExeButtons } from '@/assets/js/public';
 const showNotification = inject('showNotification');
 const showMessage = inject('showMessage');
 const importState = ref(false);
@@ -120,7 +124,6 @@ const importshow = () => {
     importState.value = true;
 };
 let BedConfigStore = ref([]);
-
 
 // --------
 function readBedConfig() {
@@ -158,6 +161,46 @@ function readBedConfig() {
 }
 readBedConfig()
 // --------
+const enableEditing = (config, event) => {
+    config.originalConfigName = config.ConfigName; // 保存原始名称
+    config.isEditing = true;
+    nextTick(() => {
+        const inputElement = event.currentTarget.querySelector("input");
+        if (inputElement) {
+            inputElement.focus();
+        }
+    });
+};
+
+const disableEditing = (config) => {
+    config.isEditing = false;
+    if (!config.ConfigName || config.ConfigName == config.originalConfigName) {
+        config.ConfigName = config.originalConfigName;
+        return;
+    }
+    delete config.originalConfigName; // 清除保存的原始值
+    const rawConfig = toRaw(config);
+    dbHelper("BedConfigStore").then(result => {
+        const { db } = result;
+        db.put(rawConfig).then(() => {
+            showMessage({ message: "已修改为:" + config.ConfigName, type: "success" });
+        });
+    });
+};
+function addButton(config) {
+    storExeButtons(config).then(result => {
+        showNotification("success", {
+            title: "成功",
+            content: chrome.i18n.getMessage("Load") + chrome.i18n.getMessage("successful") + ",即将重新加载页面！",
+            duration: 3000,
+
+        })
+        // 延迟3执行
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+    })
+}
 function shareButton(config) {
 
     const newData = { ...config } //复制对象
@@ -165,10 +208,10 @@ function shareButton(config) {
     delete newData.index
     navigator.clipboard.writeText(JSON.stringify(newData))
         .then(() => {
-            showMessage({ message: config.ConfigName + ":数据已复制到剪切板！", type: "success", placement: 'top-right' })
+            showMessage({ message: config.ConfigName + ":数据已复制到剪切板！", type: "success" })
         })
         .catch(error => {
-            showMessage({ message: "复制失败！", type: "error", placement: 'top-right' })
+            showMessage({ message: "复制失败！", type: "error" })
             console.log(error);
         });
 }
@@ -180,9 +223,9 @@ function deleteButton(config) {
             const { db } = result;
             db.delete(config.id).then(() => {
                 BedConfigStore.value.splice(index, 1);
-                showMessage({ message: chrome.i18n.getMessage("Delete_successful"), type: "success", placement: 'top-right' })
+                showMessage({ message: chrome.i18n.getMessage("Delete_successful"), type: "success" })
             }).catch(error => {
-                showMessage({ message: config.ConfigName + ":好像删除失败了,使用开发者工具(F12)查看错误原因！", type: "success", placement: 'top-right' })
+                showMessage({ message: config.ConfigName + ":好像删除失败了,使用开发者工具(F12)查看错误原因！", type: "success" })
                 console.log(error);
             });
         })
@@ -191,14 +234,14 @@ function deleteButton(config) {
 }
 //全部分享按钮
 function allShareButton() {
-    if (BedConfigStore.length > 0) {
+    if (BedConfigStore.value.length > 0) {
         const modifiedBedConfig = BedConfigStore.value.map(({ id, index, ...rest }) => rest);
         navigator.clipboard.writeText(JSON.stringify(modifiedBedConfig))
             .then(() => {
-                showMessage({ message: "全部数据已复制到剪切板！", type: "success", placement: 'top-right' })
+                showMessage({ message: "全部数据已复制到剪切板！", type: "success" })
             })
             .catch(error => {
-                showMessage({ message: "复制失败！", type: "error", placement: 'top-right' })
+                showMessage({ message: "复制失败！", type: "error" })
                 console.log(error);
             });
     }
