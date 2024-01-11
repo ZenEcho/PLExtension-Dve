@@ -7,9 +7,9 @@
 
         </div>
         <div v-else>
-            <n-result status="404" title="404 资源不存在" description="会不会是没有选择图床呢？">
+            <n-result status="418" title="我是个杯具" description="一切尽在不言中">
                 <template #footer>
-                    <n-button>不会选择？点我！</n-button>
+                    <n-button @click="onShowModal({ type: 'addButton', state: true })">没有安装图床？点我安装！</n-button>
                 </template>
             </n-result>
         </div>
@@ -25,6 +25,7 @@
 import { defineProps, ref, watchEffect, inject, defineEmits } from "vue";
 import { storeBedConfig, autoExpand, storProgramConfiguration, getChromeStorage } from '@/assets/js/public';;
 const showNotification = inject('showNotification');
+const onShowModal = inject('onShowModal');
 const props = defineProps({
     formGroups: Object
 });
@@ -73,7 +74,7 @@ const emits = defineEmits(['submit-success']);
 
 watchEffect(() => {
     if (props.formGroups && props.formGroups.element) {
-        show.value=true
+        show.value = true
         if (formContainer.value) {
             formContainer.value.innerHTML = '';
             props.formGroups.element.forEach(element => {
@@ -83,7 +84,7 @@ watchEffect(() => {
         // 延迟100毫秒加载数据
         setTimeout(() => {
             getChromeStorage("ProgramConfiguration").then((result) => {
-                show.value=false;
+                show.value = false;
                 if (!result) return;
                 let newData = { ...result };
                 delete newData.program;
@@ -94,8 +95,6 @@ watchEffect(() => {
 
     }
 });
-
-
 
 function extractIds(elements) {
     const ids = [];
@@ -112,7 +111,7 @@ function extractIds(elements) {
 }
 
 function setFormValues(result, ids) {
-    console.log(result);
+   
     ids.forEach(id => {
         const element = document.getElementById(id);
         if (element) {

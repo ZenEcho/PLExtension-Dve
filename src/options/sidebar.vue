@@ -15,17 +15,26 @@
                 </svg></span>
             <span class="ml-2 font-bold text-gray-800 dark:text-gray-200">程序</span>
         </div>
-        <ul class="p-2 buttons">
-            <li v-for="button in buttonsData" :key="button.id" class="py-1 hover:bg-gray-400/20 hover:font-bold"
-                :data-value="button.value" @click="bedButtonClick($event, button)">
-                <button class="flex flex-row justify-between items-center w-full p-2 ">
-                    <span class="flex flex-row items-center text-base">
-                        <span class="mr-2 w-6 h-6" v-html="createButtonIconMarkup(button.icon)"></span>
-                        <span class=" text-gray-800 dark:text-gray-200">{{ button.text }}</span>
-                    </span>
-                </button>
-            </li>
-        </ul>
+        <n-spin :show="show">
+            <ul class="p-2 buttons">
+                <li v-for="button in readbedFormData" :key="button.id" class="py-1 hover:bg-gray-400/20 hover:font-bold"
+                    :data-value="button.value" @click="bedButtonClick($event, button)">
+                    <button class="flex flex-row justify-between items-center w-full p-2 ">
+                        <span class="flex flex-row items-center text-base">
+                            <span class="mr-2 w-6 h-6" v-html="createButtonIconMarkup(button.icon)"></span>
+                            <span class=" text-gray-800 dark:text-gray-200">{{ button.text }}</span>
+                        </span>
+                    </button>
+                </li>
+                <li v-if="readbedFormData.length < 1">
+                    <n-result status="500" title="这是什么?" description="其实是找不到配置啦">
+                        <template #footer>
+                            <n-button @click="onShowModal({ type: 'addButton', state: true })">找一找?</n-button>
+                        </template>
+                    </n-result>
+                </li>
+            </ul>
+        </n-spin>
         <div>
             <button @click="addButtonClick()" type="button" class="add-button bg-blue-500/90 dark:bg-gray-600/70">
                 <span class="button__text dark:text-gray-100">添加</span>
@@ -43,13 +52,49 @@
 </template>
   
 <script setup>
-// 使用相对路径或者别名路径导入 buttonsData
-import { buttonsData } from '@/assets/js/arrayObjectData';
-import { createButtonIconMarkup, getChromeStorage } from '@/assets/js/public';
+import { dbHelper } from '@/assets/js/db';
+import { ref, inject, onMounted } from 'vue';
 import { bedFormData } from '@/assets/js/arrayObjectData';
+import { createButtonIconMarkup, getChromeStorage } from '@/assets/js/public';
 import { defineEmits } from 'vue';
-const emit = defineEmits(['foundData']);
+const emit = defineEmits(['foundData', 'addButton']);
+const onShowModal = inject('onShowModal');
+const readbedFormData = ref([]);
+const show = ref(false);
+function readbedButton() {
+    show.value = true
+    // 延迟1秒
+    setTimeout(() => {
+        dbHelper("exeButtons").then(result => {
+            const { db } = result;
+            db.getSortedByIndex().then(result => {
+                if (result.length < 1) {
+                    onShowModal({ type: "addButton", state: true })
+                }
+                readbedFormData.value = result;
+                getChromeStorage("ProgramConfiguration").then((result) => {
+                    if (!result) return;
+                    let foundObject = bedFormData.find(item => item.name === result.program);
+                    if (foundObject) {
+                        emit('foundData', foundObject);
+                        let button = document.querySelector("li[data-value='" + result.program + "']")
+                        if (button) {
+                            button.classList.add('bg-green-400/50', 'font-bold')
+                        }
+                    }
+                })
 
+            })
+        }).catch(error => {
+            console.error("Error opening database:", error);
+        });
+        show.value = false;
+    }, 200);
+
+}
+onMounted(() => {
+    readbedButton();
+});
 function bedButtonClick(element, bedData) {
     let buttons = element.currentTarget.parentNode.querySelectorAll("li")
     if (buttons) {
@@ -65,21 +110,11 @@ function bedButtonClick(element, bedData) {
         emit('foundData', false);
     }
 }
-getChromeStorage("ProgramConfiguration").then((result) => {
-    if (!result) return;
-    let foundObject = bedFormData.find(item => item.name === result.program);
-
-    if (foundObject) {
-        emit('foundData', foundObject);
-        let button = document.querySelector("li[data-value='" + result.program + "']")
-        button.classList.add('bg-green-400/50', 'font-bold')
-    }
-})
 
 function addButtonClick() {
     emit('addButton', { type: "addButton", state: true });
 }
-
+defineExpose({ readbedButton });
 </script>
 <style scoped>
 .buttons {

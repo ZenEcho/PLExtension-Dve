@@ -116,7 +116,6 @@ class IndexedDBHelper {
       let count = 0;
 
       batch.forEach((item, index) => {
-        console.log(item);
         let request;
         if (item.index === undefined) {
           item.index = this.sortedByIndex++;

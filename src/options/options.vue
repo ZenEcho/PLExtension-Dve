@@ -5,7 +5,7 @@
     </header>
     <div class="flex flex-row">
       <Sidebar class="sticky h-full max-sm:hidden top-[65px] sidebar " @foundData="handleFoundData"
-        @addButton="onAddButton"></Sidebar>
+        @addButton="onShowModal" ref="sidebarRef"></Sidebar>
       <div
         class="fixed flex w-7 top-1/2 hover:text-gray-700/50 max-sm:left-0 text-gray-500 dark:text-gray-700 max-sm:hidden"
         @click="toggleSidebar($event)" :class="hiddenSidebar ? 'left-0' : 'left-44'">
@@ -38,21 +38,19 @@
         </div>
       </div>
     </div>
-
     <n-notification-provider>
       <Notification ref="notificationRef" />
     </n-notification-provider>
     <n-message-provider>
       <Messagetag ref="messageRef" />
     </n-message-provider>
-    <n-modal v-model:show="showModal">
-      <ButtomModal class="w-5/6 min-w-[500px] min-h-96" :bordered="false" size="huge" role="dialog"
-        aria-modal="true" @close="showModal = false" closable> </ButtomModal>
+    <n-modal v-model:show="showModal" @addButton="onShowModal">
+      <ButtomModal class="w-5/6 min-w-[500px] min-h-96" :bordered="false" size="huge" role="dialog" aria-modal="true"
+        @close="showModal = false" closable> </ButtomModal>
     </n-modal>
   </main>
 </template>
 <script setup>
-
 import Navbar from '@/components/header.vue'
 import BedForm from '@/components/bedForm.vue'
 import ConfigRecord from '@/components/configRecord.vue'
@@ -60,7 +58,7 @@ import Sidebar from './sidebar.vue'
 import Notification from '@/components/notification.vue';
 import Messagetag from '@/components/message.vue';
 import ButtomModal from '@/components/buttomModal.vue';
-import { bedFormData } from '@/assets/js/arrayObjectData';
+// import { bedFormData } from '@/assets/js/arrayObjectData';
 import { dbHelper } from '@/assets/js/db';
 import { ref, provide } from 'vue';
 const hiddenSidebar = ref('');
@@ -68,6 +66,9 @@ const formGroups = ref('');
 const notificationRef = ref(null);
 const messageRef = ref(null);
 const showModal = ref(false);
+const configRecordRef = ref(null);
+const sidebarRef = ref(null);
+
 
 function handleFoundData(data) {
   if (data) {
@@ -77,11 +78,18 @@ function handleFoundData(data) {
   }
 
 }
-function onAddButton(data) {
-  showModal.value = true;
-  showModal.PLdata = data
+function onShowModal(data) {
+  if (data.type == "addButton") {
+    showModal.value = data.state;
+    if (data.state == false) {
+      setTimeout(() => {
+        sidebarRef.value.readbedButton()
+      }, 100);
+    }
+  }
+
 }
-const configRecordRef = ref(null);
+
 const handleBedFormSubmit = () => {
   if (configRecordRef.value) {
     configRecordRef.value.readBedConfig();
@@ -106,6 +114,7 @@ function showMessage(message) {
 }
 provide('showNotification', showNotification);
 provide('showMessage', showMessage);
+provide('onShowModal', onShowModal);
 </script>
 <style scoped>
 .height {
