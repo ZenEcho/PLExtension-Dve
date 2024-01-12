@@ -60,7 +60,6 @@ export function createIconMarkup(data) {
   </svg>`;
     }
 }
-
 //-------
 function sortObjectProperties(obj) {
     // 数据排序
@@ -218,7 +217,7 @@ export function getChromeStorage(key) {
         });
     });
 }
-
+// 存储安装图床的
 export async function storExeButtons(data) {
     return new Promise((resolve, reject) => {
         let filteredData = buttonsData.filter(Data => {
@@ -262,6 +261,50 @@ export async function storExeButtons(data) {
     });
 }
 
+// 存储上传记录的
+export function LocalStorage(data) {
+
+    let pluginPopup = chrome.runtime.getURL("popup.html");
+    let currentURL = window.location.href;
+
+    return new Promise((resolveC, rejectC) => {
+        let filename = data.file.name || data.file.file.name;
+        let imageUrl = data.url
+        let MethodName = data.MethodName || "normal";
+        let uploadDomainName = data.uploadDomainName || data.Host;
+        if (pluginPopup != currentURL) {
+            chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
+        }
+        chrome.storage.local.get('UploadLog', function (result) {
+            UploadLog = result.UploadLog || [];
+            if (!Array.isArray(UploadLog)) {
+                UploadLog = [];
+            }
+            let d = new Date();
+            let UploadLogData = {
+                key: crypto.randomUUID(),
+                url: imageUrl,
+                uploadExe: data.Host + "-" + MethodName,
+                upload_domain_name: uploadDomainName,
+                original_file_name: filename,
+                file_size: data.file.file.size,
+                img_file_size: "宽:不支持,高:不支持",
+                uploadTime: d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日" + d.getHours() + "时" + d.getMinutes() + "分" + d.getSeconds() + "秒"
+            }
+            if (typeof UploadLog !== 'object') {
+                UploadLog = JSON.parse(UploadLog);
+            }
+            UploadLog.push(UploadLogData);
+            chrome.storage.local.set({ 'UploadLog': UploadLog }, function () {
+                if (window.location.href.startsWith('http')) {
+                    chrome.runtime.sendMessage({ Loudspeaker: chrome.i18n.getMessage("Upload_prompt2") });
+                    AutoInsertFun(imageUrl, false)
+                }
+                resolveC(true);
+            })
+        });
+    });
+}
 // 文本域自动高度
 export function autoExpand(event) {
     const textarea = event.target;

@@ -29,10 +29,11 @@
         </div>
         <div class="w-full px-3 flex flex-row max-lg:flex-col">
 
-          <BedForm class="min-w-[500px]  w-full h-full shadow-xl  border rounded-lg bg-gray-50 p-2"
+          <BedForm class="min-w-[400px]  w-full h-full shadow-xl  border rounded-lg bg-gray-50 p-2 dark:bg-gray-100"
             :form-groups="formGroups" @submit-success="handleBedFormSubmit" />
 
-          <ConfigRecord class="max-lg:my-3 min-w-96 h-full lg:ml-2 p-2 border rounded-lg bg-gray-50 shadow-xl"
+          <ConfigRecord
+            class="max-lg:my-3 min-w-96 h-full lg:ml-2 p-2 border rounded-lg bg-gray-50 shadow-xl dark:bg-gray-100"
             ref="configRecordRef">
           </ConfigRecord>
         </div>
@@ -44,8 +45,8 @@
     <n-message-provider>
       <Messagetag ref="messageRef" />
     </n-message-provider>
-    <n-modal v-model:show="showModal" @addButton="onShowModal">
-      <ButtomModal class="w-5/6 min-w-[500px] min-h-96" :bordered="false" size="huge" role="dialog" aria-modal="true"
+    <n-modal v-model:show="showModal" @addButton="onShowModal" class="dark:bg-gray-100">
+      <ButtomModal class="w-5/6 min-w-[500px] min-h-96 " :bordered="false" size="huge" role="dialog" aria-modal="true"
         @close="showModal = false" closable> </ButtomModal>
     </n-modal>
   </main>
@@ -82,9 +83,7 @@ function onShowModal(data) {
   if (data.type == "addButton") {
     showModal.value = data.state;
     if (data.state == false) {
-      setTimeout(() => {
-        sidebarRef.value.readbedButton()
-      }, 100);
+      sidebarRef.value.readbedButton()
     }
   }
 

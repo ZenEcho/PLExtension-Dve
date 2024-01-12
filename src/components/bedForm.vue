@@ -111,7 +111,7 @@ function extractIds(elements) {
 }
 
 function setFormValues(result, ids) {
-   
+    console.log(result);
     ids.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -167,7 +167,7 @@ function handleSubmit(event) {
             let string = document.getElementById("Token").value
             let pattern = /^Bearer\s/;
             if (pattern.test(string)) {
-                formData['Token'] = string.value
+                formData['Token'] = string
             } else {
                 formData['Token'] = `Bearer ` + string
             }

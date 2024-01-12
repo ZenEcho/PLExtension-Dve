@@ -60,14 +60,18 @@ function startHandle() {
     if (indexedData.length > 0) {
         dbHelper("exeButtons").then(result => {
             const { db } = result;
-            db.clear().then(result => {
-                db.put(indexedData)
+            db.clear().then(() => {
+                db.put(indexedData).then(() => {
+                    emit('addButton', { type: "addButton", state: false });
+                });
             })
         }).catch(error => {
             console.error("Error opening database:", error);
         });
+    } else {
+        emit('addButton', { type: "addButton", state: false });
     }
-    emit('addButton', { type: "addButton", state: false });
+
 }
 dbHelper("exeButtons").then(result => {
     // 处理获取到的配置数据

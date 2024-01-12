@@ -61,37 +61,37 @@ const emit = defineEmits(['foundData', 'addButton']);
 const onShowModal = inject('onShowModal');
 const readbedFormData = ref([]);
 const show = ref(false);
-function readbedButton() {
-    show.value = true
-    // 延迟1秒
-    setTimeout(() => {
-        dbHelper("exeButtons").then(result => {
-            const { db } = result;
-            db.getSortedByIndex().then(result => {
-                if (result.length < 1) {
-                    onShowModal({ type: "addButton", state: true })
-                }
-                readbedFormData.value = result;
-                getChromeStorage("ProgramConfiguration").then((result) => {
-                    if (!result) return;
-                    let foundObject = bedFormData.find(item => item.name === result.program);
-                    if (foundObject) {
-                        emit('foundData', foundObject);
-                        let button = document.querySelector("li[data-value='" + result.program + "']")
-                        if (button) {
-                            button.classList.add('bg-green-400/50', 'font-bold')
-                        }
-                    }
-                })
+async function readbedButton() {
+    show.value = true;
+    try {
+        const dbResult = await dbHelper("exeButtons");
+        const { db } = dbResult;
+        const sortedResult = await db.getSortedByIndex();
 
-            })
-        }).catch(error => {
-            console.error("Error opening database:", error);
-        });
+        if (sortedResult.length < 1) {
+            onShowModal({ type: "addButton", state: true });
+        }
+
+        readbedFormData.value = sortedResult;
+
+        const storageResult = await getChromeStorage("ProgramConfiguration");
+        if (!storageResult) return;
+
+        let foundObject = bedFormData.find(item => item.name === storageResult.program);
+        if (foundObject) {
+            emit('foundData', foundObject);
+            let button = document.querySelector("li[data-value='" + storageResult.program + "']");
+            if (button) {
+                button.classList.add('bg-green-400/50', 'font-bold');
+            }
+        }
+    } catch (error) {
+        console.error("Error processing data:", error);
+    } finally {
         show.value = false;
-    }, 200);
-
+    }
 }
+
 onMounted(() => {
     readbedButton();
 });
