@@ -1,6 +1,6 @@
 <template>
   <main class="dark:bg-gray-200 min-w-[640px] min-h-svh">
-    <header class="shadow bg-blue-600 dark:bg-gray-700 sticky top-0" style="height: 65px;">
+    <header class="shadow bg-blue-600 dark:bg-gray-700 sticky top-0 z-10" style="height: 65px;">
       <Navbar />
     </header>
     <div class="flex flex-row">

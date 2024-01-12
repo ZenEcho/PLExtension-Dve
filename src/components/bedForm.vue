@@ -4,7 +4,97 @@
             <n-spin :show="show">
                 <div ref="formContainer"></div>
             </n-spin>
-
+            <n-collapse v-if="props.formGroups.name === 'Custom'" @item-header-click="handleCollapseClick">
+                <n-collapse-item title="上传前设置" name="1">
+                    <div class="flex flex-row items-center my-1">
+                        <label class="switch flex">
+                            <input type="checkbox" id="custom_Base64Upload">
+                            <span class="slider"></span>
+                        </label>
+                        <div class="flex flex-row ml-1 items-center">
+                            <p>Base64上传</p><span class="ml-1 text-xs text-gray-600">(将文件转为Base64上传)</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-row items-center my-1">
+                        <label class="switch flex">
+                            <input type="checkbox" id="custom_Base64UploadRemovePrefix">
+                            <span class="slider"></span>
+                        </label>
+                        <div class="flex flex-row ml-1 items-center">
+                            <p>Base64抬头</p><span class="ml-1 text-xs text-gray-600">(移除Base64的抬头信息)</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-row items-center my-1">
+                        <label class="switch flex">
+                            <input type="checkbox" id="custom_BodyUpload">
+                            <span class="slider"></span>
+                        </label>
+                        <div class="flex flex-row ml-1 items-center">
+                            <p>Body上传</p><span class="ml-1 text-xs text-gray-600">(封装Body信息上传,否则FormData封装上传)</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-row items-center my-1">
+                        <label class="switch flex">
+                            <input type="checkbox" id="custom_BodyStringify">
+                            <span class="slider"></span>
+                        </label>
+                        <div class="flex flex-row ml-1 items-center">
+                            <p>Body字符串</p><span class="ml-1 text-xs text-gray-600">(将Body转为字符串)</span>
+                        </div>
+                    </div>
+                </n-collapse-item>
+                <n-collapse-item title="上传成功后" name="2">
+                    <div class="flex flex-row items-center my-1">
+                        <label class="switch flex">
+                            <input type="checkbox" id="custom_ReturnJson">
+                            <span class="slider"></span>
+                        </label>
+                        <div class="flex flex-row ml-1 items-center">
+                            <p>返回JSON结果</p><span class="ml-1 text-xs text-gray-600">(将上传完毕的信息,化为JSON)</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-row items-center my-1">
+                        <label class="switch flex">
+                            <input type="checkbox" id="custom_KeywordReplacement">
+                            <span class="slider"></span>
+                        </label>
+                        <div class="flex flex-row ml-1 items-center">
+                            <p>关键词替换</p><span class="ml-1 text-xs text-gray-600">(替换返回信息里的某一段内容)</span>
+                        </div>
+                    </div>
+                </n-collapse-item>
+                <n-collapse-item title="变量函数" name="3">
+                    <n-descriptions bordered>
+                        <n-descriptions-item label="$date$">
+                            表示日期:2023年10月13日
+                        </n-descriptions-item>
+                        <n-descriptions-item label="$date-yyyy$">
+                            表示年:2023
+                        </n-descriptions-item>
+                        <n-descriptions-item label="$date-mm$">
+                            表示月:10
+                        </n-descriptions-item>
+                        <n-descriptions-item label="$date-dd$">
+                            表示日:13
+                        </n-descriptions-item>
+                        <n-descriptions-item label="$date-time$">
+                            毫秒时间戳:1697183031000
+                        </n-descriptions-item>
+                        <n-descriptions-item label="$file$">
+                            表示上传的文件,开启了Base64后表示Base64
+                        </n-descriptions-item>
+                        <n-descriptions-item label="$fileName$">
+                            表示文件名:1.png
+                        </n-descriptions-item>
+                        <n-descriptions-item label="$fileSize$">
+                            表示文件的大小
+                        </n-descriptions-item>
+                        <n-descriptions-item label="$fileType$">
+                            表示文件的类型
+                        </n-descriptions-item>
+                    </n-descriptions>
+                </n-collapse-item>
+            </n-collapse>
         </div>
         <div v-else>
             <n-result status="418" title="我是个杯具" description="一切尽在不言中">
@@ -111,7 +201,6 @@ function extractIds(elements) {
 }
 
 function setFormValues(result, ids) {
-    console.log(result);
     ids.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -136,7 +225,31 @@ function setFormValues(result, ids) {
         }
     });
 }
+function handleCollapseClick({ expanded }) {
+    if (expanded) {
+        let ids = [
+            "custom_Base64Upload",
+            "custom_Base64UploadRemovePrefix",
+            "custom_BodyUpload",
+            "custom_BodyStringify",
+            "custom_ReturnJson",
+            "custom_KeywordReplacement",
+        ]
+        getChromeStorage("ProgramConfiguration").then((result) => {
+            ids.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    const type = element.type ? element.type.toLowerCase() : null;
+                    if (type === 'checkbox') {
+                        element.checked = result[id] || false;
+                    }
+                }
+            });
+        });
+    }
 
+
+}
 
 // 保存
 function handleSubmit(event) {
@@ -225,5 +338,61 @@ function handleSubmit(event) {
 
 .text-gray-600 {
     color: rgb(75 85 99);
+}
+
+.switch {
+    --button-width: 32px;
+    --button-height: 18px;
+    --toggle-diameter: 14px;
+    --button-toggle-offset: calc((var(--button-height) - var(--toggle-diameter)) / 2);
+    --toggle-shadow-offset: 10px;
+    --toggle-wider: 3em;
+    --color-grey: #cccccc;
+    --color-green: #4296f4;
+}
+
+.slider {
+    display: inline-block;
+    width: var(--button-width);
+    height: var(--button-height);
+    background-color: var(--color-grey);
+    border-radius: calc(var(--button-height) / 2);
+    position: relative;
+    transition: 0.3s all ease-in-out;
+}
+
+.slider::after {
+    content: "";
+    display: inline-block;
+    width: var(--toggle-diameter);
+    height: var(--toggle-diameter);
+    background-color: #fff;
+    border-radius: calc(var(--toggle-diameter) / 2);
+    position: absolute;
+    top: var(--button-toggle-offset);
+    transform: translateX(var(--button-toggle-offset));
+    box-shadow: var(--toggle-shadow-offset) 0 calc(var(--toggle-shadow-offset) * 4) rgba(0, 0, 0, 0.1);
+    transition: 0.3s all ease-in-out;
+}
+
+.switch input[type="checkbox"]:checked+.slider {
+    background-color: var(--color-green);
+}
+
+.switch input[type="checkbox"]:checked+.slider::after {
+    transform: translateX(calc(var(--button-width) - var(--toggle-diameter) - var(--button-toggle-offset)));
+    box-shadow: calc(var(--toggle-shadow-offset) * -1) 0 calc(var(--toggle-shadow-offset) * 4) rgba(0, 0, 0, 0.1);
+}
+
+.switch input[type="checkbox"] {
+    display: none;
+}
+
+.switch input[type="checkbox"]:active+.slider::after {
+    width: var(--toggle-wider);
+}
+
+.switch input[type="checkbox"]:checked:active+.slider::after {
+    transform: translateX(calc(var(--button-width) - var(--toggle-wider) - var(--button-toggle-offset)));
 }
 </style>

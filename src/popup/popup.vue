@@ -115,7 +115,7 @@ import Navbar from '@/components/header.vue';
 import Dropzone from '@/components/dropzone.vue';
 import Messagetag from '@/components/message.vue';
 import { getUrlText, copyUrlText } from './handle.js';
-import { ref } from 'vue';
+import { ref, provide } from 'vue';
 const messageRef = ref(null);
 function handleCopy(event) {
   copyUrlText(event, showMessage);
@@ -140,5 +140,5 @@ function selectType(value) {
     selectedType.value = value;
   }
 }
-
+provide('showMessage', showMessage);
 </script>

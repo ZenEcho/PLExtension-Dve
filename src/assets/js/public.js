@@ -1,5 +1,6 @@
 import { dbHelper } from '@/assets/js/db';
 import { buttonsData } from '@/assets/js/arrayObjectData';
+
 export function createButtonIconMarkup(icon, w = 32, h = 32) {
     if (icon && icon.trim().startsWith('<svg')) {
         return icon;
@@ -276,7 +277,7 @@ export function LocalStorage(data) {
             chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
         }
         chrome.storage.local.get('UploadLog', function (result) {
-            UploadLog = result.UploadLog || [];
+            let UploadLog = result.UploadLog || [];
             if (!Array.isArray(UploadLog)) {
                 UploadLog = [];
             }
