@@ -272,7 +272,7 @@ export function LocalStorage(data) {
         let filename = data.file.name || data.file.file.name;
         let imageUrl = data.url
         let MethodName = data.MethodName || "normal";
-        let uploadDomainName = data.uploadDomainName || data.Host;
+        let uploadDomainName = data.uploadDomainName || data.program;
         if (pluginPopup != currentURL) {
             chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
         }
@@ -285,7 +285,7 @@ export function LocalStorage(data) {
             let UploadLogData = {
                 key: crypto.randomUUID(),
                 url: imageUrl,
-                uploadExe: data.Host + "-" + MethodName,
+                uploadExe: data.program + "-" + MethodName,
                 upload_domain_name: uploadDomainName,
                 original_file_name: filename,
                 file_size: data.file.file.size,

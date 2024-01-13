@@ -49,6 +49,9 @@ onMounted(() => {
     ProgramConfigurations = res
     DropzoneSuccess()
     DropzoneError()
+  }).catch(error => {
+    console.log(error)
+    showMessage({ message: error.message, type: "error" });
   })
 })
 function DropzoneSuccess() {
@@ -224,6 +227,7 @@ function DropzoneSuccess() {
         "name": null,
         "file": file,
       },
+      "program": ProgramConfigurations.program,
       "url": imageUrlCopy,
       "MethodName": "normal",
       "uploadDomainName": ProgramConfigurations.Host

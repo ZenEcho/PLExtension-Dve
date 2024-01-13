@@ -119,6 +119,7 @@ const onShowModal = inject('onShowModal');
 const props = defineProps({
     formGroups: Object
 });
+let formData;
 const formContainer = ref(null);
 const show = ref(false);
 const createFormElement = (element) => {
@@ -170,20 +171,22 @@ watchEffect(() => {
             props.formGroups.element.forEach(element => {
                 formContainer.value.appendChild(createFormElement(element));
             });
+
+            // 延迟100毫秒加载数据
+            setTimeout(() => {
+                getChromeStorage("ProgramConfiguration").then((result) => {
+                    show.value = false;
+                    if (!result) return;
+                    let newData = { ...result };
+                    delete newData.program;
+                    let ids = extractIds(props.formGroups.element);
+                    setFormValues(newData, ids);
+                });
+            }, 100);
         }
-        // 延迟100毫秒加载数据
-        setTimeout(() => {
-            getChromeStorage("ProgramConfiguration").then((result) => {
-                show.value = false;
-                if (!result) return;
-                let newData = { ...result };
-                delete newData.program;
-                let ids = extractIds(props.formGroups.element);
-                setFormValues(newData, ids);
-            });
-        }, 100);
 
     }
+
 });
 
 function extractIds(elements) {
@@ -224,6 +227,120 @@ function setFormValues(result, ids) {
             }
         }
     });
+    if (props.formGroups.name == "SM_MS") {
+        document.getElementById("Host").value="sm.ms"
+    }
+    if (props.formGroups.name == "Lsky") {
+        if (result.Host) {//不为空时
+            //相册
+            fetch("https://" + result.Host + "/api/v1/albums", {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': result.Token
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Network response was not ok.');
+                    }
+                })
+                .then(res => {
+                    let albums = res.data.data;
+                    let albumSelect = document.getElementById("Album_id");
+                    albumSelect.innerHTML = ''; // 清空现有选项
+                    let defaultOption = document.createElement("option");
+                    defaultOption.selected = true;
+                    defaultOption.value = "";
+                    defaultOption.textContent = chrome.i18n.getMessage("default");
+                    albumSelect.appendChild(defaultOption);
+
+                    albums.forEach(function (e, index) {
+                        let option = document.createElement("option");
+                        option.value = e.id;
+                        option.textContent = e.name;
+                        albumSelect.appendChild(option);
+                    });
+
+                    if (result.Album_id) {
+                        albumSelect.value = result.Album_id;
+                    } else {
+                        let firstOption = albumSelect.querySelector('option:first-child');
+                        if (firstOption) {
+                            firstOption.selected = true;
+                        }
+                        storProgramConfiguration({ 'Album_id': albumSelect.value })
+                    }
+                })
+                .catch(error => {
+                    let defaultOption = document.createElement("option");
+                    defaultOption.selected = true;
+                    defaultOption.value = "NO";
+                    defaultOption.textContent = chrome.i18n.getMessage("Unable_to_obtain_album");
+                    document.getElementById("Album_id").appendChild(defaultOption);
+                    console.error(chrome.i18n.getMessage("request_failure"), error);
+                });
+
+            //存储源
+            fetch("https://" + result.Host + "/api/v1/strategies", {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': result.Token
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Network response was not ok.');
+                    }
+                })
+                .then(res => {
+                    let strategies = res.data.strategies;
+                    if (strategies.length > 0) {
+                        let SourceSelect = document.getElementById("Source");
+                        SourceSelect.innerHTML = '';
+                        strategies.forEach(function (e, index) {
+                            let option = document.createElement("option");
+                            option.value = e.id;
+                            option.textContent = e.name;
+                            SourceSelect.appendChild(option);
+                        });
+                        if (result.Source) {
+                            SourceSelect.value = result.Source;
+                        } else {
+                            let firstOption = SourceSelect.querySelector('option:first-child');
+                            if (firstOption) {
+                                firstOption.selected = true;
+                            }
+                            storProgramConfiguration({ 'Source': SourceSelect.value })
+                        }
+                    } else {
+                        let source = document.getElementById("Source").parentElement
+                        document.getElementById("Source").remove();
+                        let input = document.createElement("input");
+                        input.type = "text";
+                        input.id = "Source";
+                        input.placeholder = "输入源ID";
+                        input.className = "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none";
+                        source.appendChild(input)
+                        document.getElementById("Source").value = result.Source;
+                    }
+
+                })
+                .catch(error => {
+                    let defaultOption = document.createElement("option");
+                    defaultOption.selected = true;
+                    defaultOption.value = "NO";
+                    defaultOption.textContent = chrome.i18n.getMessage("Unable_to_obtain_storage_source");
+                    document.getElementById("Source").appendChild(defaultOption);
+                    console.error(chrome.i18n.getMessage("request_failure"), error);
+                });
+        }
+    }
 }
 function handleCollapseClick({ expanded }) {
     if (expanded) {
@@ -247,8 +364,6 @@ function handleCollapseClick({ expanded }) {
             });
         });
     }
-
-
 }
 
 // 保存

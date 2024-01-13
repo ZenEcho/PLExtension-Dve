@@ -12,12 +12,14 @@
         <template #footer>
             <div class="w-full flex justify-center items-end">
                 <button type="button"
+                    class="mr-2 text-lg py-1 px-4 border border-b-2 hover:border-b-gray-400 active:border-b-gray-500"
+                    @click="Allcheck">全部选择</button>
+                <button type="button"
                     class="text-lg py-2 px-6 border border-b-2 hover:border-b-blue-400 active:border-b-blue-500"
-                    @click="startHandle">选好了</button>
+                    @click="startHandle">选好了,立刻安装！</button>
                 <button type="button"
                     class="ml-2 text-lg py-1 px-4 border border-b-2 hover:border-b-gray-400 active:border-b-gray-500"
-                    @click="uncheck">取消</button>
-
+                    @click="uncheck">取消选择</button>
             </div>
         </template>
     </n-card>
@@ -42,6 +44,16 @@ function onClick(event, item) {
     }
 }
 
+function Allcheck() {
+    selectedData.length = 0
+    buttonsData.forEach(element => {
+        selectedData.push(element);
+        const targetDivs = document.querySelectorAll(`.installButton div[data-id='${element.value}']`);
+        targetDivs.forEach(div => {
+            div.classList.add('active');
+        });
+    });
+}
 function uncheck() {
     selectedData.length = 0
     const targetDivs = document.querySelectorAll(`.installButton div.active`);

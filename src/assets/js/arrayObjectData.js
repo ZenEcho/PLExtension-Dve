@@ -144,6 +144,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Host',
             },
             text: chrome.i18n.getMessage("options_host")
@@ -170,6 +171,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Token',
             },
             text: chrome.i18n.getMessage("options_token")
@@ -196,6 +198,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Album_id',
             },
             text: chrome.i18n.getMessage("options_album_id")
@@ -219,6 +222,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Permission',
             },
             text: chrome.i18n.getMessage("options_permission")
@@ -247,6 +251,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Source',
             },
             text: chrome.i18n.getMessage("options_source_lsky")
@@ -276,6 +281,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Host',
             },
             text: chrome.i18n.getMessage("options_host")
@@ -302,6 +308,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Token',
             },
             text: chrome.i18n.getMessage("options_token")
@@ -334,6 +341,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Host',
             },
             text: chrome.i18n.getMessage("options_host")
@@ -360,6 +368,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Token',
             },
             text: chrome.i18n.getMessage("options_token")
@@ -386,6 +395,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Uid',
             },
             text: chrome.i18n.getMessage("options_uid")
@@ -418,6 +428,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Host',
             },
             text: chrome.i18n.getMessage("options_host")
@@ -428,8 +439,10 @@ export const bedFormData = [
               class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
               id: 'Host',
               type: 'text',
+              value: "sm.ms",
               placeholder: chrome.i18n.getMessage("options_host_placeholder_SM_MS"),
               required: true,
+              disabled: true
             },
           },
         ]
@@ -444,6 +457,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Token',
             },
             text: chrome.i18n.getMessage("options_token")
@@ -476,6 +490,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Host',
             },
             text: chrome.i18n.getMessage("options_host")
@@ -502,6 +517,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Token',
             },
             text: chrome.i18n.getMessage("options_token")
@@ -528,6 +544,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Album_id',
             },
             text: chrome.i18n.getMessage("options_album_id_Chevereto")
@@ -539,7 +556,6 @@ export const bedFormData = [
               id: 'Album_id',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_album_id_placeholder_Chevereto"),
-              required: true,
             },
           },
         ]
@@ -554,6 +570,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Nsfw',
             },
             text: chrome.i18n.getMessage("options_nsfw")
@@ -581,6 +598,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Expiration',
             },
             text: chrome.i18n.getMessage("options_expiration")
@@ -638,6 +656,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Host',
             },
             text: chrome.i18n.getMessage("options_host")
@@ -664,6 +683,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Token',
             },
             text: chrome.i18n.getMessage("options_token")
@@ -690,6 +710,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'imgur_post_mode',
               class: "mr-2",
             },
@@ -721,6 +742,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Host',
             },
             text: chrome.i18n.getMessage("options_host")
@@ -747,6 +769,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Token',
             },
             text: chrome.i18n.getMessage("options_token")
@@ -773,6 +796,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Source',
             },
             text: chrome.i18n.getMessage("options_source_Hellohao")
@@ -803,6 +827,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Url',
             },
             text: chrome.i18n.getMessage("options_apihost")
@@ -907,6 +932,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Parameter',
             },
             text: chrome.i18n.getMessage("options_parameter")
@@ -930,6 +956,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Headers',
             },
             text: chrome.i18n.getMessage("options_Headers")
@@ -953,6 +980,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Body',
             },
             text: chrome.i18n.getMessage("options_Body")
@@ -976,6 +1004,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'return_success',
             },
             text: chrome.i18n.getMessage("options_return_success")
@@ -1121,6 +1150,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Owner',
             },
             text: chrome.i18n.getMessage("options_owner")
@@ -1147,6 +1177,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Repository',
             },
             text: chrome.i18n.getMessage("options_repository")
@@ -1173,6 +1204,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'UploadPath',
             },
             text: chrome.i18n.getMessage("options_UploadPath")
@@ -1198,6 +1230,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Token',
             },
             text: chrome.i18n.getMessage("options_token_GitHub")
@@ -1230,6 +1263,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'SecretId',
             },
             text: chrome.i18n.getMessage("options_SecretId_COS")
@@ -1256,6 +1290,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'SecretKey',
             },
             text: chrome.i18n.getMessage("options_SecretKey_COS")
@@ -1282,6 +1317,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Bucket',
             },
             text: chrome.i18n.getMessage("options_Bucket_COS")
@@ -1308,6 +1344,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'AppId',
             },
             text: chrome.i18n.getMessage("options_AppId_COS")
@@ -1333,6 +1370,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Region',
             },
             text: chrome.i18n.getMessage("options_Region_COS")
@@ -1359,6 +1397,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'UploadPath',
             },
             text: chrome.i18n.getMessage("options_UploadPath")
@@ -1384,6 +1423,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Custom_domain_name',
             },
             text: chrome.i18n.getMessage("options_Custom_domain_name_COS")
@@ -1414,6 +1454,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'SecretId',
             },
             text: chrome.i18n.getMessage("options_SecretId_OSS")
@@ -1440,6 +1481,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'SecretKey',
             },
             text: chrome.i18n.getMessage("options_SecretKey_OSS")
@@ -1466,6 +1508,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Bucket',
             },
             text: chrome.i18n.getMessage("options_Bucket_OSS")
@@ -1492,6 +1535,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Endpoint',
             },
             text: chrome.i18n.getMessage("options_Endpoint_OSS")
@@ -1518,6 +1562,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Region',
             },
             text: chrome.i18n.getMessage("options_Region_OSS")
@@ -1544,6 +1589,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'UploadPath',
             },
             text: chrome.i18n.getMessage("options_UploadPath")
@@ -1569,6 +1615,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Custom_domain_name',
             },
             text: chrome.i18n.getMessage("options_Custom_domain_name_COS")
@@ -1599,6 +1646,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'SecretId',
             },
             text: chrome.i18n.getMessage("options_SecretId_S3")
@@ -1625,6 +1673,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'SecretKey',
             },
             text: chrome.i18n.getMessage("options_SecretKey_S3")
@@ -1651,6 +1700,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Bucket',
             },
             text: chrome.i18n.getMessage("options_Bucket_S3")
@@ -1677,6 +1727,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Region',
             },
             text: chrome.i18n.getMessage("options_Region_S3")
@@ -1703,6 +1754,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Endpoint',
             },
             text: chrome.i18n.getMessage("options_Endpoint_S3")
@@ -1728,6 +1780,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'UploadPath',
             },
             text: chrome.i18n.getMessage("options_UploadPath")
@@ -1753,6 +1806,7 @@ export const bedFormData = [
           {
             type: 'label',
             attributes: {
+              class: "mb-1",
               for: 'Custom_domain_name',
             },
             text: chrome.i18n.getMessage("options_Custom_domain_name_S3")
