@@ -3,7 +3,9 @@ import { taskQueue } from '@/assets/js/taskQueue';
 import { getChromeStorage } from '@/assets/js/public';
 import COS from 'cos-js-sdk-v5';
 import OSS from 'ali-oss';
-import AWS from"aws-sdk";
+// import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import AWS from 'aws-sdk';
+
 export function setUpload(Dropzone) {
     return new Promise((resolve, reject) => {
         getChromeStorage("ProgramConfiguration").then((result) => {
@@ -300,7 +302,7 @@ export function setUpload(Dropzone) {
                     });
                     break;
                 case 'AWS_S3':
-                    let s3 
+                    let s3
                     //AWS S3区域拼接
                     if (!ProgramConfigurations.Endpoint) {
                         ProgramConfigurations.Endpoint = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/"
@@ -317,12 +319,9 @@ export function setUpload(Dropzone) {
                             endpoint: ProgramConfigurations.Endpoint,
                             signatureVersion: 'v4'
                         });
-                         s3 = new AWS.S3();
+                        s3 = new AWS.S3();
                     } catch (error) {
                         reject({ error: error, message: "S3对象存储,初始化失败！" })
-                        toastItem({
-                            toast_content: error
-                        });
                     }
                     Dropzone.options.autoProcessQueue = false
                     Dropzone.options.acceptedFiles = ""
@@ -361,7 +360,7 @@ export function setUpload(Dropzone) {
                                 Expires: 120
                             };
                         }
-                        await s3.upload(params, (error, data) => {
+                        await s3.putObject(params, (error, data) => {
                             if (error) {
                                 reject({ error: error, message: chrome.i18n.getMessage("Upload_prompt4") })
                                 console.error(error);

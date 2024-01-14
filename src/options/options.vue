@@ -59,7 +59,6 @@ import Sidebar from './sidebar.vue'
 import Notification from '@/components/notification.vue';
 import Messagetag from '@/components/message.vue';
 import ButtomModal from '@/components/buttomModal.vue';
-// import { bedFormData } from '@/assets/js/arrayObjectData';
 import { dbHelper } from '@/assets/js/db';
 import { ref, provide } from 'vue';
 const hiddenSidebar = ref('');

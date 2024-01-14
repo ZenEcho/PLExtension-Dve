@@ -240,6 +240,7 @@ function DropzoneError() {
   uploader.on("error", function (file, err) {
   })
 }
+
 </script>
 
 <style>
