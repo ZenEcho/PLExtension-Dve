@@ -16,7 +16,6 @@ import yylImage from '../assets/images/yyl_512.png';
 const dropzone = ref(null);
 const show = ref(true);
 const showMessage = inject('showMessage');
-
 let SvgData = `<img class="w-32 h-32" src="${yylImage}">`;
 let uploader;
 let ProgramConfigurations;
@@ -126,39 +125,34 @@ function DropzoneSuccess() {
           ProgramConfigurations.Host = ProgramConfigurations.apihost
 
           break;
-        // case 'Tencent_COS':
-        //     //腾讯云cos拼接
-        //     if (!ProgramConfigurations.Custom_domain_name) {
-        //         ProgramConfigurations.Custom_domain_name = "https://" + ProgramConfigurations.Bucket + ".cos." + ProgramConfigurations.Region + ".myqcloud.com/"
-        //     }
-        //     imageUrl = ProgramConfigurations.Custom_domain_name + filename
-        //     toastItem({
-        //         toast_content: chrome.i18n.getMessage("Upload_prompt7")
-        //     })
-        //     ProgramConfigurations.Host = ProgramConfigurations.Bucket
-        //     break;
-        // case 'Aliyun_OSS':
-        //     //阿里云oss拼接
-        //     if (!ProgramConfigurations.Custom_domain_name) {
-        //         ProgramConfigurations.Custom_domain_name = "https://" + ProgramConfigurations.Bucket + "." + ProgramConfigurations.Endpoint + "/"
-        //     }
-        //     imageUrl = ProgramConfigurations.Custom_domain_name + filename
-        //     toastItem({
-        //         toast_content: chrome.i18n.getMessage("Upload_prompt7")
-        //     })
-        //     ProgramConfigurations.Host = ProgramConfigurations.Endpoint
-        //     break;
-        // case 'AWS_S3':
-        //     //AWS S3拼接
-        //     if (!ProgramConfigurations.Custom_domain_name) {
-        //         ProgramConfigurations.Custom_domain_name = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/" + ProgramConfigurations.Bucket + "/"
-        //     }
-        //     imageUrl = ProgramConfigurations.Custom_domain_name + filename
-        //     toastItem({
-        //         toast_content: chrome.i18n.getMessage("Upload_prompt7")
-        //     })
-        //     ProgramConfigurations.Host = ProgramConfigurations.Endpoint
-        //     break;
+        case 'Tencent_COS':
+          //腾讯云cos拼接
+          if (!ProgramConfigurations.Custom_domain_name) {
+            ProgramConfigurations.Custom_domain_name = "https://" + ProgramConfigurations.Bucket + ".cos." + ProgramConfigurations.Region + ".myqcloud.com/"
+          }
+          imageUrl = ProgramConfigurations.Custom_domain_name + filename
+
+          showMessage({ message: chrome.i18n.getMessage("Upload_prompt7"), type: "success" });
+          ProgramConfigurations.Host = ProgramConfigurations.Bucket
+          break;
+        case 'Aliyun_OSS':
+          //阿里云oss拼接
+          if (!ProgramConfigurations.Custom_domain_name) {
+            ProgramConfigurations.Custom_domain_name = "https://" + ProgramConfigurations.Bucket + "." + ProgramConfigurations.Endpoint + "/"
+          }
+          imageUrl = ProgramConfigurations.Custom_domain_name + filename
+          showMessage({ message: chrome.i18n.getMessage("Upload_prompt7"), type: "success" });
+          ProgramConfigurations.Host = ProgramConfigurations.Endpoint
+          break;
+        case 'AWS_S3':
+          //AWS S3拼接
+          if (!ProgramConfigurations.Custom_domain_name) {
+            ProgramConfigurations.Custom_domain_name = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/" + ProgramConfigurations.Bucket + "/"
+          }
+          imageUrl = ProgramConfigurations.Custom_domain_name + filename
+          showMessage({ message: chrome.i18n.getMessage("Upload_prompt7"), type: "success" });
+          ProgramConfigurations.Host = ProgramConfigurations.Endpoint
+          break;
         // case 'GitHubUP':
         //     imageUrl = `https://raw.githubusercontent.com/` + ProgramConfigurations.owner + `/` + ProgramConfigurations.repository + `/main/` + ProgramConfigurations.UploadPath + file.name
         //     toastItem({

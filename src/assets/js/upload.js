@@ -1,11 +1,75 @@
 import { dbHelper } from '@/assets/js/db';
 import { taskQueue } from '@/assets/js/taskQueue';
 import { getChromeStorage } from '@/assets/js/public';
-import COS from 'cos-js-sdk-v5';
-import OSS from 'ali-oss';
-// import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import AWS from 'aws-sdk';
+import axios from 'axios';
+// ---打包要很jb久，测试时不打包
+// import COS from 'cos-js-sdk-v5';
+// import OSS from 'ali-oss';
+// import { S3Client } from "@aws-sdk/client-s3";
+// import { Upload } from "@aws-sdk/lib-storage"; //这个上传可以监控进度
 
+function custom_replaceDate(ProgramConfigurations, file) {
+    let currentDate = new Date();
+    let currentYear = currentDate.getFullYear();
+    let currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    let currentDay = currentDate.getDate().toString().padStart(2, '0');
+    let currentTimestampMs = currentDate.getTime();
+    let currentTimestamp = Math.floor(currentTimestampMs / 1000);
+    let replacements = {
+        '$date$': `${currentYear}年${currentMonth}月${currentDay}日`,
+        '$date-yyyy$': currentYear,
+        '$date-mm$': currentMonth,
+        '$date-dd$': currentDay,
+        '$date-time$': currentTimestampMs,
+        '$date-Time$': currentTimestamp,
+        '$fileName$': file.name,
+        '$fileSize$': file.size,
+        '$fileType$': file.type,
+    };
+    let replacedString = ProgramConfigurations.Url;
+
+
+    const regex = new RegExp(Object.keys(replacements).map(escapeRegExp).join('|'), 'g');
+    if (typeof replacedString == 'object' && file.name) {
+        let OObj = []
+        if (ProgramConfigurations.custom_Base64Upload) {
+            OObj.push(file.dataURL) //返回b64
+            return OObj[0];
+        }
+        OObj.push(file)
+        return OObj[0];
+    }
+    if (typeof replacedString === 'string') {
+        if (replacedString.includes('$file$')) {
+            if (ProgramConfigurations.custom_Base64Upload) {
+                return file.dataURL;
+            }
+            return file;
+        }
+        replacedString = replacedString.replace(regex, (match) => replacements[match]);
+    }
+
+    // return replacedString;
+}
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+function custom_replaceDateInObject(obj, file) {
+    let content = {};
+    if (typeof obj === 'object') {
+        for (const key in obj) {
+            console.log(key);
+            console.log(obj);
+            if (typeof obj[key] === 'string') {
+                content[key] = custom_replaceDate(obj[key], file);
+                console.log(content[key]);
+            } else if (typeof obj[key] === 'object') {
+                content[key] = custom_replaceDateInObject(obj[key], file);
+            }
+        }
+    }
+    return content;
+}
 export function setUpload(Dropzone) {
     return new Promise((resolve, reject) => {
         getChromeStorage("ProgramConfiguration").then((result) => {
@@ -92,6 +156,40 @@ export function setUpload(Dropzone) {
                     Dropzone.options.maxFilesize = 5000
                     Dropzone.options.acceptedFiles = ""
                     Dropzone.options.autoProcessQueue = false
+
+                    if (ProgramConfigurations.custom_KeywordReplacement) {
+                        ProgramConfigurations.Keyword_replacement1 = ProgramConfigurations.Keyword_replacement1.split(',')
+                        ProgramConfigurations.Keyword_replacement2 = ProgramConfigurations.Keyword_replacement2.split(',')
+                        if (ProgramConfigurations.Keyword_replacement1.length != ProgramConfigurations.Keyword_replacement2.length) {
+                            alert("关键词和替换词的数量不一致");
+                            window.location.href = "options.html"
+                            return;
+                        }
+                    }
+                    if (!ProgramConfigurations.Headers) {
+                        ProgramConfigurations.Headers = {}
+                    } else {
+                        try {
+                            ProgramConfigurations.Headers = JSON.parse(ProgramConfigurations.Headers);
+                        } catch (error) {
+                            alert(chrome.i18n.getMessage("Headers_error"));
+                            window.location.href = "options.html"
+                            return;
+                        }
+                    }
+                    if (!ProgramConfigurations.Body) {
+                        ProgramConfigurations.Body = {}
+                    } else {
+                        try {
+                            ProgramConfigurations.Body = JSON.parse(ProgramConfigurations.Body);
+                        } catch (error) {
+                            console.log(error);
+                            alert(chrome.i18n.getMessage("Body_error"));
+                            window.location.href = "options.html"
+                            return;
+                        }
+                    }
+                    console.log(ProgramConfigurations.Headers);
                     delayUpload = async function (file) {
                         if (file.size > Dropzone.options.maxFilesize * 1024 * 1024) {
                             return;
@@ -112,7 +210,7 @@ export function setUpload(Dropzone) {
                             completeReplaceOperations(file);
                         }
                         function completeReplaceOperations(file) {
-                            let _apihost = custom_replaceDate(ProgramConfigurations.Url, file);
+                            // let _url = custom_replaceDate(ProgramConfigurations, file);
                             let _Headers = custom_replaceDateInObject(ProgramConfigurations.Headers, file);
                             let _Body = custom_replaceDateInObject(ProgramConfigurations.Body, file);
                             let Body;
@@ -137,37 +235,29 @@ export function setUpload(Dropzone) {
                                 }
 
                             }
-                            $.ajax({
-                                url: _apihost,
-                                type: ProgramConfigurations.requestMethod,
-                                headers: _Headers,
-                                processData: false,  // 不对数据进行处理
-                                contentType: false,  // 不设置内容类型
-                                xhr: function () {
-                                    const xhr = new window.XMLHttpRequest();
-                                    xhr.upload.addEventListener("progress", function (evt) {
-                                        if (evt.lengthComputable) {
-                                            const percentComplete = Math.floor((evt.loaded / evt.total) * 100);
-                                            file.upload.progress = percentComplete;
-                                            file.status = Dropzone.UPLOADING;
-                                            Dropzone.emit("uploadprogress", file, percentComplete, 100);
-                                        }
-                                    }, false);
-
-                                    return xhr;
-                                },
-                                data: Body,
-                                success: function (response) {
-                                    Dropzone.emit("success", file, response);
-                                    Dropzone.emit("complete", file, response);
-                                },
-                                error: function (xhr, status, error) {
-                                    if (xhr) {
-                                        Dropzone.emit("error", file, xhr);
-                                        return;
-                                    }
-                                }
-                            });
+                            // console.log(ProgramConfigurations.requestMethod);
+                            // console.log(_url);
+                            console.log(_Headers);
+                            console.log(Body);
+                            // axios({
+                            //     method: ProgramConfigurations.requestMethod,
+                            //     url: _url,
+                            //     headers: _Headers,
+                            //     data: Body,
+                            //     onUploadProgress: function (progressEvent) {
+                            //         const percentComplete = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
+                            //         file.upload.progress = percentComplete;
+                            //         file.status = Dropzone.UPLOADING;
+                            //         Dropzone.emit("uploadprogress", file, percentComplete, 100);
+                            //     }
+                            // })
+                            //     .then(function (response) {
+                            //         Dropzone.emit("success", file, response);
+                            //         Dropzone.emit("complete", file, response);
+                            //     })
+                            //     .catch(function (error) {
+                            //         Dropzone.emit("error", file, error);
+                            //     });
                         }
                     }
                     Dropzone.on("addedfile", function (file) {
@@ -312,14 +402,14 @@ export function setUpload(Dropzone) {
                         ProgramConfigurations.Custom_domain_name = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/" + ProgramConfigurations.Bucket + "/"
                     }
                     try {
-                        AWS.config.update({
-                            accessKeyId: ProgramConfigurations.SecretId,
-                            secretAccessKey: ProgramConfigurations.SecretKey,
+                        s3 = new S3Client({
                             region: ProgramConfigurations.Region,
+                            credentials: {
+                                accessKeyId: ProgramConfigurations.SecretId,
+                                secretAccessKey: ProgramConfigurations.SecretKey
+                            },
                             endpoint: ProgramConfigurations.Endpoint,
-                            signatureVersion: 'v4'
                         });
-                        s3 = new AWS.S3();
                     } catch (error) {
                         reject({ error: error, message: "S3对象存储,初始化失败！" })
                     }
@@ -350,33 +440,40 @@ export function setUpload(Dropzone) {
                                 Body: file,
                                 ACL: 'public-read',
                                 ContentType: file.type,
-                                Expires: 120,
                             };
                         } else {
                             params = {
                                 Bucket: ProgramConfigurations.Bucket,
                                 Key: filename,
                                 Body: file,
-                                Expires: 120
                             };
                         }
-                        await s3.putObject(params, (error, data) => {
-                            if (error) {
-                                reject({ error: error, message: chrome.i18n.getMessage("Upload_prompt4") })
-                                console.error(error);
-                                return;
-                            }
-                            if (data) {
-                                file.status = Dropzone.SUCCESS
-                                Dropzone.emit("success", file, "上传完成");
-                                Dropzone.emit("complete", file);
-                            }
-                        }).on('httpUploadProgress', function (progress) {
-                            const percentage = Math.floor((progress.loaded / progress.total) * 100);
-                            file.upload.progress = percentage;
-                            file.status = Dropzone.UPLOADING;
-                            Dropzone.emit("uploadprogress", file, percentage, 100);
-                        });
+                        try {
+                            const uploader = new Upload({
+                                client: s3,
+                                params: params, // 您已有的params
+                            });
+
+                            // 监听上传进度
+                            uploader.on('httpUploadProgress', (progress) => {
+                                console.log(`上传进度：${progress.loaded} / ${progress.total}`);
+                                const percentage = Math.floor((progress.loaded / progress.total) * 100);
+                                file.upload.progress = percentage;
+                                file.status = Dropzone.UPLOADING;
+                                Dropzone.emit("uploadprogress", file, percentage, 100);
+                            });
+
+                            // 执行上传
+                            await uploader.done();
+                            file.status = Dropzone.SUCCESS;
+                            Dropzone.emit("success", file, "上传完成");
+                            Dropzone.emit("complete", file);
+                        } catch (error) {
+                            reject({ error: error, message: chrome.i18n.getMessage("Upload_prompt4") })
+                            console.error(error);
+                            return;
+                        }
+
                     }
                     // 监听文件添加事件
                     Dropzone.on("addedfile", function (file) {

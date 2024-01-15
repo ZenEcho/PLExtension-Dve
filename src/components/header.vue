@@ -81,16 +81,12 @@ const isCurrentPage = (link) => {
     return currentFilename.value === link;
 };
 
-// 初始化时从 localStorage 读取暗夜模式状态
 const isDarkMode = ref(localStorage.getItem('darkMode') === 'true');
 
-// 切换暗夜模式并更新 localStorage
 const toggleDarkMode = () => {
     isDarkMode.value = !isDarkMode.value;
     localStorage.setItem('darkMode', isDarkMode.value.toString());
 };
-
-// 监听 isDarkMode 的变化
 watchEffect(() => {
     if (isDarkMode.value) {
         document.body.classList.add('dark');

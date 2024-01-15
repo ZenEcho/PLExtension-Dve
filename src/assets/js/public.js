@@ -264,7 +264,6 @@ export async function storExeButtons(data) {
 
 // 存储上传记录的
 export function LocalStorage(data) {
-
     let pluginPopup = chrome.runtime.getURL("popup.html");
     let currentURL = window.location.href;
 
@@ -308,7 +307,7 @@ export function LocalStorage(data) {
 }
 // 文本域自动高度
 export function autoExpand(event) {
-    const textarea = event.target;
+    const textarea = event;
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + 'px';
 }

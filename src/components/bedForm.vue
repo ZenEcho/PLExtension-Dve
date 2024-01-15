@@ -214,6 +214,7 @@ function setFormValues(result, ids) {
             }
             else if (element.tagName.toLowerCase() === 'textarea') {
                 element.value = result[id] || '';
+                autoExpand(element);
             }
             // 对于复选框
             else if (type === 'checkbox') {
