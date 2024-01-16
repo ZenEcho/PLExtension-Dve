@@ -61,6 +61,17 @@ export function createIconMarkup(data) {
   </svg>`;
     }
 }
+export function replaceKeywordsInText(text, keywords, replacements) {
+    if (keywords.length != replacements.length) {
+        return text;
+    }
+    for (let i = 0; i < keywords.length; i++) {
+        let keyword = keywords[i];
+        let replacement = replacements[i];
+        text = text.replace(new RegExp(keyword, 'g'), replacement);
+    }
+    return text;
+}
 //-------
 function sortObjectProperties(obj) {
     // 数据排序
@@ -261,7 +272,6 @@ export async function storExeButtons(data) {
             });
     });
 }
-
 // 存储上传记录的
 export function LocalStorage(data) {
     let pluginPopup = chrome.runtime.getURL("popup.html");
