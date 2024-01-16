@@ -77,10 +77,10 @@ async function readbedButton() {
         const storageResult = await getChromeStorage("ProgramConfiguration");
         if (!storageResult) return;
 
-        let foundObject = bedFormData.find(item => item.name === storageResult.program);
+        let foundObject = bedFormData.find(item => item.name === storageResult.Program);
         if (foundObject) {
             emit('foundData', foundObject);
-            let button = document.querySelector("li[data-value='" + storageResult.program + "']");
+            let button = document.querySelector("li[data-value='" + storageResult.Program + "']");
             if (button) {
                 button.classList.add('bg-green-400/50', 'font-bold');
             }

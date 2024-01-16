@@ -4,11 +4,11 @@ import { getChromeStorage } from '@/assets/js/public';
 import axios from 'axios';
 // ---打包要很jb久，测试时不打包
 // import COS from 'cos-js-sdk-v5';
-// import OSS from 'ali-oss';
+import OSS from 'ali-oss';
 // import { S3Client } from "@aws-sdk/client-s3";
 // import { Upload } from "@aws-sdk/lib-storage"; //这个上传可以监控进度
 
-function custom_replaceDate(ProgramConfigurations, file) {
+function custom_replaceDate(inputString, file, ProgramConfigurations) {
     let currentDate = new Date();
     let currentYear = currentDate.getFullYear();
     let currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
@@ -26,9 +26,9 @@ function custom_replaceDate(ProgramConfigurations, file) {
         '$fileSize$': file.size,
         '$fileType$': file.type,
     };
-    let replacedString = ProgramConfigurations.Url;
+    let replacedString = inputString;
 
-
+    // 此正则表达式在循环之外创建
     const regex = new RegExp(Object.keys(replacements).map(escapeRegExp).join('|'), 'g');
     if (typeof replacedString == 'object' && file.name) {
         let OObj = []
@@ -48,21 +48,18 @@ function custom_replaceDate(ProgramConfigurations, file) {
         }
         replacedString = replacedString.replace(regex, (match) => replacements[match]);
     }
-
-    // return replacedString;
+    return replacedString;
 }
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
-function custom_replaceDateInObject(obj, file) {
+function custom_replaceDateInObject(obj, file, ProgramConfigurations) {
     let content = {};
     if (typeof obj === 'object') {
         for (const key in obj) {
-            console.log(key);
-            console.log(obj);
             if (typeof obj[key] === 'string') {
-                content[key] = custom_replaceDate(obj[key], file);
-                console.log(content[key]);
+
+                content[key] = custom_replaceDate(obj[key], file, ProgramConfigurations);
             } else if (typeof obj[key] === 'object') {
                 content[key] = custom_replaceDateInObject(obj[key], file);
             }
@@ -75,7 +72,7 @@ export function setUpload(Dropzone) {
         getChromeStorage("ProgramConfiguration").then((result) => {
             let ProgramConfigurations = result
             let delayUpload; // 声明 delayUpload 变量
-            switch (ProgramConfigurations.program) {
+            switch (ProgramConfigurations.Program) {
                 case 'Lsky':
                     Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/api/v1/upload";
                     Dropzone.options.headers = { "Authorization": ProgramConfigurations.Token };
@@ -161,8 +158,7 @@ export function setUpload(Dropzone) {
                         ProgramConfigurations.Keyword_replacement1 = ProgramConfigurations.Keyword_replacement1.split(',')
                         ProgramConfigurations.Keyword_replacement2 = ProgramConfigurations.Keyword_replacement2.split(',')
                         if (ProgramConfigurations.Keyword_replacement1.length != ProgramConfigurations.Keyword_replacement2.length) {
-                            alert("关键词和替换词的数量不一致");
-                            window.location.href = "options.html"
+                            reject({ error: {}, message: "关键词和替换词的数量不一致" })
                             return;
                         }
                     }
@@ -172,8 +168,7 @@ export function setUpload(Dropzone) {
                         try {
                             ProgramConfigurations.Headers = JSON.parse(ProgramConfigurations.Headers);
                         } catch (error) {
-                            alert(chrome.i18n.getMessage("Headers_error"));
-                            window.location.href = "options.html"
+                            reject({ error: {}, message: chrome.i18n.getMessage("Headers_error") })
                             return;
                         }
                     }
@@ -184,12 +179,11 @@ export function setUpload(Dropzone) {
                             ProgramConfigurations.Body = JSON.parse(ProgramConfigurations.Body);
                         } catch (error) {
                             console.log(error);
-                            alert(chrome.i18n.getMessage("Body_error"));
-                            window.location.href = "options.html"
+                            reject({ error: {}, message: chrome.i18n.getMessage("Body_error") })
                             return;
                         }
                     }
-                    console.log(ProgramConfigurations.Headers);
+
                     delayUpload = async function (file) {
                         if (file.size > Dropzone.options.maxFilesize * 1024 * 1024) {
                             return;
@@ -210,9 +204,9 @@ export function setUpload(Dropzone) {
                             completeReplaceOperations(file);
                         }
                         function completeReplaceOperations(file) {
-                            // let _url = custom_replaceDate(ProgramConfigurations, file);
-                            let _Headers = custom_replaceDateInObject(ProgramConfigurations.Headers, file);
-                            let _Body = custom_replaceDateInObject(ProgramConfigurations.Body, file);
+                            let _url = custom_replaceDate(ProgramConfigurations.Url, file, ProgramConfigurations);
+                            let _Headers = custom_replaceDateInObject(ProgramConfigurations.Headers, file, ProgramConfigurations);
+                            let _Body = custom_replaceDateInObject(ProgramConfigurations.Body, file, ProgramConfigurations);
                             let Body;
                             if (ProgramConfigurations.custom_BodyUpload == true) {
                                 Body = {};
@@ -235,29 +229,25 @@ export function setUpload(Dropzone) {
                                 }
 
                             }
-                            // console.log(ProgramConfigurations.requestMethod);
-                            // console.log(_url);
-                            console.log(_Headers);
-                            console.log(Body);
-                            // axios({
-                            //     method: ProgramConfigurations.requestMethod,
-                            //     url: _url,
-                            //     headers: _Headers,
-                            //     data: Body,
-                            //     onUploadProgress: function (progressEvent) {
-                            //         const percentComplete = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
-                            //         file.upload.progress = percentComplete;
-                            //         file.status = Dropzone.UPLOADING;
-                            //         Dropzone.emit("uploadprogress", file, percentComplete, 100);
-                            //     }
-                            // })
-                            //     .then(function (response) {
-                            //         Dropzone.emit("success", file, response);
-                            //         Dropzone.emit("complete", file, response);
-                            //     })
-                            //     .catch(function (error) {
-                            //         Dropzone.emit("error", file, error);
-                            //     });
+                            axios({
+                                method: ProgramConfigurations.requestMethod,
+                                url: _url,
+                                headers: _Headers,
+                                data: Body,
+                                onUploadProgress: function (progressEvent) {
+                                    const percentComplete = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
+                                    file.upload.progress = percentComplete;
+                                    file.status = Dropzone.UPLOADING;
+                                    Dropzone.emit("uploadprogress", file, percentComplete, 100);
+                                }
+                            })
+                                .then(function (response) {
+                                    Dropzone.emit("success", file, response);
+                                    Dropzone.emit("complete", file, response);
+                                })
+                                .catch(function (error) {
+                                    Dropzone.emit("error", file, error);
+                                });
                         }
                     }
                     Dropzone.on("addedfile", function (file) {
@@ -289,8 +279,8 @@ export function setUpload(Dropzone) {
                         reject({ error: error, message: "腾讯云对象存储,初始化失败！" })
                     }
                     //腾讯云cos拼接
-                    if (!ProgramConfigurations.Custom_domain_name) {
-                        ProgramConfigurations.Custom_domain_name = "https://" + ProgramConfigurations.Bucket + ".cos." + ProgramConfigurations.Region + ".myqcloud.com/"
+                    if (!ProgramConfigurations.custom_DomainName) {
+                        ProgramConfigurations.custom_DomainName = "https://" + ProgramConfigurations.Bucket + ".cos." + ProgramConfigurations.Region + ".myqcloud.com/"
                     }
                     Dropzone.options.autoProcessQueue = false
                     Dropzone.options.acceptedFiles = ""
@@ -354,8 +344,8 @@ export function setUpload(Dropzone) {
                         reject({ error: error, message: "阿里云对象存储,初始化失败！" })
                     }
                     //阿里云oss拼接
-                    if (!ProgramConfigurations.Custom_domain_name) {
-                        ProgramConfigurations.Custom_domain_name = "https://" + ProgramConfigurations.Bucket + "." + ProgramConfigurations.Endpoint + "/"
+                    if (!ProgramConfigurations.custom_DomainName) {
+                        ProgramConfigurations.custom_DomainName = "https://" + ProgramConfigurations.Bucket + "." + ProgramConfigurations.Endpoint + "/"
                     }
                     Dropzone.options.paramName = "file";
                     Dropzone.options.autoProcessQueue = false
@@ -398,8 +388,8 @@ export function setUpload(Dropzone) {
                         ProgramConfigurations.Endpoint = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/"
                     }
                     //AWS S3拼接
-                    if (!ProgramConfigurations.Custom_domain_name) {
-                        ProgramConfigurations.Custom_domain_name = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/" + ProgramConfigurations.Bucket + "/"
+                    if (!ProgramConfigurations.custom_DomainName) {
+                        ProgramConfigurations.custom_DomainName = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/" + ProgramConfigurations.Bucket + "/"
                     }
                     try {
                         s3 = new S3Client({
@@ -593,8 +583,8 @@ export function setUpload(Dropzone) {
                     break;
                 case 'Telegra_ph':
                     Dropzone.options.maxFilesize = 5
-                    if (ProgramConfigurations.Custom_domain_name) {
-                        Dropzone.options.url = ProgramConfigurations.Custom_domain_name + "/upload";
+                    if (ProgramConfigurations.custom_DomainName) {
+                        Dropzone.options.url = ProgramConfigurations.custom_DomainName + "/upload";
                     } else {
                         Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/upload";
                     }

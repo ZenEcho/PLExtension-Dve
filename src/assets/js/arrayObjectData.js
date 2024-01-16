@@ -1424,7 +1424,7 @@ export const bedFormData = [
             type: 'label',
             attributes: {
               class: "mb-1",
-              for: 'Custom_domain_name',
+              for: 'custom_DomainName',
             },
             text: chrome.i18n.getMessage("options_Custom_domain_name_COS")
           },
@@ -1432,7 +1432,7 @@ export const bedFormData = [
             type: 'input',
             attributes: {
               class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
-              id: 'Custom_domain_name',
+              id: 'custom_DomainName',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_Custom_domain_name_placeholder"),
             },
@@ -1616,7 +1616,7 @@ export const bedFormData = [
             type: 'label',
             attributes: {
               class: "mb-1",
-              for: 'Custom_domain_name',
+              for: 'custom_DomainName',
             },
             text: chrome.i18n.getMessage("options_Custom_domain_name_COS")
           },
@@ -1624,7 +1624,7 @@ export const bedFormData = [
             type: 'input',
             attributes: {
               class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
-              id: 'Custom_domain_name',
+              id: 'custom_DomainName',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_Custom_domain_name_placeholder"),
             },
@@ -1807,7 +1807,7 @@ export const bedFormData = [
             type: 'label',
             attributes: {
               class: "mb-1",
-              for: 'Custom_domain_name',
+              for: 'custom_DomainName',
             },
             text: chrome.i18n.getMessage("options_Custom_domain_name_S3")
           },
@@ -1815,7 +1815,7 @@ export const bedFormData = [
             type: 'input',
             attributes: {
               class: "px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none",
-              id: 'Custom_domain_name',
+              id: 'custom_DomainName',
               type: 'text',
               placeholder: chrome.i18n.getMessage("options_Custom_domain_name_placeholder"),
             },

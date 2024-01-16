@@ -31,7 +31,7 @@ export function createButtonIconMarkup(icon, w = 32, h = 32) {
     }
 }
 export function createIconMarkup(data) {
-    const match = buttonsData.find(button => button.value === data.data.program);
+    const match = buttonsData.find(button => button.value === data.data.Program);
     let icon = match.icon
     if (icon && icon.trim().startsWith('<svg')) {
         return icon;
@@ -60,6 +60,17 @@ export function createIconMarkup(data) {
           fill="#4E6DC4" p-id="11165"></path>
   </svg>`;
     }
+}
+export function replaceKeywordsInText(text, keywords, replacements) {
+    if (keywords.length != replacements.length) {
+        return text;
+    }
+    for (let i = 0; i < keywords.length; i++) {
+        let keyword = keywords[i];
+        let replacement = replacements[i];
+        text = text.replace(new RegExp(keyword, 'g'), replacement);
+    }
+    return text;
 }
 //-------
 function sortObjectProperties(obj) {
@@ -187,7 +198,7 @@ export async function storProgramConfiguration(data) {
                     const existingData = result.ProgramConfiguration || {};
                     const updatedData = { ...existingData, ...data };
                     PCLocalStorage.set({ "ProgramConfiguration": updatedData }, function () {
-                        localStorage.options_webtitle_status = 1
+                        localStorage.webtitle_status = 1
                         resolve({ type: "success" });
                     });
                 }
@@ -222,7 +233,7 @@ export function getChromeStorage(key) {
 export async function storExeButtons(data) {
     return new Promise((resolve, reject) => {
         let filteredData = buttonsData.filter(Data => {
-            return Data.value === data.data.program;
+            return Data.value === data.data.Program;
         });
 
         let indexedData = filteredData.map((item, index) => {
@@ -261,7 +272,6 @@ export async function storExeButtons(data) {
             });
     });
 }
-
 // 存储上传记录的
 export function LocalStorage(data) {
     let pluginPopup = chrome.runtime.getURL("popup.html");
@@ -271,7 +281,7 @@ export function LocalStorage(data) {
         let filename = data.file.name || data.file.file.name;
         let imageUrl = data.url
         let MethodName = data.MethodName || "normal";
-        let uploadDomainName = data.uploadDomainName || data.program;
+        let uploadDomainName = data.uploadDomainName || data.Program;
         if (pluginPopup != currentURL) {
             chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
         }
@@ -284,7 +294,7 @@ export function LocalStorage(data) {
             let UploadLogData = {
                 key: crypto.randomUUID(),
                 url: imageUrl,
-                uploadExe: data.program + "-" + MethodName,
+                uploadExe: data.Program + "-" + MethodName,
                 upload_domain_name: uploadDomainName,
                 original_file_name: filename,
                 file_size: data.file.file.size,

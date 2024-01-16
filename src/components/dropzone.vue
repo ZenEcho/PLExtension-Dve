@@ -6,18 +6,22 @@
 </template>
   
 <script setup>
-import { onMounted, ref, inject } from 'vue';
+import { onMounted, ref, inject, defineEmits } from 'vue';
 import Dropzone from 'dropzone';
 import { setUpload } from '@/assets/js/upload';
 import { taskQueue } from '@/assets/js/taskQueue';
-import { LocalStorage } from '@/assets/js/public';
+import { LocalStorage, replaceKeywordsInText } from '@/assets/js/public';
 import 'dropzone/dist/dropzone.css';
 import yylImage from '../assets/images/yyl_512.png';
 const dropzone = ref(null);
+const emit = defineEmits(['success-links', 'filePreviewElements']);
 const show = ref(true);
 const showMessage = inject('showMessage');
+const Spin = inject('showSpin');
 let SvgData = `<img class="w-32 h-32" src="${yylImage}">`;
 let uploader;
+const links = ref([]);
+const filePreviewElements = ref([]);
 let ProgramConfigurations;
 onMounted(() => {
   uploader = new Dropzone(dropzone.value, {
@@ -50,7 +54,20 @@ onMounted(() => {
     DropzoneError()
   }).catch(error => {
     console.log(error)
-    showMessage({ message: error.message, type: "error" });
+    showMessage({ message: error.message, type: "error", props: { duration: 15000, closable: true } });
+    Spin({
+      spin: "show",
+      alert: {
+        title: error.message,
+        type: "error",
+        template: `
+      <div>
+        <p class="text-sm">` + JSON.stringify(error) + `</p>
+        <p class="text-center mt-1">详细错误，请打开开发者控制台(F12)查看，或检查<a href="/options.html" target="_blank" class="px-3 py-1 bg-gray-100 text-gray-900">配置信息</a></p>
+      </div>`
+      },
+
+    });
   })
 })
 function DropzoneSuccess() {
@@ -61,7 +78,7 @@ function DropzoneSuccess() {
     let getMonth = date.getMonth() + 1
     let filename = ProgramConfigurations.UploadPath + date.getFullYear() + "/" + getMonth + "/" + date.getDate() + "/" + file.name;
     try {
-      switch (ProgramConfigurations.program) {
+      switch (ProgramConfigurations.Program) {
         case 'Lsky':
           showMessage({ message: res.message, type: "success" });
           imageUrl = res.data.links.url
@@ -92,18 +109,20 @@ function DropzoneSuccess() {
           break;
         case 'Custom':
           showMessage({ message: chrome.i18n.getMessage("Server_response_successful"), type: "success" });
-          //奖字符串转为JSON
-          if (ProgramConfigurations.open_json_button == 1) {
-            if (typeof res !== 'object') {
+          let data = { ...res }
+          //将字符串转为JSON
+          if (ProgramConfigurations.custom_ReturnJson == 1) {
+            if (typeof data.data !== 'object') {
               try {
-                var res = JSON.parse(res)
+                return JSON.parse(data.data)
               } catch (error) {
-                alert(chrome.i18n.getMessage("data_cannot_be_converted_to_JSON"));
+                showMessage({ message: chrome.i18n.getMessage("data_cannot_be_converted_to_JSON"), type: "error", props: { duration: 10000 } });
+                console.error(error);
                 return;
               }
             }
           }
-          let return_success_value = res;
+          let return_success_value = data.data;
           if (ProgramConfigurations.return_success !== 'null') {
             for (let property of ProgramConfigurations.return_success.split('.')) {
               return_success_value = return_success_value[property];
@@ -122,7 +141,7 @@ function DropzoneSuccess() {
             return_success_value = replaceKeywordsInText(return_success_value, ProgramConfigurations.Keyword_replacement1, ProgramConfigurations.Keyword_replacement2)
           }
           imageUrl = return_success_value
-          ProgramConfigurations.Host = ProgramConfigurations.apihost
+          ProgramConfigurations.Host = ProgramConfigurations.Url
 
           break;
         case 'Tencent_COS':
@@ -213,6 +232,7 @@ function DropzoneSuccess() {
     }
     let info = {
       url: imageUrl,
+      originalUrl: imageUrl,
       name: file.name
     }
     const imageUrlCopy = imageUrl
@@ -221,26 +241,70 @@ function DropzoneSuccess() {
         "name": null,
         "file": file,
       },
-      "program": ProgramConfigurations.program,
+      "Program": ProgramConfigurations.Program,
       "url": imageUrlCopy,
       "MethodName": "normal",
       "uploadDomainName": ProgramConfigurations.Host
     }
+    taskQueue(() => LinksGo(info));
     taskQueue(() => LocalStorage(storData));
+  })
+  uploader.on("complete", function (file) {
+    filePreviewElements.value.push(file.previewElement);
+    emit('filePreviewElements', filePreviewElements.value);
+    file.previewElement.addEventListener('click', (event) => handleFilePreviewClick(event, file));
   })
 }
 
 function DropzoneError() {
-  uploader.on("error", function (file, err) {
+  uploader.on("error", function (file, error) {
+    console.log(error)
+    let info = {
+      url: "文件" + file.name + "上传失败",
+      originalUrl: "无法获取链接",
+      name: file.name
+    }
+    taskQueue(() => LinksGo(info));
   })
+  uploader.on("removedfile", function (removefile) {
+    const index = filePreviewElements.value.indexOf(removefile.previewElement);
+    filePreviewElements.value.splice(index, 1);
+    links.value.splice(index, 1);
+    emit('filePreviewElements', filePreviewElements.value);
+    emit('success-links', links.value);
+  });//文件删除
 }
 
+function LinksGo(info) {
+  links.value.push(info);
+  emit('success-links', links.value);
+}
+function handleFilePreviewClick(event, file) {
+  let index = filePreviewElements.value.indexOf(file.previewElement);
+  let link = document.querySelectorAll('.links')[index];
+  let links = document.querySelectorAll('.links');
+  let eventParentNode = event.currentTarget.parentNode.querySelectorAll('.active');
+  links.forEach(element => {
+    element.classList.remove('previewActive');
+    element.querySelector("button[value='select']").classList.remove('text-active');
+  });
+  eventParentNode.forEach(element => {
+    element.classList.remove('active');
+  });
+  event.currentTarget.classList.add('active');
+  link.classList.add('previewActive');
+  link.querySelector("button[value='select']").classList.add('text-active');
+}
 </script>
-
 <style>
+.previewActive {
+  background-color: rgb(219 234 254);
+}
+
 .dropzone .dz-preview {
   width: 150px;
   height: 150px;
+  background: transparent !important;
 }
 
 .dropzone .dz-preview .dz-image,

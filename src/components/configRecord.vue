@@ -17,7 +17,7 @@
                     </div>
                     <div class="flex flex-row">
                         <button @click="addButton(config)" type="button" class="BedConfigAdd hover:text-blue-300"
-                            :title="'加载:[' + config.ConfigName + ' | ' + config.data.program + ']'">
+                            :title="'加载:[' + config.ConfigName + ' | ' + config.data.Program + ']'">
                             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
                                 xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20">
                                 <g fill="none">
@@ -28,7 +28,7 @@
                             </svg>
                         </button>
                         <button @click="shareButton(config)" type="button" class="BedConfigShare hover:text-blue-300 mx-1"
-                            :title="'分享:[' + config.ConfigName + ' | ' + config.data.program + ']'">
+                            :title="'分享:[' + config.ConfigName + ' | ' + config.data.Program + ']'">
                             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
                                 xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20">
                                 <g fill="none">
@@ -39,7 +39,7 @@
                             </svg>
                         </button>
                         <button @click="deleteButton(config)" type="button" class="BedConfigDel hover:text-blue-300"
-                            :title="'删除:[' + config.ConfigName + ' | ' + config.data.program + ']'">
+                            :title="'删除:[' + config.ConfigName + ' | ' + config.data.Program + ']'">
                             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
                                 xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20">
                                 <g fill="none">

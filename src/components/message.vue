@@ -3,11 +3,11 @@
 <script setup>
 import { useMessage } from 'naive-ui';
 const messageInstance = useMessage();
-function showMessage({ message, type }) {
+function showMessage({ message, type, props }) {
   if (typeof messageInstance[type] === 'function') {
-    messageInstance[type](message);
+    messageInstance[type](message, props);
   } else {
-    messageInstance.info(message);
+    messageInstance.info(message, props);
   }
 }
 

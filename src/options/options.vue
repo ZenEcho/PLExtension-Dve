@@ -24,9 +24,7 @@
         </svg>
       </div>
       <div class="w-full  bg-gray-100" :class="hiddenSidebar ? 'h-[calc(100vh-65px)] overflow-auto' : 'overflow-hidden'">
-        <div class="py-4 my-4 text-center">
-          <a class="text-4xl text-blue-500" href="#" target="_blank">选中了什么图床呀</a>
-        </div>
+        <SiteTitle />
         <div class="w-full px-3 flex flex-row max-lg:flex-col">
 
           <BedForm class="min-w-[400px]  w-full h-full shadow-xl  border rounded-lg bg-gray-50 p-2 dark:bg-gray-100"
@@ -53,13 +51,13 @@
 </template>
 <script setup>
 import Navbar from '@/components/header.vue'
+import SiteTitle from '@/components/siteTitle.vue';
 import BedForm from '@/components/bedForm.vue'
 import ConfigRecord from '@/components/configRecord.vue'
 import Sidebar from './sidebar.vue'
 import Notification from '@/components/notification.vue';
 import Messagetag from '@/components/message.vue';
 import ButtomModal from '@/components/buttomModal.vue';
-import { dbHelper } from '@/assets/js/db';
 import { ref, provide } from 'vue';
 const hiddenSidebar = ref('');
 const formGroups = ref('');

@@ -7,8 +7,7 @@ export function getUrlText(event) {
 }
 
 // 假设这段代码在组件的方法中
-export function copyUrlText(event, callback) {
-    let elementToCopy = event.currentTarget.parentNode.querySelector(".url-text").textContent;
+export function copyUrlText(elementToCopy, callback) {
     navigator.clipboard.writeText(elementToCopy)
         .then(() => {
             callback({ message: "复制成功！", type: "success" });
@@ -17,4 +16,3 @@ export function copyUrlText(event, callback) {
             callback({ message: "复制失败！", type: "error" });
         });
 }
-

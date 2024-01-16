@@ -3,6 +3,39 @@
         <div v-if="props.formGroups" class=" w-full h-full">
             <n-spin :show="show">
                 <div ref="formContainer"></div>
+                <div v-if="isCloseCors(props.formGroups.name)">
+                    <button type="button" class="mb-3 w-full flex flex-col items-center" @click="CorsProxyState(true)"
+                        v-if="!CorsProxy">
+                        <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                            viewBox="0 0 20 20">
+                            <g fill="none">
+                                <path
+                                    d="M15.794 8.733a.75.75 0 0 1-.026 1.06l-5.25 5.001a.75.75 0 0 1-1.035 0l-5.25-5a.75.75 0 0 1 1.034-1.087l4.734 4.508l4.733-4.508a.75.75 0 0 1 1.06.026zm0-4a.75.75 0 0 1-.026 1.06l-5.25 5.001a.75.75 0 0 1-1.035 0l-5.25-5a.75.75 0 0 1 1.034-1.087l4.734 4.509l4.733-4.51a.75.75 0 0 1 1.06.027z"
+                                    fill="currentColor"></path>
+                            </g>
+                        </svg>
+                        <p><span class="text-gray-600">CORS代理</span></p>
+                    </button>
+                    <div class="mb-3 w-full flex flex-col" v-if="CorsProxy">
+                        <label class="mb-1  w-full flex flex-row items-center" for="Host">CORS代理<p
+                                class="text-xs text-gray-600">
+                                (项目地址:<a href="https://github.com/Rob--W/cors-anywhere"
+                                    target="_blank">Github</a>),例如:https://cors-anywhere.herokuapp.com/</p>
+                        </label>
+                        <input class="px-1 h-8 border focus-visible:border-blue-400 focus-visible:outline-none"
+                            id="CorsProxy" type="url" placeholder="输入CORS代理服务器地址" required="true">
+                    </div>
+                    <button type="button" class="mb-3 w-full flex flex-col items-center" @click="CorsProxyState(false)"
+                        v-if="CorsProxy">
+                        <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                            viewBox="0 0 24 24">
+                            <path d="M6 17.59L7.41 19L12 14.42L16.59 19L18 17.59l-6-6z" fill="currentColor"></path>
+                            <path d="M6 11l1.41 1.41L12 7.83l4.59 4.58L18 11l-6-6z" fill="currentColor"></path>
+                        </svg>
+                        <p><span class="text-gray-600">CORS代理</span></p>
+                    </button>
+                </div>
+
             </n-spin>
             <n-collapse v-if="props.formGroups.name === 'Custom'" @item-header-click="handleCollapseClick">
                 <n-collapse-item title="上传前设置" name="1">
@@ -119,9 +152,10 @@ const onShowModal = inject('onShowModal');
 const props = defineProps({
     formGroups: Object
 });
-let formData;
 const formContainer = ref(null);
 const show = ref(false);
+const CorsProxy = ref(false); // 初始为 false
+
 const createFormElement = (element) => {
     // 使用element.type来创建元素，使函数更通用
     const el = document.createElement(element.type);
@@ -178,7 +212,7 @@ watchEffect(() => {
                     show.value = false;
                     if (!result) return;
                     let newData = { ...result };
-                    delete newData.program;
+                    delete newData.Program;
                     let ids = extractIds(props.formGroups.element);
                     setFormValues(newData, ids);
                 });
@@ -229,7 +263,7 @@ function setFormValues(result, ids) {
         }
     });
     if (props.formGroups.name == "SM_MS") {
-        document.getElementById("Host").value="sm.ms"
+        document.getElementById("Host").value = "sm.ms"
     }
     if (props.formGroups.name == "Lsky") {
         if (result.Host) {//不为空时
@@ -342,6 +376,7 @@ function setFormValues(result, ids) {
                 });
         }
     }
+    isCorsProxyState()
 }
 function handleCollapseClick({ expanded }) {
     if (expanded) {
@@ -423,7 +458,7 @@ function handleSubmit(event) {
             formData['Host'] = "www.toutiao.com"
             break;
     }
-    formData["program"] = props.formGroups.name //存储当前程序名称
+    formData["Program"] = props.formGroups.name //存储当前程序名称
     storeBedConfig(formData, (data) => {
         showNotification(data.type, data.message)
         emits('submit-success');
@@ -439,10 +474,39 @@ function handleSubmit(event) {
         });
         document.querySelector(".buttons li[data-value='" + props.formGroups.name + "']").classList.add('bg-green-400/50', 'font-bold')
     }
-
-
-    // window.postMessage({ type: 'Refresh', data: "[configRecord]" })
 }
+function isCorsProxyState() {
+    getChromeStorage("ProgramConfiguration").then((result) => {
+        CorsProxy.value = result.CorsProxyState
+        if (result.CorsProxy) {
+            document.getElementById("CorsProxy").value = result.CorsProxy
+        }
+    });
+}
+function CorsProxyState(State) {
+    CorsProxy.value = State
+    show.value = true;
+    storProgramConfiguration({ 'CorsProxyState': State }).then(() => {
+        if (State) {
+            getChromeStorage("ProgramConfiguration").then((result) => {
+                if (result.CorsProxy) {
+                    document.getElementById("CorsProxy").value = result.CorsProxy
+                }
+
+            });
+        }
+        show.value = false;
+    })
+}
+function isCloseCors(name) {
+    if (name == 'Tencent_COS' || name == 'Aliyun_OSS' || name == 'AWS_S3') {
+        return false;
+    } else {
+        return true;
+    }
+
+}
+
 </script>
 <style scoped>
 .text-sm {
