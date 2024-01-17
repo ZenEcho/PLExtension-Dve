@@ -73,7 +73,11 @@
                     取消
                   </span>
                 </button>
+<<<<<<< HEAD
                 <button class="p-4 hover:bg-slate-100 truncate flex items-center" type="button" @click="handleCopyAll()">
+=======
+                <button class="p-4 hover:bg-slate-100 truncate flex items-center" type="button">
+>>>>>>> 5d5988ffe51c937a00867316565f37ad037c6abe
                   <svg class="h-5 mr-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                     viewBox="0 0 16 16">
                     <g fill="none">
@@ -188,6 +192,7 @@ function handlefilePreviewElements(Elements) {
 };
 
 function handleCopy(event) {
+<<<<<<< HEAD
   let elementToCopy = event.currentTarget.parentNode.querySelector(".url-text").textContent;
   copyUrlText(elementToCopy, showMessage);
 };
@@ -198,6 +203,10 @@ function handleCopyAll(event) {
   });
   copyUrlText(selected_text.join("\n"), showMessage);
 }
+=======
+  copyUrlText(event, showMessage);
+};
+>>>>>>> 5d5988ffe51c937a00867316565f37ad037c6abe
 
 
 function showMessage(payload) {
