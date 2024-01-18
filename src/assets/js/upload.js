@@ -72,6 +72,9 @@ export function setUpload(Dropzone) {
         getChromeStorage("ProgramConfiguration").then((result) => {
             let ProgramConfigurations = result
             let delayUpload; // 声明 delayUpload 变量
+            if (!ProgramConfigurations || !ProgramConfigurations.Program) {
+                return reject({ error: {}, message: "没有安装图床程序,请前往配置信息页安装！" })
+            }
             switch (ProgramConfigurations.Program) {
                 case 'Lsky':
                     Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/api/v1/upload";

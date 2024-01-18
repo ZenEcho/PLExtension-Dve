@@ -321,5 +321,79 @@ export function autoExpand(event) {
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + 'px';
 }
+/**
+    * 导入配置 内容判定
+    */
+export function parseJsonInput(inputValue) {
+    return new Promise((resolve, reject) => {
+        if (!inputValue || inputValue.trim() == "") {
+            return reject({
+                type: "error", message: {
+                    title: "失败",
+                    content: "导入配置:输入内容为空",
+                    duration: 3000,
+                    keepAliveOnHover: true, placement: 'bottom'
+                }
+            });
+        }
+        try {
+            // 检查是否需要将输入包裹在数组中
+            if (inputValue.trim().startsWith('{') && inputValue.trim().endsWith('}')) {
+                inputValue = '[' + inputValue + ']';
+            }
+            // 尝试将字符串解析为JSON
+            let jsonArray = JSON.parse(inputValue);
+            // 检测解析后的值是否为数组或对象
+            if (Array.isArray(jsonArray) || (typeof jsonArray === 'object' && jsonArray !== null)) {
+                if (jsonArray.length === 0) { return; }
+                let newArray = []
+                for (const item of jsonArray) {
+                    if (Object.keys(item).length === 0) {
+                        continue;
+                    }
+                    if (!item.data) {
+                        const newItem = { ...item }
+                        delete newItem.ConfigName
+                        delete newItem.ConfigTime
+                        newArray.push({
+                            id: generateUniqueId(),
+                            data: newItem,
+                            ConfigName: item.ConfigName || chrome.i18n.getMessage("Config"),
+                        });
+
+                    } else {
+                        newArray.push({ ...item, id: generateUniqueId() });
+                    }
+
+                }
+                resolve(newArray)
+                if (newArray.length === 1) {
+                    storExeButtons(newArray[0]).then(() => {
+                        localStorage.options_webtitle_status = 1
+                    })
+                }
+            } else {
+                reject({
+                    type: "error", message: {
+                        title: "失败",
+                        content: "导入配置:无法处理数据,请查看报错!",
+                        duration: 3000,
+                        keepAliveOnHover: true, placement: 'bottom'
+                    }
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            reject({
+                type: "error", message: {
+                    title: "失败",
+                    content: "导入配置:转换或者数据处理过程中出错了,详细错误请查看开发者工具(F12)!",
+                    duration: 3000,
+                    keepAliveOnHover: true, placement: 'bottom'
+                }
+            });
+        }
+    })
+}
 
 

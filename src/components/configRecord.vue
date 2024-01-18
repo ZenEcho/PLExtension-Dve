@@ -99,13 +99,13 @@
         </div>
         <n-drawer v-model:show="importState" :width="500">
             <n-drawer-content title="导入配置" closable class="dark:bg-gray-100/50">
-                <n-input type="textarea" placeholder="多段对象数据使用,分割" :autosize="{
+                <n-input v-model:value="textareaData" type="textarea" placeholder="多段对象数据使用,分割" :autosize="{
                     minRows: 5
                 }" round clearable />
                 <div class="flex justify-center mt-2">
-                    <button type="button"
+                    <button type="button" @click="configReplace"
                         class=" rounded text-indigo-700 mr-1 px-4 py-1 border border-indigo-400  hover:border-blue-700 hover:bg-blue-700 hover:text-white">替换</button>
-                    <button type="button"
+                    <button type="button" @click="configAppend"
                         class=" rounded text-indigo-700 ml-1 px-4 py-1 border border-indigo-400  hover:border-blue-700 hover:bg-blue-700  hover:text-white">追加</button>
                 </div>
             </n-drawer-content>
@@ -116,15 +116,16 @@
 <script setup>
 import { ref, inject, nextTick, toRaw } from 'vue';
 import { dbHelper } from '@/assets/js/db';
-import { createIconMarkup, storExeButtons } from '@/assets/js/public';
-const showNotification = inject('showNotification');
+import { createIconMarkup, storExeButtons, parseJsonInput } from '@/assets/js/public';
+import { useNotification } from 'naive-ui';
+const notification = useNotification();
 const showMessage = inject('showMessage');
 const importState = ref(false);
+const textareaData = ref('');
 const importshow = () => {
     importState.value = true;
 };
 let BedConfigStore = ref([]);
-
 // --------
 function readBedConfig() {
     dbHelper("BedConfigStore").then(result => {
@@ -133,26 +134,6 @@ function readBedConfig() {
         db.getSortedByIndex().then(BedConfig => {
             console.log("数据库", BedConfig);
             BedConfigStore.value = BedConfig
-            //   if (BedConfig.length === 0) {
-            //     $(".Config-Box-Log-content").html(`
-            //             <div class="Config-Box-Log-item">
-            //                 <div class="BedConfigName"><span>No Data</span></div>
-            //                 <div style="display: flex; justify-content: space-between; align-items: center;">
-            //                     <span class="BedConfigAdd button"><i class="bi bi-plus-circle"></i></span>
-            //                     <span class="BedConfigDel button"><i class="bi bi-x-circle"></i></span>
-            //                 </div>
-            //             </div> 
-            //         `);
-            //     return;
-            //   }
-            //   BedConfig.forEach((e, index) => {
-            //     const item = createConfigItem(e, index);
-            //     $(".Config-Box-Log-content").append(item);
-            //     attachEventHandlers(item, e, db);
-            //   });
-            //   attachShareButtonHandler(BedConfig);
-            //   attachStore()
-            //   DragSort(BedConfig, db); //拖拽api
         });
 
     }).catch(error => {
@@ -189,11 +170,10 @@ const disableEditing = (config) => {
 };
 function addButton(config) {
     storExeButtons(config).then(result => {
-        showNotification("success", {
+        notification.success({
             title: "成功",
             content: chrome.i18n.getMessage("Load") + chrome.i18n.getMessage("successful") + ",即将重新加载页面！",
             duration: 3000,
-
         })
         // 延迟3执行
         setTimeout(() => {
@@ -247,6 +227,52 @@ function allShareButton() {
     }
 
 }
+const configReplace = () => {
+    let value = textareaData.value;
+    parseJsonInput(value).then(newArray => {
+        dbHelper("BedConfigStore").then(result => {
+            const { db } = result;
+            db.clear().then(() => {
+                db.add(newArray).then(() => {
+                    notification.success({
+                        title: "成功",
+                        content: chrome.i18n.getMessage("Load") + chrome.i18n.getMessage("successful") + ",即将重新加载页面！",
+                        duration: 3000,
+                    })
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1000); // 延迟
+                })
+            });
+        })
+    }).catch(error => {
+        console.error(error);
+        notification[error.type](error.message)
+    });
+};
+
+const configAppend = () => {
+    let value = textareaData.value;
+    parseJsonInput(value).then(newArray => {
+        dbHelper("BedConfigStore").then(result => {
+            const { db } = result;
+            db.add(newArray).then(() => {
+                notification.success({
+                    title: "成功",
+                    content: chrome.i18n.getMessage("Load") + chrome.i18n.getMessage("successful") + ",即将重新加载页面！",
+                    duration: 3000,
+                })
+                setTimeout(function () {
+                    window.location.reload();
+                }, 1000); // 延迟
+            })
+        })
+
+    }).catch(error => {
+        console.error(error);
+        notification[error.type](error.message)
+    });
+};
 
 window.addEventListener('message', function (event) {
     console.log(event.data);

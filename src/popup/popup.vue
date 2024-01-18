@@ -10,12 +10,12 @@
     </template>
     <main class="dark:bg-gray-200 min-w-[640px]  min-h-[500px] h-screen">
 
-      <header class="shadow bg-blue-600 dark:bg-gray-700">
+      <header class="shadow bg-blue-600 dark:bg-gray-700 sticky top-0 z-10" style="height: 65px;">
         <Navbar />
       </header>
 
       <SiteTitle />
-      
+
       <div class="w-full p-8">
         <div class="flex justify-center">
           <Dropzone class="w-full max-w-5xl" @success-links="handleLinks"
@@ -24,7 +24,7 @@
       </div>
       <div class="w-full p-8">
         <div class="flex justify-center">
-          <div
+          <div v-if="links.length > 0"
             class="flex flex-row shadow rounded-lg max-sm:flex-col w-full max-w-6xl border dark:shadow-lg dark:border-gray-300">
             <div
               class="p-1 text-center flex flex-col border-r-2 w-36 max-sm:flex-row max-sm:w-full max-sm:justify-center dark:border-gray-300">
@@ -73,11 +73,7 @@
                     取消
                   </span>
                 </button>
-<<<<<<< HEAD
                 <button class="p-4 hover:bg-slate-100 truncate flex items-center" type="button" @click="handleCopyAll()">
-=======
-                <button class="p-4 hover:bg-slate-100 truncate flex items-center" type="button">
->>>>>>> 5d5988ffe51c937a00867316565f37ad037c6abe
                   <svg class="h-5 mr-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                     viewBox="0 0 16 16">
                     <g fill="none">
@@ -192,7 +188,6 @@ function handlefilePreviewElements(Elements) {
 };
 
 function handleCopy(event) {
-<<<<<<< HEAD
   let elementToCopy = event.currentTarget.parentNode.querySelector(".url-text").textContent;
   copyUrlText(elementToCopy, showMessage);
 };
@@ -203,10 +198,6 @@ function handleCopyAll(event) {
   });
   copyUrlText(selected_text.join("\n"), showMessage);
 }
-=======
-  copyUrlText(event, showMessage);
-};
->>>>>>> 5d5988ffe51c937a00867316565f37ad037c6abe
 
 
 function showMessage(payload) {

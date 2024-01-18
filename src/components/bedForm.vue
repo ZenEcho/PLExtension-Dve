@@ -146,12 +146,14 @@
   
 <script setup>
 import { defineProps, ref, watchEffect, inject, defineEmits } from "vue";
-import { storeBedConfig, autoExpand, storProgramConfiguration, getChromeStorage } from '@/assets/js/public';;
-const showNotification = inject('showNotification');
+import { storeBedConfig, autoExpand, storProgramConfiguration, getChromeStorage } from '@/assets/js/public';
+import HttpRequester from '@/assets/js/httpRequester';
+import { useNotification } from 'naive-ui';
 const onShowModal = inject('onShowModal');
 const props = defineProps({
     formGroups: Object
 });
+const notification = useNotification();
 const formContainer = ref(null);
 const show = ref(false);
 const CorsProxy = ref(false); // 初始为 false
@@ -266,24 +268,16 @@ function setFormValues(result, ids) {
         document.getElementById("Host").value = "sm.ms"
     }
     if (props.formGroups.name == "Lsky") {
-        if (result.Host) {//不为空时
-            //相册
-            fetch("https://" + result.Host + "/api/v1/albums", {
-                method: 'GET',
+        if (result.Host) {
+            // 相册
+            HttpRequester.get("https://" + result.Host + "/api/v1/albums", {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': result.Token
                 }
             })
                 .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Network response was not ok.');
-                    }
-                })
-                .then(res => {
-                    let albums = res.data.data;
+                    let albums = response.data.data.data;
                     let albumSelect = document.getElementById("Album_id");
                     albumSelect.innerHTML = ''; // 清空现有选项
                     let defaultOption = document.createElement("option");
@@ -318,23 +312,15 @@ function setFormValues(result, ids) {
                     console.error(chrome.i18n.getMessage("request_failure"), error);
                 });
 
-            //存储源
-            fetch("https://" + result.Host + "/api/v1/strategies", {
-                method: 'GET',
+            // 存储源
+            HttpRequester.get("https://" + result.Host + "/api/v1/strategies", {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': result.Token
                 }
             })
                 .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Network response was not ok.');
-                    }
-                })
-                .then(res => {
-                    let strategies = res.data.strategies;
+                    let strategies = response.data.data.strategies;
                     if (strategies.length > 0) {
                         let SourceSelect = document.getElementById("Source");
                         SourceSelect.innerHTML = '';
@@ -364,7 +350,6 @@ function setFormValues(result, ids) {
                         source.appendChild(input)
                         document.getElementById("Source").value = result.Source;
                     }
-
                 })
                 .catch(error => {
                     let defaultOption = document.createElement("option");
@@ -460,11 +445,11 @@ function handleSubmit(event) {
     }
     formData["Program"] = props.formGroups.name //存储当前程序名称
     storeBedConfig(formData, (data) => {
-        showNotification(data.type, data.message)
+        notification[data.type](data.message)
         emits('submit-success');
     })
     storProgramConfiguration(formData).catch((data, error) => {
-        showNotification(data.type, data.message)
+        notification[data.type](data.message)
         console.log(error);
     });
     let buttons = document.querySelectorAll(".buttons li")
@@ -477,9 +462,14 @@ function handleSubmit(event) {
 }
 function isCorsProxyState() {
     getChromeStorage("ProgramConfiguration").then((result) => {
-        CorsProxy.value = result.CorsProxyState
-        if (result.CorsProxy) {
-            document.getElementById("CorsProxy").value = result.CorsProxy
+        CorsProxy.value = result.CorsProxyState || false;
+        if (result.CorsProxyState) {
+            // 延迟500毫秒
+            setTimeout(() => {
+                let CorsProxy = document.getElementById("CorsProxy")
+                if (!CorsProxy) return;
+                CorsProxy.value = result.CorsProxy
+            }, 500);
         }
     });
 }
@@ -506,7 +496,6 @@ function isCloseCors(name) {
     }
 
 }
-
 </script>
 <style scoped>
 .text-sm {

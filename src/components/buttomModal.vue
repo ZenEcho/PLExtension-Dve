@@ -12,13 +12,13 @@
         <template #footer>
             <div class="w-full flex justify-center items-end">
                 <button type="button"
-                    class="mr-2 text-lg py-1 px-4 border border-b-2 hover:border-b-gray-400 active:border-b-gray-500"
+                    class="shadow-lg rounded mr-2 text-lg py-1 px-4 border border-b-2 hover:border-b-gray-400 active:border-b-gray-500"
                     @click="Allcheck">全部选择</button>
                 <button type="button"
-                    class="text-lg py-2 px-6 border border-b-2 hover:border-b-blue-400 active:border-b-blue-500"
+                    class="text-white shadow-lg rounded text-lg py-2 px-6 border border-b-2 hover:border-b-blue-400 active:border-b-blue-500 bg-blue-600"
                     @click="startHandle">选好了,立刻安装！</button>
                 <button type="button"
-                    class="ml-2 text-lg py-1 px-4 border border-b-2 hover:border-b-gray-400 active:border-b-gray-500"
+                    class="shadow-lg rounded ml-2 text-lg py-1 px-4 border border-b-2 hover:border-b-gray-400 active:border-b-gray-500"
                     @click="uncheck">取消选择</button>
             </div>
         </template>
