@@ -218,17 +218,21 @@ export async function storProgramConfiguration(data) {
 // chrome本地存储API 获取数据
 export function getChromeStorage(key) {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get([key], function (result) {
-            if (chrome.runtime.lastError) {
-                // 处理错误
-                reject(chrome.runtime.lastError);
-            } else {
-                // 返回对应键的值
-                resolve(result[key]);
+        // 错误处理函数
+        const handleError = error => {
+            if (error) {
+                reject(error);
             }
+        };
+        // 获取数据
+        chrome.storage.local.get(key ? [key] : null, result => {
+            handleError(chrome.runtime.lastError);
+            // 如果没有错误，返回结果
+            resolve(key ? result[key] : result);
         });
     });
 }
+
 // 存储安装图床的
 export async function storExeButtons(data) {
     return new Promise((resolve, reject) => {
@@ -321,9 +325,7 @@ export function autoExpand(event) {
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + 'px';
 }
-/**
-    * 导入配置 内容判定
-    */
+// 导入配置 内容判定
 export function parseJsonInput(inputValue) {
     return new Promise((resolve, reject) => {
         if (!inputValue || inputValue.trim() == "") {
@@ -395,5 +397,54 @@ export function parseJsonInput(inputValue) {
         }
     })
 }
+// 传入文本复制内容，返回状态
+export function copyText(value, callback) {
+    console.log(value);
+    navigator.clipboard.writeText(value)
+        .then(() => {
+            callback({ message: "复制成功！", type: "success" });
+        })
+        .catch(err => {
+            callback({ message: "复制失败！", type: "error" });
+        });
+}
+// 定义一个函数，接收src, name和mode作为参数
+export function generateLink(mode, src, name) {
+    let link = '';
+    console.log(src);
+    console.log(name);
+    switch (mode) {
+        case 'URL':
+            link = src;
+            break;
+        case 'HTML':
+            link = '<img src="' + src + '" alt="' + name + '" title="' + name + '" >';
+            break;
+        case 'BBCode':
+            link = '[img]' + src + '[/img]';
+            break;
+        case 'Markdown':
+            link = '![' + name + '](' + src + ')';
+            break;
+        case 'MD with link':
+            link = '[![' + name + '](' + src + ')](' + src + ')';
+            break;
+    }
+
+    return link;
+  
+}
 
 
+// 根据传值计算文件大小和单位
+export function getFormatFileSize(size) {
+    if (size > 1024 * 1024 * 1024) {
+        return (size / (1024 * 1024 * 1024)).toFixed(2) + "GB";
+    } else if (size > 1024 * 1024) {
+        return (size / (1024 * 1024)).toFixed(2) + "MB";
+    } else if (size > 1024) {
+        return (size / 1024).toFixed(2) + "KB";
+    } else {
+        return size + "B";
+    }
+}

@@ -3,37 +3,129 @@
     <header class="shadow bg-blue-600 dark:bg-gray-700 sticky top-0 z-10" style="height: 65px;">
       <Navbar> </Navbar>
     </header>
-    <div class="p-6">
-      <div class="flex flex-wrap justify-center" id="image-scroll-container">
+    <div class="p-6 h-[calc(100vh-165px)] overflow-auto">
+      <div>
+        <div class="flex flex-col items-center justify-center">
+          通知
+        </div>
+        <div class="flex flex-row flex-wrap items-center justify-end m-3 border-b py-2">
+          <button type="button"
+            class="m-1 px-4 py-1 flex flex-row items-center bg-blue-600 dark:bg-gray-600 rounded-md border text-white dark:text-gray-100">
+            <svg class="h-6 w-6 mr-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+              viewBox="0 0 32 32">
+              <path
+                d="M22.5 13c-4.7 0-8.5 3.8-8.5 8.5s3.8 8.5 8.5 8.5s8.5-3.8 8.5-8.5s-3.8-8.5-8.5-8.5zm6.5 8h-3c0-2-.3-4-.9-5.5c2.1 1 3.7 3 3.9 5.5zm-6.5 7c-.4-.2-1.3-1.8-1.5-5h2.9c-.2 3.2-1 4.8-1.4 5zM21 21c.1-3.8 1.1-5.8 1.4-6c.4.2 1.4 2.2 1.5 6H21zm-1.1-5.5c-.6 1.5-.8 3.5-.9 5.5h-3c.2-2.5 1.8-4.5 3.9-5.5zM16.2 23H19c.1 1.6.4 3.2.9 4.5c-1.8-.8-3.2-2.5-3.7-4.5zm8.9 4.5c.5-1.3.8-2.8.9-4.5h2.9c-.6 2-2 3.7-3.8 4.5z"
+                fill="currentColor"></path>
+              <path
+                d="M25.8 10c-.9-4.6-5-8-9.8-8c-4.8 0-8.9 3.4-9.8 8.1c-3.5.7-6.2 3.7-6.2 7.4C0 21.6 3.4 25 7.5 25H11v-2H7.5c-3 0-5.5-2.5-5.5-5.5c0-2.9 2.2-5.3 5.1-5.5H8v-.9c.5-4 3.9-7.1 8-7.1c3.7 0 6.8 2.6 7.7 6h2.1z"
+                fill="currentColor"></path>
+            </svg>
+            <div class="text-base">网络数据</div>
+          </button>
+          <n-dropdown trigger="hover" :options="urlType" @select="handleSelectCopyType" class=" dark:bg-gray-50">
+            <button type="button" @click="handleSelectedCopy"
+              class="m-1 px-4 py-1 flex flex-row items-center bg-blue-200 dark:bg-gray-600/80  rounded-md border text-blue-900 dark:text-gray-100 active:bg-blue-400 active:text-gray-100">
+              <svg class="h-6 w-6 mr-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                viewBox="0 0 512 512">
+                <rect x="128" y="128" width="336" height="336" rx="57" ry="57" fill="none" stroke="currentColor"
+                  stroke-linejoin="round" stroke-width="32"></rect>
+                <path
+                  d="M383.5 128l.5-24a56.16 56.16 0 0 0-56-56H112a64.19 64.19 0 0 0-64 64v216a56.16 56.16 0 0 0 56 56h24"
+                  fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32">
+                </path>
+              </svg>
+              <div class="text-base">复制选中</div>
+            </button>
+          </n-dropdown>
+          <button type="button"
+            class="m-1 px-4 py-1 flex flex-row items-center bg-blue-200 dark:bg-gray-600/80  rounded-md border text-blue-900 dark:text-gray-100">
+            <svg class="h-6 w-6 mr-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+              viewBox="0 0 1024 1024">
+              <path
+                d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z"
+                fill="currentColor"></path>
+            </svg>
+            <div class="text-base">删除选中</div>
+          </button>
+          <button type="button" @click="handleSelectedAll"
+            class="m-1 px-4 py-1 flex flex-row items-center rounded-md border bg-gray-200  dark:bg-gray-500/70  dark:text-gray-100 ">
+            <svg class="h-6 w-6 mr-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+              viewBox="0 0 24 24">
+              <g fill="none">
+                <path
+                  d="M20.496 5.627A2.25 2.25 0 0 1 22 7.75v10A4.25 4.25 0 0 1 17.75 22h-10a2.25 2.25 0 0 1-2.123-1.504l2.097.004H17.75a2.75 2.75 0 0 0 2.75-2.75v-10l-.004-.051V5.627zM17.246 2a2.25 2.25 0 0 1 2.25 2.25v12.997a2.25 2.25 0 0 1-2.25 2.25H4.25A2.25 2.25 0 0 1 2 17.247V4.25A2.25 2.25 0 0 1 4.25 2h12.997zm0 1.5H4.25a.75.75 0 0 0-.75.75v12.997c0 .414.336.75.75.75h12.997a.75.75 0 0 0 .75-.75V4.25a.75.75 0 0 0-.75-.75zm-7.665 7.858L13.47 7.47a.75.75 0 0 1 1.133.976l-.073.084l-4.5 4.5a.75.75 0 0 1-1.056.004L8.9 12.95l-1.5-2a.75.75 0 0 1 1.127-.984l.073.084l.981 1.308L13.47 7.47L9.58 11.358z"
+                  fill="currentColor"></path>
+              </g>
+            </svg>
+            <div class="text-base">反选</div>
+          </button>
+          <button type="button" @click="handleUnSelectedAll"
+            class="m-1 px-4 py-1 flex flex-row items-center rounded-md border bg-gray-200 dark:bg-gray-500/70   dark:text-gray-100">
+            <svg class="h-6 w-6 mr-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+              viewBox="0 0 24 24">
+              <g fill="none">
+                <path
+                  d="M20.496 5.627A2.25 2.25 0 0 1 22 7.75v10A4.25 4.25 0 0 1 17.75 22h-10a2.25 2.25 0 0 1-2.123-1.504l2.097.004H17.75a2.75 2.75 0 0 0 2.75-2.75v-10l-.004-.051V5.627zM17.246 2a2.25 2.25 0 0 1 2.25 2.25v12.997a2.25 2.25 0 0 1-2.25 2.25H4.25A2.25 2.25 0 0 1 2 17.247V4.25A2.25 2.25 0 0 1 4.25 2h12.997zm0 1.5H4.25a.75.75 0 0 0-.75.75v12.997c0 .414.336.75.75.75h12.997a.75.75 0 0 0 .75-.75V4.25a.75.75 0 0 0-.75-.75z"
+                  fill="currentColor"></path>
+              </g>
+            </svg>
+            <div class="text-base">取消</div>
+          </button>
+        </div>
+      </div>
+      <div class="flex flex-wrap justify-center" id="image-scroll-container" v-if="imagesData.length > 0">
         <n-image-group>
-          <div v-for="( item, index ) in  imagesData " :key="index"
-            class="border shadow-lg max-w-[300px] flex flex-col image m-1 items-center relative">
-            <div
-              class="hover:bg-gray-600/30 hover:opacity-100 opacity-0 bg-white-500 absolute top-0 w-full flex flex-row items-center justify-end">
-              <button class="w-7 h-7 text-red-600 hover:text-red-700"><svg xmlns="http://www.w3.org/2000/svg"
-                  xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
-                  <path
-                    d="M289.94 256l95-95A24 24 0 0 0 351 127l-95 95l-95-95a24 24 0 0 0-34 34l95 95l-95 95a24 24 0 1 0 34 34l95-95l95 95a24 24 0 0 0 34-34z"
-                    fill="currentColor"></path>
-                </svg></button>
-            </div>
-            <n-image class="h-[200px]" :src="item.url" object-fit="cover" lazy :intersection-observer-options="{
-              root: '#image-scroll-container'
-            }" :fallback-src="fallbackImage">
-              <template #placeholder>
-                <div class="w-[300px] h-[200px] flex justify-center">
-                  <n-spin size="large" />
+          <n-card v-for="( item, index ) in  imagesData " :key="index" :data-key="item.key" :data-url="item.url"
+            :data-fileName="item.original_file_name"
+            class="image-card max-w-[300px] flex flex-col m-1 relative dark:bg-gray-100/90" size="small" hoverable
+            closable @click="handleImageCardClick($event, item)">
+            <template #header>
+              <n-ellipsis expand-trigger="click" line-clamp="1" :tooltip="false">
+                {{ item.original_file_name }}
+              </n-ellipsis>
+            </template>
+            <n-popover trigger="hover" class="dark:bg-gray-600/80 dark:text-gray-100">
+              <template #trigger>
+                <n-image class="h-[200px] flex justify-center" :src="item.url" object-fit="cover" lazy
+                  :intersection-observer-options="{
+                    root: '#image-scroll-container'
+                  }" :fallback-src="fallbackImage">
+                  <template #placeholder>
+                    <div class="w-[300px] h-[200px] flex justify-center">
+                      <n-spin size="large" />
+                    </div>
+                  </template>
+                </n-image>
+              </template>
+              <template #default>
+                <div>
+                  <p>文件名称：{{ item.original_file_name }}</p>
+                  <p>文件大小：{{ getFormatFileSize(item.file_size) }}</p>
+                  <p>上传程序：{{ item.uploadExe }}</p>
+                  <p>上传域名：{{ item.upload_domain_name }}</p>
+                  <p>上传时间：{{ item.uploadTime }}</p>
                 </div>
               </template>
-            </n-image>
-            <div class="bg-gray-500/30 absolute bottom-0 w-full flex flex-row items-center text-white">
-              {{ item.original_file_name }}
-            </div>
-          </div>
+            </n-popover>
+            <template #footer>
+              <div class="flex justify-center items-center">
+                <button type="button" class="px-4 py-1 border mx-1">插入</button>
+                <button type="button" class="px-4 py-1 border mx-1">复制</button>
+              </div>
+            </template>
+          </n-card>
+
         </n-image-group>
       </div>
+      <div v-else>
+        <n-result status="403" title="403 禁止访问" description="总有些门是对你关闭的">
+          <template #footer>
+            <n-button><a href="/popup.html">去上传试一试？</a></n-button>
+          </template>
+        </n-result>
+      </div>
     </div>
-    <div class="p-6 sticky bottom-0 bg-white dark:bg-gray-100 shadow-xl border">
+    <div class="p-6 sticky bottom-0 bg-white dark:bg-gray-100 shadow-xl border h-[100px]">
       <div class="flex flex-wrap justify-center">
         <n-pagination v-model:page="page" v-model:page-size="pageSize"
           :page-count="Math.ceil(imagesStorageData.length / pageSize)" show-size-picker :page-sizes="pageSizes"
@@ -41,16 +133,22 @@
       </div>
     </div>
   </div>
+  <n-message-provider>
+    <Messagetag ref="messageRef" />
+  </n-message-provider>
 </template>
 <script setup>
 import Navbar from '@/components/header.vue';
+import Messagetag from '@/components/message.vue';
 import { ref, onMounted } from 'vue';
-import { getChromeStorage } from '@/assets/js/public';
+import { getChromeStorage, getFormatFileSize, copyText, generateLink } from '@/assets/js/public';
 import fallbackImage from '../assets/images/logo256.png';
-const imagesStorageData = ref([]) // 图片数据
-const imagesData = ref([]) // 图片数据
+const messageRef = ref(null);
+const imagesStorageData = ref([]) // 图片总数据
+const imagesData = ref([]) // 图片分页数据
 const page = ref(1); // 当前页
 const pageSize = ref(10) // 每页显示数量
+const Copy_Selected_Mode = ref("URL") // 每页显示数量
 const pageSizes = [
   {
     label: '10/页',
@@ -73,19 +171,78 @@ const pageSizes = [
     value: 50
   }
 ];
+const urlType = ref([
+  { key: 'URL', label: 'URL' },
+  { key: 'HTML', label: 'HTML' },
+  { key: 'BBCode', label: 'BBCode' },
+  { key: 'Markdown', label: 'Markdown' },
+  { key: 'MDWithLink', label: 'MD with link' }
+]);
 function pageChange(page) {
   let startIndex = (page - 1) * pageSize.value;
   let endIndex = startIndex + pageSize.value;
   imagesData.value = imagesStorageData.value.slice(startIndex, endIndex);
+
 };
 function pageSizeChange(pageSize) {
   pageChange(page.value)
 };
+function showMessage(payload) {
+  if (messageRef.value && typeof messageRef.value.showMessage === 'function') {
+    messageRef.value.showMessage(payload);
+  }
+};
+// 选中复制
+function handleSelectedCopy() {
+  let images = document.querySelectorAll(".image-card.active")
+  let url = []
+  let link;
+  if (images.length < 1) return;
+  images.forEach(element => {
+    link = generateLink(Copy_Selected_Mode.value, element.dataset.fileName, element.dataset.url)
+    url.push(link)
+  })
+  copyText(url.join("\n"), showMessage);
+}
+// 选中的复制类型
+function handleSelectCopyType(key) {
+  let images = document.querySelectorAll(".image-card.active")
+  let url = []
+  if (images.length < 1) return;
+  images.forEach(element => {
+    url.push(generateLink(key, element.dataset.fileName, element.dataset.url))
+  })
+  copyText(url.join("\n"), showMessage);
+}
+// 点击卡片选中
+function handleImageCardClick(event) {
+  // 阻止点到img 和按钮
+  if (event.target.tagName === 'IMG' || event.target.tagName === 'BUTTON' || event.target.tagName == 'svg') return;
+  event.currentTarget.classList.toggle('active');
+}
+// 反选
+function handleSelectedAll() {
+  let images = document.querySelectorAll(".image-card")
+  images.forEach(element => {
+    element.classList.toggle('active');
+  })
+}
+// 取消选中
+function handleUnSelectedAll() {
+  let images = document.querySelectorAll(".image-card.active")
+  images.forEach(element => {
+    element.classList.remove('active');
+  })
+}
+
 
 // 本地图片加载
 function loadImages() {
   getChromeStorage("UploadLog").then((result) => {
     console.log("图片记录：", result,);
+    if (!result) {
+      return;
+    }
     imagesStorageData.value = result;
     pageChange(page.value)
   })
@@ -96,6 +253,35 @@ function loadNetImages() {
 
 }
 onMounted(() => {
+  getChromeStorage().then((result) => {
+    if (result.Copy_Selected_Mode) {
+      Copy_Selected_Mode.value = result.Copy_Selected_Mode;
+    }
+  })
   loadImages()
 })
 </script>
+<style>
+.active {
+  position: relative;
+  /* 确保父元素是相对定位 */
+}
+
+.active::after {
+  content: '\2713';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 5rem;
+  line-height: 100px;
+  text-align: center;
+  font-weight: 700;
+  color: #4caf50;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  background: azure;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+</style>

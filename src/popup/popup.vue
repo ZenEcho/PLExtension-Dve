@@ -163,7 +163,7 @@ import Navbar from '@/components/header.vue';
 import SiteTitle from '@/components/siteTitle.vue';
 import Dropzone from '@/components/dropzone.vue';
 import Messagetag from '@/components/message.vue';
-import { getUrlText, copyUrlText } from './handle.js';
+import { copyText } from '@/assets/js/public';
 import { ref, provide, reactive } from 'vue';
 const messageRef = ref(null);
 const SpinConfig = reactive({
@@ -177,6 +177,13 @@ const SpinConfig = reactive({
 });
 const links = ref([]);
 const filePreviewElements = ref([]);
+function getUrlText(event) {
+  let range = document.createRange();
+  range.selectNodeContents(event.currentTarget);
+  let sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
 function handleLinks(Links) {
   links.value = Links;
   getSelectType().then((Link) => {
@@ -186,20 +193,17 @@ function handleLinks(Links) {
 function handlefilePreviewElements(Elements) {
   filePreviewElements.value = Elements;
 };
-
 function handleCopy(event) {
   let elementToCopy = event.currentTarget.parentNode.querySelector(".url-text").textContent;
-  copyUrlText(elementToCopy, showMessage);
+  copyText(elementToCopy, showMessage);
 };
 function handleCopyAll(event) {
   let selected_text = [];
   document.querySelectorAll('.previewActive .url-text').forEach((element) => {
     selected_text.push(element.textContent);
   });
-  copyUrlText(selected_text.join("\n"), showMessage);
+  copyText(selected_text.join("\n"), showMessage);
 }
-
-
 function showMessage(payload) {
   if (messageRef.value && typeof messageRef.value.showMessage === 'function') {
     messageRef.value.showMessage(payload);
