@@ -159,16 +159,13 @@ const show = ref(false);
 const CorsProxy = ref(false); // 初始为 false
 
 const createFormElement = (element) => {
-    // 使用element.type来创建元素，使函数更通用
     const el = document.createElement(element.type);
-
     // 设置元素的属性
     if (element.attributes) {
         for (const [key, value] of Object.entries(element.attributes)) {
             el.setAttribute(key, value);
         }
     }
-
     // 特殊处理select元素的options
     if (element.type === 'select' && element.options) {
         element.options.forEach(option => {
@@ -181,19 +178,24 @@ const createFormElement = (element) => {
             el.appendChild(optionEl);
         });
     }
-
     // 如果存在子元素，递归创建
     if (element.children && element.children.length > 0) {
         element.children.forEach(child => {
-            el.appendChild(createFormElement(child));
+            const childEl = createFormElement(child);
+            // 如果子元素是input且有required属性，找到相应的label并添加红色星号
+            if (child.type === 'input' && child.attributes.required) {
+                const label = el.querySelector(`label[for='${child.attributes.id}']`);
+                if (label) {
+                    label.innerHTML += ' <span style="color: red;">*</span>';
+                }
+            }
+            el.appendChild(childEl);
         });
     }
-
     // 处理文本内容（例如label）
     if (element.text) {
         el.textContent = element.text;
     }
-
     return el;
 };
 
@@ -424,8 +426,8 @@ function handleSubmit(event) {
         case 'Telegra_ph':
             formData['Host'] = "telegra.ph"
             break;
-        case 'Imgur':
-            // formData['imgur_post_mode'] = $('#options_imgur_post_mode').is(':checked')
+        case "IMGDD":
+            formData['Host'] = "imgdd.com"
             break;
         case 'Custom':
             formData['Host'] = document.getElementById("Url").value
@@ -433,13 +435,10 @@ function handleSubmit(event) {
         case 'fiftyEight':
             formData['Host'] = "cn.58.com"
             break;
-        case 'BaiJiaHaoBed':
+        case 'BaiJiaHao':
             formData['Host'] = "baijiahao.baidu.com"
             break;
-        case 'freebufBed':
-            formData['Host'] = "www.freebuf.com"
-            break;
-        case 'toutiaoBed':
+        case 'toutiao':
             formData['Host'] = "www.toutiao.com"
             break;
     }

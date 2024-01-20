@@ -163,7 +163,7 @@ import Navbar from '@/components/header.vue';
 import SiteTitle from '@/components/siteTitle.vue';
 import Dropzone from '@/components/dropzone.vue';
 import Messagetag from '@/components/message.vue';
-import { copyText } from '@/assets/js/public';
+import { copyText, generateLink } from '@/assets/js/public';
 import { ref, provide, reactive } from 'vue';
 const messageRef = ref(null);
 const SpinConfig = reactive({
@@ -227,25 +227,7 @@ function setSelectType(value) {
   selectedType.value = value;
   if (links.value && links.value.length > 0) {
     const updatedLinks = links.value.map(link => {
-      let newUrl = '';
-      switch (value) {
-        case 'URL':
-          newUrl = link.originalUrl;
-          break;
-        case 'HTML':
-          newUrl = `&lt;img src="${link.originalUrl}" alt="${link.name}" title="${link.name}" /&gt;`;
-          break;
-        case 'BBCode':
-          newUrl = `[img]${link.originalUrl}[/img]`;
-          break;
-        case 'Markdown':
-          newUrl = `![${link.name}](${link.originalUrl})`;
-          break;
-        case 'MDWithLink':
-          newUrl = `[![${link.name}](${link.originalUrl})](${link.originalUrl})`;
-          break;
-      }
-      return { ...link, url: newUrl };
+      return { ...link, url: generateLink(value, link.originalUrl, link.name) };
     });
 
     links.value = updatedLinks;

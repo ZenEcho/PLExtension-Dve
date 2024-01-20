@@ -1,6 +1,7 @@
 import { dbHelper } from '@/assets/js/db';
 import { taskQueue } from '@/assets/js/taskQueue';
 import { getChromeStorage } from '@/assets/js/public';
+import HttpRequester from '@/assets/js/httpRequester';
 import axios from 'axios';
 // ---打包要很jb久，测试时不打包
 // import COS from 'cos-js-sdk-v5';
@@ -474,11 +475,10 @@ export function setUpload(Dropzone) {
                         document.querySelector(".dz-remove").remove()
                     });
                     break;
-                case 'GitHubUP':
+                case 'GitHub':
                     Dropzone.options.autoProcessQueue = false
                     Dropzone.options.acceptedFiles = ""
                     Dropzone.options.maxFilesize = 5000
-                    delay = measurePingDelay("https://github.com/");
                     delayUpload = async function (file, index) {
                         if (index >= file.length) {
                             // 所有文件上传完成
@@ -493,95 +493,72 @@ export function setUpload(Dropzone) {
 
                         let date = new Date();
                         let data = { message: 'UploadDate:' + date.getFullYear() + "年" + (date.getMonth() + 1) + "月" + date.getDate() + "日" + date.getHours() + "时" + date.getMinutes() + "分" + date.getSeconds() + "秒" }
-                        // 查询是否冲突
-                        try {
-                            fetch(ProgramConfigurations.proxy_server + `https://api.github.com/repos/` + ProgramConfigurations.Owner + `/` + ProgramConfigurations.Repository + `/contents/` + ProgramConfigurations.UploadPath + currentFile.name, {
-                                method: 'GET',
+                        // 检查文件是否已存在
+                        function checkFileExistence(url) {
+                            return HttpRequester.get(url, {
                                 headers: {
-                                    'Authorization': 'Bearer ' + ProgramConfigurations.Token,
+                                    'Authorization': `Bearer ${ProgramConfigurations.Token}`,
                                     'Content-Type': 'application/json'
                                 },
                             })
-                                .then(response => response.json())
-                                .then(res => {
-                                    if (res.sha) {
-                                        data.sha = res.sha
+                                .then(response => {
+                                    if (response.data.sha) {
+                                        data.sha = response.data.sha;
                                     }
-                                    Upload_method()
+                                    Upload_method();
                                 })
-                        } catch (error) {
-                            try {
-                                fetch("https://cors-anywhere.pnglog.com/" + `https://api.github.com/repos/` + ProgramConfigurations.Owner + `/` + ProgramConfigurations.Repository + `/contents/` + ProgramConfigurations.UploadPath + currentFile.name, {
-                                    method: 'GET',
-                                    headers: {
-                                        'Authorization': 'Bearer ' + ProgramConfigurations.Token,
-                                        'Content-Type': 'application/json'
-                                    },
-                                })
-                                    .then(response => response.json())
-                                    .then(res => {
-                                        if (res.sha) {
-                                            data.sha = res.sha
-                                        }
-                                        Upload_method()
-                                    })
-                            } catch (error) {
-                                console.log(error)
-                                toastItem({
-                                    toast_content: chrome.i18n.getMessage("Upload_prompt4")
-                                })
-                            }
+                                .catch(error => {
+                                    throw error;
+                                });
                         }
+                        checkFileExistence(`https://api.github.com/repos/` + ProgramConfigurations.Owner + `/` + ProgramConfigurations.Repository + `/contents/` + ProgramConfigurations.UploadPath + currentFile.name)
+                            .catch((error) => {
+                                if (error.response && error.response.status === 404) {
+                                    return Upload_method();
+                                }
+                                return checkFileExistence(`https://cors-anywhere.pnglog.com/https://api.github.com/repos/` + ProgramConfigurations.Owner + `/` + ProgramConfigurations.Repository + `/contents/` + ProgramConfigurations.UploadPath + currentFile.name);
+                            })
+                            .catch((error) => {
+                                console.log(error)
+                                reject({ error: error, message: chrome.i18n.getMessage("Upload_prompt4") })
+                            });
                         async function Upload_method() {
                             const fileReader = new FileReader();
                             fileReader.onloadend = function () {
                                 data.content = btoa(fileReader.result)
-                                // 发送上传请求
-                                $.ajax({
-                                    url: `https://api.github.com/repos/` + ProgramConfigurations.Owner + `/` + ProgramConfigurations.Repository + `/contents/` + ProgramConfigurations.UploadPath + currentFile.name,
-                                    type: 'PUT',
+                                HttpRequester.put(`https://api.github.com/repos/` + ProgramConfigurations.Owner + `/` + ProgramConfigurations.Repository + `/contents/` + ProgramConfigurations.UploadPath + currentFile.name, JSON.stringify(data), {
                                     headers: {
                                         'Authorization': 'Bearer ' + ProgramConfigurations.Token,
                                         'Content-Type': 'application/json'
                                     },
-                                    xhr: function () {
-                                        const xhr = new window.XMLHttpRequest();
-                                        xhr.upload.addEventListener("progress", function (evt) {
-                                            if (evt.lengthComputable) {
-                                                const percentComplete = Math.floor((evt.loaded / evt.total) * 100);
-                                                currentFile.upload.progress = percentComplete;
-                                                currentFile.status = Dropzone.UPLOADING;
-                                                Dropzone.emit("uploadprogress", currentFile, percentComplete, 100);
-                                            }
-                                        }, false);
-                                        return xhr;
-                                    },
-                                    data: JSON.stringify(data),
-                                    success: function (response) {
+                                    onUploadProgress: function (progressEvent) {
+                                        const percentCompleted = Math.floor((progressEvent.loaded * 100) / progressEvent.total);
+                                        currentFile.upload.progress = percentCompleted;
+                                        currentFile.status = Dropzone.UPLOADING;
+                                        Dropzone.emit("uploadprogress", currentFile, percentCompleted, progressEvent.total);
+                                    }
+                                })
+                                    .then(res => {
                                         currentFile.status = Dropzone.SUCCESS;
                                         Dropzone.emit("success", currentFile, "上传完成");
                                         Dropzone.emit("complete", currentFile);
-                                    },
-                                    error: function (xhr, status, error) {
-                                        if (xhr) {
-                                            Dropzone.emit("error", currentFile, xhr);
-                                            return;
-                                        }
-                                    }
-                                });
+                                    })
+                                    .catch(error => {
+                                        console.log(error);
+                                        currentFile.status = Dropzone.ERROR;
+                                        Dropzone.emit("error", currentFile, error);
+                                    });
 
                             };
                             fileReader.readAsBinaryString(currentFile);
-                            // 延迟一段时间后上传下一个文件
-                            await new Promise((resolve) => setTimeout(resolve, delay)); // 设置延迟时间（单位：毫秒）
+                            await new Promise((resolve) => setTimeout(resolve, 100)); // 设置延迟时间（单位：毫秒）
                             await delayUpload(file, index + 1);
                         }
                     }
                     // 监听文件添加事件
                     Dropzone.on("addedfiles", function (files) {
-                        // 调用延迟上传函数开始上传
                         delayUpload(files, 0);
-                        $(".dz-remove").remove()
+                        document.querySelector(".dz-remove").remove()
                     });
                     break;
                 case 'Telegra_ph':
@@ -595,7 +572,7 @@ export function setUpload(Dropzone) {
                     Dropzone.options.paramName = 'file';
                     Dropzone.options.acceptedFiles = '.jpeg,.jpg,.png,.gif,.tif,.bmp,.ico,.psd,.webp';
                     break;
-                case 'imgdd':
+                case "IMGDD":
                     Dropzone.options.maxFilesize = 5
                     Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/api/v1/upload";
                     Dropzone.options.headers = { "Accept": "application/json" };
@@ -622,41 +599,32 @@ export function setUpload(Dropzone) {
                                 "Pic-Data": file.dataURL.split(",")[1], // 获取Base64编码部分
                             };
                             // 执行上传逻辑
-                            $.ajax({
-                                url: "https://upload.58cdn.com.cn/json",
-                                type: "POST",
+                            HttpRequester.post("https://upload.58cdn.com.cn/json", JSON.stringify(dataToSend), {
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
-                                xhr: function () {
-                                    const xhr = new window.XMLHttpRequest();
-                                    xhr.upload.addEventListener("progress", function (evt) {
-                                        if (evt.lengthComputable) {
-                                            const percentComplete = Math.floor((evt.loaded / evt.total) * 100);
-                                            file.upload.progress = percentComplete;
-                                            file.status = Dropzone.UPLOADING;
-                                            Dropzone.emit("uploadprogress", file, percentComplete, 100);
-                                        }
-                                    }, false);
-                                    return xhr;
-                                },
-                                data: JSON.stringify(dataToSend),
-                                success: function (result) {
-                                    if (result) {
+                                onUploadProgress: function (progressEvent) {
+                                    const percentCompleted = Math.floor((progressEvent.loaded * 100) / progressEvent.total);
+                                    file.upload.progress = percentCompleted;
+                                    file.status = Dropzone.UPLOADING;
+                                    Dropzone.emit("uploadprogress", file, percentCompleted, progressEvent.total);
+                                }
+                            })
+                                .then(result => {
+                                    if (result.data) {
                                         file.status = Dropzone.SUCCESS;
-                                        Dropzone.emit("success", file, result);
-                                        Dropzone.emit("complete", file, result);
+                                        Dropzone.emit("success", file, result.data);
+                                        Dropzone.emit("complete", file, result.data);
                                     } else {
                                         Dropzone.emit("error", file, "上传失败,可能是达到了上限");
                                     }
-                                },
-                                error: function (xhr, status, error) {
-                                    if (xhr) {
-                                        Dropzone.emit("error", file, xhr);
-                                        return;
-                                    }
-                                }
-                            });
+                                })
+                                .catch(error => {
+                                    console.log(error);
+                                    file.status = Dropzone.ERROR;
+                                    Dropzone.emit("error", file, error);
+                                });
+
                         };
                         reader.readAsDataURL(file);
 
@@ -664,7 +632,7 @@ export function setUpload(Dropzone) {
                     // 监听文件添加事件
                     Dropzone.on("addedfile", function (file) {
                         delayUpload(file);
-                        $(".dz-remove").remove()
+                        document.querySelector(".dz-remove").remove()
                     });
                     break;
                 case 'BilibliBed':
@@ -685,7 +653,7 @@ export function setUpload(Dropzone) {
                     //     formData.append("category", "category");
                     // })
                     break;
-                case 'BaiJiaHaoBed':
+                case 'BaiJiaHao':
                     Dropzone.options.url = "https://baijiahao.baidu.com/pcui/picture/upload";
                     Dropzone.options.paramName = 'media';
                     Dropzone.options.acceptedFiles = '.jpeg,.jpg,.png,.gif,.bmp,.ico,.webp';
@@ -693,17 +661,7 @@ export function setUpload(Dropzone) {
                         formData.append("type", "image");
                     })
                     break;
-                case 'freebufBed':
-                    Dropzone.options.url = "https://www.freebuf.com/fapi/frontend/upload/image";
-                    Dropzone.options.paramName = 'file';
-                    Dropzone.options.acceptedFiles = '.jpeg,.jpg,.png,.gif,.bmp,.ico,.webp';
-                    Dropzone.options.headers = {
-                        "Accept": "application/json, text/plain, */*",
-                        "Referer": "https://www.freebuf.com/write",
-                        "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-                    };
-                    break;
-                case 'toutiaoBed':
+                case 'toutiao':
                     const randomAid = Math.floor(Math.random() * 24) + 1;
                     let url = `https://i.snssdk.com/feedback/image/v1/upload/?appkey=toutiao_web-web&aid=` + randomAid + `&app_name=toutiao_web`
                     Dropzone.options.url = url;
@@ -718,7 +676,7 @@ export function setUpload(Dropzone) {
                         formData.append("app_id", randomAid);
                     })
                     break;
-                case 'toutiaoBed2':
+                case 'toutiao2':
                     // Dropzone.options.url ="https://mp.toutiao.com/spice/image?upload_source=20020002&aid=1231&device_platform=web";
                     // Dropzone.options.paramName = 'image';
                     // Dropzone.options.acceptedFiles = '.jpeg,.jpg,.png,.gif,.bmp,.ico,.webp';

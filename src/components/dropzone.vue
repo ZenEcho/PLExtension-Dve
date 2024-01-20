@@ -146,89 +146,71 @@ function DropzoneSuccess() {
           break;
         case 'Tencent_COS':
           //腾讯云cos拼接
-          if (!ProgramConfigurations.Custom_domain_name) {
-            ProgramConfigurations.Custom_domain_name = "https://" + ProgramConfigurations.Bucket + ".cos." + ProgramConfigurations.Region + ".myqcloud.com/"
+          if (!ProgramConfigurations.custom_DomainName) {
+            ProgramConfigurations.custom_DomainName = "https://" + ProgramConfigurations.Bucket + ".cos." + ProgramConfigurations.Region + ".myqcloud.com/"
           }
-          imageUrl = ProgramConfigurations.Custom_domain_name + filename
+          imageUrl = ProgramConfigurations.custom_DomainName + filename
 
           showMessage({ message: chrome.i18n.getMessage("Upload_prompt7"), type: "success" });
           ProgramConfigurations.Host = ProgramConfigurations.Bucket
           break;
         case 'Aliyun_OSS':
           //阿里云oss拼接
-          if (!ProgramConfigurations.Custom_domain_name) {
-            ProgramConfigurations.Custom_domain_name = "https://" + ProgramConfigurations.Bucket + "." + ProgramConfigurations.Endpoint + "/"
+          if (!ProgramConfigurations.custom_DomainName) {
+            ProgramConfigurations.custom_DomainName = "https://" + ProgramConfigurations.Bucket + "." + ProgramConfigurations.Endpoint + "/"
           }
-          imageUrl = ProgramConfigurations.Custom_domain_name + filename
+          imageUrl = ProgramConfigurations.custom_DomainName + filename
           showMessage({ message: chrome.i18n.getMessage("Upload_prompt7"), type: "success" });
           ProgramConfigurations.Host = ProgramConfigurations.Endpoint
           break;
         case 'AWS_S3':
           //AWS S3拼接
-          if (!ProgramConfigurations.Custom_domain_name) {
-            ProgramConfigurations.Custom_domain_name = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/" + ProgramConfigurations.Bucket + "/"
+          if (!ProgramConfigurations.custom_DomainName) {
+            ProgramConfigurations.custom_DomainName = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/" + ProgramConfigurations.Bucket + "/"
           }
-          imageUrl = ProgramConfigurations.Custom_domain_name + filename
+          imageUrl = ProgramConfigurations.custom_DomainName + filename
           showMessage({ message: chrome.i18n.getMessage("Upload_prompt7"), type: "success" });
           ProgramConfigurations.Host = ProgramConfigurations.Endpoint
           break;
-        // case 'GitHubUP':
-        //     imageUrl = `https://raw.githubusercontent.com/` + ProgramConfigurations.owner + `/` + ProgramConfigurations.repository + `/main/` + ProgramConfigurations.UploadPath + file.name
-        //     toastItem({
-        //         toast_content: chrome.i18n.getMessage("Upload_prompt7")
-        //     })
-        //     ProgramConfigurations.Host = "GitHub.com"
-        //     break;
-        // case 'Telegra_ph':
-        //     if (ProgramConfigurations.Custom_domain_name) {
-        //         imageUrl = ProgramConfigurations.Custom_domain_name + res[0].src;
-        //         ProgramConfigurations.Host = ProgramConfigurations.Custom_domain_name
-        //     } else {
-        //         imageUrl = `https://telegra.ph` + res[0].src;
-        //     }
-        //     break;
-        // case 'imgdd':
-        //     imageUrl = res.url
-        //     break;
-        // case 'fiftyEight':
-        //     if (res && res.indexOf("n_v2") > -1) {
-        //         let index = parseInt(Math.random() * 8) + 1;
-        //         imageUrl = "https://pic" + index + ".58cdn.com.cn/nowater/webim/big/" + res;
-        //     }
-        //     break;
-        // case 'BilibliBed':
-        //     imageUrl = res.data.image_url
-        //     toastItem({
-        //         toast_content: chrome.i18n.getMessage("Upload_prompt7")
-        //     })
-        //     break;
-        // case 'BaiJiaHaoBed':
-        //     if (res.ret.https_url) {
-        //         imageUrl = res.ret.https_url;
-        //     }
-
-        //     toastItem({
-        //         toast_content: res.errmsg
-        //     })
-        //     break;
-        // case 'freebufBed':
-        //     imageUrl = res.data.url.replace(/\\/g, "").replace('!small', '');
-        //     toastItem({
-        //         toast_content: chrome.i18n.getMessage("Upload_prompt7")
-        //     })
-        //     break;
-        // case 'toutiaoBed':
-        //     imageUrl = res.data.url_list[0].url;
-        //     toastItem({
-        //         toast_content: chrome.i18n.getMessage("Upload_prompt7")
-        //     })
-        //     break;
+        case 'GitHub':
+          imageUrl = `https://raw.githubusercontent.com/` + ProgramConfigurations.Owner + `/` + ProgramConfigurations.Repository + `/main/` + ProgramConfigurations.UploadPath + file.name
+          showMessage({ message: chrome.i18n.getMessage("Upload_prompt7"), type: "success" });
+          ProgramConfigurations.Host = "GitHub.com"
+          break;
+        case 'Telegra_ph':
+          if (ProgramConfigurations.custom_DomainName) {
+            imageUrl = ProgramConfigurations.custom_DomainName + res[0].src;
+            ProgramConfigurations.Host = ProgramConfigurations.custom_DomainName
+          } else {
+            imageUrl = `https://telegra.ph` + res[0].src;
+          }
+          break;
+        case "IMGDD":
+          imageUrl = res.url
+          break;
+        case 'fiftyEight':
+          if (res && res.indexOf("n_v2") > -1) {
+            let index = parseInt(Math.random() * 8) + 1;
+            imageUrl = "https://pic" + index + ".58cdn.com.cn/nowater/webim/big/" + res;
+          }
+          break;
+        case 'BaiJiaHao':
+          if (res.ret.https_url) {
+            imageUrl = res.ret.https_url;
+          }
+          showMessage({ message: res.errmsg, type: "success" });
+          break;
+        case 'toutiao':
+          imageUrl = res.data.url_list[0].url;
+          showMessage({ message: chrome.i18n.getMessage("Upload_prompt7"), type: "success" });
+          break;
       }
     } catch (error) {
       console.log(error);
       if (!imageUrl) {
         imageUrl = chrome.i18n.getMessage("Upload_prompt4")
       }
+      showMessage({ message: "文件" + file.name + "上传失败", type: "error" });
     }
     let info = {
       url: imageUrl,
@@ -264,6 +246,7 @@ function DropzoneError() {
       originalUrl: "无法获取链接",
       name: file.name
     }
+    showMessage({ message: "文件" + file.name + "上传失败", type: "error" });
     taskQueue(() => LinksGo(info));
   })
   uploader.on("removedfile", function (removefile) {
@@ -307,11 +290,18 @@ function handleFilePreviewClick(event, file) {
   background: transparent !important;
 }
 
+.dropzone .dz-preview:hover {
+  z-index: 1 !important;
+}
+
 .dropzone .dz-preview .dz-image,
 .dropzone .dz-preview .dz-image img {
   width: 100%;
   height: 100%;
+  z-index: 1;
 }
+
+
 
 .dropzone .dz-preview .dz-remove {
   position: absolute;
