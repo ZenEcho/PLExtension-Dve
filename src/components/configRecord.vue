@@ -1,9 +1,9 @@
 <template>
-    <div>
-        <div class="bg-blue-500 text-white text-lg font-bold p-2 rounded-t-xl text-center">
-            <span>配置记录</span>
+    <div class="bg-gray-50">
+        <div class="border-l-4 text-lg font-bold p-1">
+            <span class="ml-1">配置记录</span>
         </div>
-        <div>
+        <div class="mt-1 border-t">
             <div v-if="BedConfigStore.length > 0">
                 <div v-for="config in BedConfigStore" :key="config.id"
                     class="flex flex-row justify-between items-center p-1 hover:bg-gray-100">

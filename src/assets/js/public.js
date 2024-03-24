@@ -238,48 +238,95 @@ export async function storExeButtons(data) {
             });
     });
 }
+
+// export function LocalStorage(data) {
+//     let pluginPopup = chrome.runtime.getURL("popup.html");
+//     let currentURL = window.location.href;
+//     return new Promise((resolveC, rejectC) => {
+//         let filename = data.file.name || data.file.file.name;
+//         let imageUrl = data.url
+//         let MethodName = data.MethodName || "normal";
+//         let uploadDomainName = data.uploadDomainName || data.Program;
+//         if (pluginPopup != currentURL) {
+//             chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
+//         }
+//         chrome.storage.local.get('UploadLog', function (result) {
+//             let UploadLog = result.UploadLog || [];
+//             if (!Array.isArray(UploadLog)) {
+//                 UploadLog = [];
+//             }
+//             let d = new Date();
+//             let UploadLogData = {
+//                 key: crypto.randomUUID(),
+//                 url: imageUrl,
+//                 uploadExe: data.Program + "-" + MethodName,
+//                 upload_domain_name: uploadDomainName,
+//                 original_file_name: filename,
+//                 file_size: data.file.file.size,
+//                 img_file_size: "宽:不支持,高:不支持",
+//                 uploadTime: d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日" + d.getHours() + "时" + d.getMinutes() + "分" + d.getSeconds() + "秒"
+//             }
+//             if (typeof UploadLog !== 'object') {
+//                 UploadLog = JSON.parse(UploadLog);
+//             }
+//             UploadLog.push(UploadLogData);
+//             chrome.storage.local.set({ 'UploadLog': UploadLog }, function () {
+//                 if (window.location.href.startsWith('http')) {
+//                     chrome.runtime.sendMessage({ Loudspeaker: chrome.i18n.getMessage("Upload_prompt2") });
+//                     AutoInsertFun(imageUrl, false)
+//                 }
+//                 resolveC(true);
+//             })
+//         });
+//     });
+// }
+
 // 存储上传记录的
-export function LocalStorage(data) {
-    let pluginPopup = chrome.runtime.getURL("popup.html");
-    let currentURL = window.location.href;
-    return new Promise((resolveC, rejectC) => {
-        let filename = data.file.name || data.file.file.name;
-        let imageUrl = data.url
-        let MethodName = data.MethodName || "normal";
-        let uploadDomainName = data.uploadDomainName || data.Program;
-        if (pluginPopup != currentURL) {
-            chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
-        }
-        chrome.storage.local.get('UploadLog', function (result) {
-            let UploadLog = result.UploadLog || [];
-            if (!Array.isArray(UploadLog)) {
-                UploadLog = [];
-            }
-            let d = new Date();
-            let UploadLogData = {
-                key: crypto.randomUUID(),
-                url: imageUrl,
-                uploadExe: data.Program + "-" + MethodName,
-                upload_domain_name: uploadDomainName,
-                original_file_name: filename,
-                file_size: data.file.file.size,
-                img_file_size: "宽:不支持,高:不支持",
-                uploadTime: d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日" + d.getHours() + "时" + d.getMinutes() + "分" + d.getSeconds() + "秒"
-            }
-            if (typeof UploadLog !== 'object') {
-                UploadLog = JSON.parse(UploadLog);
-            }
-            UploadLog.push(UploadLogData);
-            chrome.storage.local.set({ 'UploadLog': UploadLog }, function () {
-                if (window.location.href.startsWith('http')) {
-                    chrome.runtime.sendMessage({ Loudspeaker: chrome.i18n.getMessage("Upload_prompt2") });
-                    AutoInsertFun(imageUrl, false)
-                }
-                resolveC(true);
-            })
-        });
-    });
-}
+export async function LocalStorage(data) {
+    const pluginPopupURL = chrome.runtime.getURL("popup.html");
+    const currentURL = window.location.href;
+    const filename = data.file.name || data.file.file.name;
+    const imageUrl = data.url;
+    const methodName = data.MethodName || "normal";
+    const uploadDomainName = data.uploadDomainName || data.Program;
+  
+    if (pluginPopupURL !== currentURL) {
+      chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
+    }
+  
+    try {
+      const { UploadLog: existingUploadLog } = await chrome.storage.local.get('UploadLog');
+      const uploadLog = Array.isArray(existingUploadLog) ? existingUploadLog : [];
+      
+      const currentDate = new Date();
+      const uploadLogEntry = {
+        key: crypto.randomUUID(),
+        url: imageUrl,
+        uploadExe: `${data.Program}-${methodName}`,
+        upload_domain_name: uploadDomainName,
+        original_file_name: filename,
+        file_size: data.file.file.size,
+        img_file_size: "宽:不支持,高:不支持",
+        uploadTime: `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日${currentDate.getHours()}时${currentDate.getMinutes()}分${currentDate.getSeconds()}秒`
+      };
+  
+      uploadLog.push(uploadLogEntry);
+  
+      await chrome.storage.local.set({ 'UploadLog': uploadLog });
+  
+      if (currentURL.startsWith('http')) {
+        const uploadPromptMessage = chrome.i18n.getMessage("Upload_prompt2");
+        chrome.runtime.sendMessage({ Loudspeaker: uploadPromptMessage });
+        AutoInsertFun(imageUrl, false);
+      }
+  
+      return true;
+    } catch (error) {
+      console.error('Error saving to local storage:', error);
+      throw error; // 抛出错误以便调用者处理
+    }
+  }
+  
 
 /**
  * 自动调整文本域的高度以适应内容。
