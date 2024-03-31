@@ -4,7 +4,7 @@
       class="dropzone flex justify-center flex-wrap hover:border-blue-500 border-gray-400 border-dashed border-2"></div>
   </n-spin>
 </template>
-  
+
 <script setup>
 import { onMounted, ref, inject, defineEmits } from 'vue';
 import Dropzone from 'dropzone';
@@ -49,6 +49,7 @@ onMounted(() => {
   });
   show.value = false
   setUpload(uploader).then(res => {
+    console.log(res);
     ProgramConfigurations = res
     DropzoneSuccess()
     DropzoneError()
@@ -323,4 +324,3 @@ function handleFilePreviewClick(event, file) {
   height: 100%;
 }
 </style>
-  

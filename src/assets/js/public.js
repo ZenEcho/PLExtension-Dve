@@ -289,44 +289,44 @@ export async function LocalStorage(data) {
     const imageUrl = data.url;
     const methodName = data.MethodName || "normal";
     const uploadDomainName = data.uploadDomainName || data.Program;
-  
+
     if (pluginPopupURL !== currentURL) {
-      chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
+        chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
     }
-  
+
     try {
-      const { UploadLog: existingUploadLog } = await chrome.storage.local.get('UploadLog');
-      const uploadLog = Array.isArray(existingUploadLog) ? existingUploadLog : [];
-      
-      const currentDate = new Date();
-      const uploadLogEntry = {
-        key: crypto.randomUUID(),
-        url: imageUrl,
-        uploadExe: `${data.Program}-${methodName}`,
-        upload_domain_name: uploadDomainName,
-        original_file_name: filename,
-        file_size: data.file.file.size,
-        img_file_size: "宽:不支持,高:不支持",
-        uploadTime: `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日${currentDate.getHours()}时${currentDate.getMinutes()}分${currentDate.getSeconds()}秒`
-      };
-  
-      uploadLog.push(uploadLogEntry);
-  
-      await chrome.storage.local.set({ 'UploadLog': uploadLog });
-  
-      if (currentURL.startsWith('http')) {
-        const uploadPromptMessage = chrome.i18n.getMessage("Upload_prompt2");
-        chrome.runtime.sendMessage({ Loudspeaker: uploadPromptMessage });
-        AutoInsertFun(imageUrl, false);
-      }
-  
-      return true;
+        const { UploadLog: existingUploadLog } = await chrome.storage.local.get('UploadLog');
+        const uploadLog = Array.isArray(existingUploadLog) ? existingUploadLog : [];
+
+        const currentDate = new Date();
+        const uploadLogEntry = {
+            key: crypto.randomUUID(),
+            url: imageUrl,
+            uploadExe: `${data.Program}-${methodName}`,
+            upload_domain_name: uploadDomainName,
+            original_file_name: filename,
+            file_size: data.file.file.size,
+            img_file_size: "宽:不支持,高:不支持",
+            uploadTime: `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日${currentDate.getHours()}时${currentDate.getMinutes()}分${currentDate.getSeconds()}秒`
+        };
+
+        uploadLog.push(uploadLogEntry);
+
+        await chrome.storage.local.set({ 'UploadLog': uploadLog });
+
+        if (currentURL.startsWith('http')) {
+            const uploadPromptMessage = chrome.i18n.getMessage("Upload_prompt2");
+            chrome.runtime.sendMessage({ Loudspeaker: uploadPromptMessage });
+            AutoInsertFun(imageUrl, false);
+        }
+
+        return true;
     } catch (error) {
-      console.error('Error saving to local storage:', error);
-      throw error; // 抛出错误以便调用者处理
+        console.error('Error saving to local storage:', error);
+        throw error; // 抛出错误以便调用者处理
     }
-  }
-  
+}
+
 
 /**
  * 自动调整文本域的高度以适应内容。
@@ -456,7 +456,13 @@ export function generateLink(mode, src, name) {
  * @returns {String} - 返回计算后的文件大小和单位
  */
 export function getFormatFileSize(size) {
-    const units = ["B", "KB", "MB", "GB"];
+    if (typeof size !== 'number') {
+        size = Number(size);
+    }
+    if (isNaN(size)) {
+        return 'Invalid size';
+    }
+    const units = ["byte", "KB", "MB", "GB", "TB","PB","EB","ZB","YB","BB","NB","DB","CB","XB","?B"];
     let index = 0;
     while (size >= 1024 && index < units.length - 1) {
         size /= 1024;

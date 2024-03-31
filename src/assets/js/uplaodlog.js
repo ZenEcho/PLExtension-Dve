@@ -1,108 +1,325 @@
 import { dbHelper } from '@/assets/js/db';
 import { getChromeStorage } from '@/assets/js/public';
+import { initObjectStorageClient } from '@/assets/js/authObgStorage';
 import HttpRequester from '@/assets/js/httpRequester';
-export async function getNetworkImagesData(Program = 1) {
-    // return new Promise(async (resolve, reject) => {
-    //     const ProgramConfigurations = await getChromeStorage("ProgramConfiguration");
-    //     const actions = {
-    //         'Lsky': () => {
 
-    //             HttpRequester.get("https://" + ProgramConfigurations.Host + "/api/v1/images?page=" + Program, {
-    //                 headers: {
-    //                     "Accept": "application/json",
-    //                     "Authorization": ProgramConfigurations.Token
-    //                 }
-    //             })
-    //                 .then(res => {
-    //                     console.log(res.data);
-    //                     let imagesData = res.data.data.data
-    //                     let transformedData = imagesData.map(imageData => {
-    //                         return {
-    //                             "file_size": imageData.size * 1024,
-    //                             "img_file_size": `宽:${imageData.width},高:${imageData.height}`,
-    //                             "key": imageData.key,
-    //                             "original_file_name": imageData.name,
-    //                             "uploadExe": ProgramConfigurations.Program,
-    //                             "uploadTime": imageData.date,
-    //                             "upload_domain_name": ProgramConfigurations.Host,
-    //                             "url": imageData.links.url,
-    //                         };
-    //                     });
-    //                     transformedData.page = res.data.data.current_page
-    //                     transformedData.pageSize = res.data.data.per_page
-    //                     transformedData.total = res.data.data.total;
-    //                     resolve(transformedData);
-    //                 })
-    //                 .catch(error => {
-    //                     reject(error);
-    //                 });
-    //         },
-    //         'SM_MS': () => {
-    //             // SM_MS的操作
-    //         },
-    //         'Hellohao': () => {
-    //             // Hellohao的操作
-    //         },
-    //         'Tencent_COS': () => {
-    //             // Tencent_COS的操作
-    //         },
-    //         'Aliyun_OSS': () => {
-    //             // Aliyun_OSS的操作
-    //         },
-    //         'AWS_S3': () => {
-    //             // AWS_S3的操作
-    //         },
-    //         'GitHubUP': () => {
-    //             // GitHubUP的操作
-    //         },
-    //     };
-    //     if (actions.hasOwnProperty(ProgramConfigurations.Program)) {
-    //         actions[ProgramConfigurations.Program]();
-    //     } else {
-    //         reject("没有数据");
-    //     }
-    // })
+// import COS from 'cos-js-sdk-v5';
+// import OSS from 'ali-oss';
+// import { S3Client } from "@aws-sdk/client-s3";
+import { ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
+export async function getNetworkImagesData(networkPage = 1) {
     try {
         const ProgramConfigurations = await getChromeStorage("ProgramConfiguration");
         const actions = {
             'Lsky': async () => {
-                const response = await HttpRequester.get(`https://${ProgramConfigurations.Host}/api/v1/images?page=${Program}`, {
+                try {
+                    const response = await HttpRequester.get(`https://${ProgramConfigurations.Host}/api/v1/images?page=${networkPage}`, {
+                        headers: {
+                            "Accept": "application/json",
+                            "Authorization": ProgramConfigurations.Token
+                        }
+                    });
+                    let imagesData = response.data.data.data;
+                    let transformedData = imagesData.map(imageData => ({
+                        "file_size": imageData.size * 1024,
+                        "img_file_size": `宽:${imageData.width},高:${imageData.height}`,
+                        "key": imageData.key,
+                        "original_file_name": imageData.name,
+                        "uploadExe": ProgramConfigurations.Program,
+                        "uploadTime": imageData.date,
+                        "upload_domain_name": ProgramConfigurations.Host,
+                        "url": imageData.links.url,
+                    }));
+                    return {
+                        data: transformedData,
+                        page: response.data.data.current_page,
+                        pageSize: response.data.data.per_page,
+                        total: response.data.data.total,
+                        type: "success"
+                    };
+                } catch (error) {
+                    console.error("请求错误:", error);
+                    if (error.response) {
+                        let errorMessage;
+                        switch (error.response.status) {
+                            case 401:
+                                errorMessage = "未登录或授权失败";
+                                break;
+                            case 403:
+                                errorMessage = "管理员关闭了接口功能或没有该接口权限";
+                                break;
+                            case 429:
+                                errorMessage = "超出请求配额，请求受限";
+                                break;
+                            case 500:
+                                errorMessage = "服务端出现异常";
+                                break;
+                            default:
+                                errorMessage = `未知错误，状态码: ${error.response.status}`;
+                        }
+                        return { message: errorMessage, type: "error" };
+                    }
+                }
+            },
+            'SM_MS': async () => {
+                const response = await HttpRequester.get(`https://${ProgramConfigurations.Host}/api/v2/upload_history?page=${networkPage}`, {
                     headers: {
-                        "Accept": "application/json",
+                        "Accept": "multipart/form-data",
                         "Authorization": ProgramConfigurations.Token
                     }
                 });
-                // 处理response...
-                let imagesData = response.data.data.data;
+                let imagesData = response.data.data
+                if (!response.data.data) {
+                    return { message: response.data.message, type: "error" }
+                }
                 let transformedData = imagesData.map(imageData => ({
-                    "file_size": imageData.size * 1024,
+                    "file_size": imageData.size,
                     "img_file_size": `宽:${imageData.width},高:${imageData.height}`,
-                    "key": imageData.key,
-                    "original_file_name": imageData.name,
+                    "key": imageData.hash,
+                    "original_file_name": imageData.filename,
                     "uploadExe": ProgramConfigurations.Program,
-                    "uploadTime": imageData.date,
+                    "uploadTime": imageData.created_at,
                     "upload_domain_name": ProgramConfigurations.Host,
-                    "url": imageData.links.url,
+                    "url": imageData.url,
                 }));
-
                 // 创建一个新的对象，包含图片数据数组和分页信息
                 return {
                     data: transformedData,
-                    page: response.data.data.current_page,
-                    pageSize: response.data.data.per_page,
-                    total: response.data.data.total
+                    page: response.data.CurrentPage,
+                    pageSize: response.data.PerPage,
+                    total: response.data.TotalPages,
+                    type: "success"
                 };
             },
-            // 其他操作...
+            'Hellohao': async () => {
+                const response = await HttpRequester.post(`https://${ProgramConfigurations.Host}/api/getimglist/`, {
+                    "pageNum": networkPage,
+                    "pageSize": 20,
+                    "token": ProgramConfigurations.Token,
+                }, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                });
+                let imagesData = response.data.data.rows
+                console.log(response);
+                let transformedData = imagesData.map(imageData => ({
+                    "file_size": imageData.sizes,
+                    "img_file_size": `宽:不支持,高:不支持`,
+                    "key": imageData.delkey,
+                    "original_file_name": imageData.imgurl.match(/\/([^\/]+)\/?$/)[1],
+                    "uploadExe": ProgramConfigurations.Program,
+                    "uploadTime": imageData.updatetime,
+                    "upload_domain_name": ProgramConfigurations.Host,
+                    "url": imageData.imgurl,
+                }));
+                return {
+                    data: transformedData,
+                    page: networkPage,
+                    pageSize: 20,
+                    total: response.data.data.total,
+                    type: "success"
+                };
+            },
+            'Tencent_COS': async () => {
+                // 腾讯云cos拼接
+                if (!ProgramConfigurations.custom_DomainName) {
+                    ProgramConfigurations.custom_DomainName = "https://" + ProgramConfigurations.Bucket + ".cos." + ProgramConfigurations.Region + ".myqcloud.com/";
+                }
+                try {
+                    const ObjectStorage = await initObjectStorageClient();
+                    if (ObjectStorage.type == "error") {
+                        return { error: ObjectStorage.error, message: ObjectStorage.message, type: "error" };
+                    }
+                    const getBucketAsync = (params) => {
+                        return new Promise((resolve, reject) => {
+                            ObjectStorage.getBucket(params, function (err, data) {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    resolve(data);
+                                }
+                            });
+                        });
+                    };
+                    const data = await getBucketAsync({
+                        Bucket: ProgramConfigurations.options_Bucket,
+                        Region: ProgramConfigurations.options_Region,
+                        Prefix: ProgramConfigurations.options_UploadPath, // 列出某某开头文件
+                        MaxKeys: 1000,
+                    });
+                    let imagesData = data.Contents
+                    let transformedData = imagesData.map(imageData => ({
+                        "file_size": imageData.Size,
+                        "img_file_size": `宽:不支持,高:不支持`,
+                        "key": imageData.Key,
+                        "original_file_name": imageData.Key,
+                        "uploadExe": ProgramConfigurations.Program,
+                        "uploadTime": imageData.LastModified,
+                        "upload_domain_name": ProgramConfigurations.custom_DomainName,
+                        "url": ProgramConfigurations.custom_DomainName + imageData.Key,
+                    }));
+                    return {
+                        data: transformedData,
+                        page: 1,
+                        pageSize: 20,
+                        total: imagesData.length,
+                        type: "success"
+                    };
+                } catch (error) {
+                    return { error: error, message: `COS获取数据失败：${error.message}`, type: "error" };
+                }
+            },
+            'Aliyun_OSS': async () => {
+                //阿里云oss拼接
+                if (!ProgramConfigurations.custom_DomainName) {
+                    ProgramConfigurations.custom_DomainName = "https://" + ProgramConfigurations.Bucket + "." + ProgramConfigurations.Endpoint + "/"
+                }
+
+                try {
+                    const ObjectStorage = await initObjectStorageClient();
+                    if (ObjectStorage.type == "error") {
+                        return { error: ObjectStorage.error, message: ObjectStorage.message, type: "error" };
+                    }
+                    const result = await ObjectStorage.listV2({
+                        "max-keys": 1000,
+                        prefix: ProgramConfigurations.UploadPath
+                    });
+                    let imagesData = result.objects
+                    let transformedData = imagesData.map(imageData => ({
+                        "file_size": imageData.size,
+                        "img_file_size": `宽:不支持,高:不支持`,
+                        "key": imageData.name,
+                        "original_file_name": imageData.name,
+                        "uploadExe": ProgramConfigurations.Program,
+                        "uploadTime": imageData.lastModified,
+                        "upload_domain_name": ProgramConfigurations.custom_DomainName,
+                        "url": ProgramConfigurations.custom_DomainName + imageData.name,
+                    }));
+                    return {
+                        data: transformedData,
+                        page: 1,
+                        pageSize: 20,
+                        total: imagesData.length,
+                        type: "success"
+                    };
+                } catch (error) {
+                    return { error: error, message: `OSS获取数据失败：${error.message}`, type: "error" };
+                }
+            },
+            'AWS_S3': async () => {
+                //AWS S3拼接
+                if (!ProgramConfigurations.custom_DomainName) {
+                    ProgramConfigurations.custom_DomainName = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/" + ProgramConfigurations.Bucket + "/"
+                }
+                try {
+                    const ObjectStorage = await initObjectStorageClient();
+                    if (ObjectStorage.type == "error") {
+                        return { error: ObjectStorage.error, message: ObjectStorage.message, type: "error" };
+                    }
+                    const params = {
+                        Bucket: ProgramConfigurations.Bucket,
+                        Prefix: ProgramConfigurations.UploadPath,
+                        MaxKeys: 1000, // 使用数字而非字符串
+                    };
+                    const command = new ListObjectsV2Command(params);
+                    const response = await ObjectStorage.send(command);
+                    let imagesData = response.Contents
+                    let transformedData = imagesData.map(imageData => ({
+                        "file_size": imageData.Size,
+                        "img_file_size": `宽:不支持,高:不支持`,
+                        "key": imageData.Key,
+                        "original_file_name": imageData.Key,
+                        "uploadExe": ProgramConfigurations.Program,
+                        "uploadTime": imageData.LastModified,
+                        "upload_domain_name": ProgramConfigurations.custom_DomainName,
+                        "url": ProgramConfigurations.custom_DomainName + imageData.Key,
+                    }));
+                    return {
+                        data: transformedData,
+                        page: 1,
+                        pageSize: 20,
+                        total: imagesData.length,
+                        type: "success"
+                    };
+                } catch (error) {
+                    return { error: error, message: `S3获取数据失败：${error.message}`, type: "error" };
+                }
+            },
+            'GitHub': async () => {
+                try {
+                    const response = await HttpRequester.get(`https://api.github.com/repos/${ProgramConfigurations.Owner}/${ProgramConfigurations.Repository}/contents/${ProgramConfigurations.UploadPath}`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            "Authorization": 'Bearer ' + ProgramConfigurations.Token
+                        }
+                    });
+                    let imagesData = response.data;
+                    let transformedData = imagesData.map(imageData => ({
+                        "file_size": imageData.size,
+                        "img_file_size": `宽:不支持,高:不支持`,
+                        "key": imageData.sha,
+                        "original_file_name": imageData.name,
+                        "uploadExe": ProgramConfigurations.Program,
+                        "uploadTime": "GitHub不支持",
+                        "upload_domain_name": ProgramConfigurations.Program,
+                        "url": imageData.download_url,
+                    }));
+                    return {
+                        data: transformedData,
+                        page: 1,
+                        pageSize: 20,
+                        total: imagesData.length,
+                        type: "success"
+                    };
+                } catch (error) {
+                    console.error("请求错误:", error);
+                    if (error.response) {
+                        // 根据状态码提供更具体的错误信息
+                        let errorMessage = "";
+                        switch (error.response.status) {
+                            case 400:
+                                errorMessage = "请求无效，请检查请求格式。";
+                                break;
+                            case 401:
+                                errorMessage = "未授权：访问被拒绝，可能是因为Token无效。";
+                                break;
+                            case 403:
+                                errorMessage = "禁止访问：可能是因为Token没有足够的权限。";
+                                break;
+                            case 404:
+                                errorMessage = "资源未找到：请检查仓库名或路径是否正确。";
+                                break;
+                            case 422:
+                                errorMessage = "无法处理的实体：请求格式正确，但是由于含有语义错误，无法响应。";
+                                break;
+                            case 500:
+                                errorMessage = "内部服务器错误。";
+                                break;
+                            default:
+                                errorMessage = `未知错误，状态码：${error.response.status}`;
+                        }
+                        return { error: error, message: errorMessage, type: "error" };
+                    }
+                }
+
+
+            },
         };
 
         if (actions.hasOwnProperty(ProgramConfigurations.Program)) {
             return await actions[ProgramConfigurations.Program]();
         } else {
-            throw new Error("没有数据");
+            return { message: "没有数据", type: "error" }
         }
     } catch (error) {
-        throw error; // 或者更具体的错误处理
+        if (error.request) {
+            // 请求已经发起，但没有收到响应
+            return { error: error, message: "请求没有响应", type: "error" };
+        } else {
+            // 发送请求时出了点问题
+            return { error: error, message: `请求发送失败: ${error.message}`, type: "error" };
+        }
     }
 }
 function deleteFromDb(key) {
@@ -111,19 +328,342 @@ function deleteFromDb(key) {
         return db.delete(key);
     });
 }
-export function deleteImagesData(Data, index) {
+export async function deleteImagesData(Data) {
+    console.log(Data);
     const dataLoadingMode = localStorage.getItem('dataLoadingMode');
-    console.log(dataLoadingMode);
-
-    // 如果是本地模式，则执行数据库删除操作
     if (dataLoadingMode === "local") {
-        return deleteFromDb(Data.key)
-            .then(() => ({ message: "删除成功", type: "success" }))
-            .catch(error => Promise.reject(error));
+        try {
+            await deleteFromDb(Data.key);
+            return { message: "删除成功", type: "success" };
+        } catch (error) {
+            return { error: error, message: "删除失败", type: "error" };
+        }
     } else {
-        // 对于非本地模式的处理逻辑
-        // 如果需要处理，添加相关代码
-        // 暂时返回一个解决的Promise，可以根据实际情况调整
-        return Promise.resolve({ message: "非本地模式，操作未执行", type: "info" });
+        const ProgramConfigurations = await getChromeStorage("ProgramConfiguration");
+        const actions = {
+            'Lsky': async () => {
+                try {
+                    const response = await HttpRequester.delete(`https://${ProgramConfigurations.Host}/api/v1/images/${Data.key}`, {
+                        headers: {
+                            "Accept": "application/json",
+                            "Authorization": ProgramConfigurations.Token
+                        }
+                    });
+                    return { message: response.data.message, type: "success" };
+
+                } catch (error) {
+                    console.error("请求错误:", error);
+                    if (error.response) {
+                        let errorMessage;
+                        switch (error.response.status) {
+                            case 401:
+                                errorMessage = "未登录或授权失败";
+                                break;
+                            case 403:
+                                errorMessage = "管理员关闭了接口功能或没有该接口权限";
+                                break;
+                            case 429:
+                                errorMessage = "超出请求配额，请求受限";
+                                break;
+                            case 500:
+                                errorMessage = "服务端出现异常";
+                                break;
+                            default:
+                                errorMessage = `未知错误，状态码: ${error.response.status}`;
+                        }
+                        return { message: errorMessage, type: "error" };
+                    }
+                }
+            },
+            'SM_MS': async () => {
+                const response = await HttpRequester.get(`https://${ProgramConfigurations.Host}/api/v2/delete/${Data.key}`, {
+                    headers: {
+                        "Accept": "multipart/form-data",
+                        "Authorization": ProgramConfigurations.Token
+                    }
+                });
+                if (response.data.message === "File already deleted.") {
+                    return { message: "删除失败，请清理缓存或刷新页面！", type: "info" }; // 使用自定义消息和一个更合适的类型
+                } else {
+                    // 对于其他情况，直接使用响应中的消息和状态码
+                    return { message: response.data.message, type: response.data.code };
+                }
+            },
+            'Hellohao': async () => {
+                const response = await HttpRequester.post(`https://${ProgramConfigurations.Host}/api/deleteimg/`, {
+                    "delkey": Data.key,
+                    "token": ProgramConfigurations.Token,
+                }, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                });
+                return response.data.code === 200 ? { message: response.data.data, type: "success" } : { message: response.data.msg, type: "info" };
+            },
+            'Tencent_COS': async () => {
+                try {
+                    const ObjectStorage = await initObjectStorageClient();
+                    if (ObjectStorage.type == "error") {
+                        return { error: ObjectStorage.error, message: ObjectStorage.message };
+                    }
+                    await ObjectStorage.deleteObject({
+                        Bucket: ProgramConfigurations.Bucket,
+                        Region: ProgramConfigurations.Region,
+                        Key: Data.key,
+                    });
+                    return { message: "删除成功", type: "success" };
+                } catch (error) {
+                    return { error: error, message: "删除失败", type: "error" };
+                }
+
+            },
+            'Aliyun_OSS': async () => {
+                try {
+                    const ObjectStorage = await initObjectStorageClient();
+                    if (ObjectStorage.type == "error") {
+                        return { error: ObjectStorage.error, message: ObjectStorage.message };
+                    }
+                    await ObjectStorage.delete(Data.key);
+                    return { message: "删除成功", type: "success" };
+                } catch (error) {
+                    return { error: error, message: "删除失败", type: "error" };
+                }
+            },
+            'AWS_S3': async () => {
+                try {
+                    const ObjectStorage = await initObjectStorageClient();
+                    if (ObjectStorage.type == "error") {
+                        return { error: ObjectStorage.error, message: ObjectStorage.message };
+                    }
+                    const deleteParams = { Bucket: ProgramConfigurations.Bucket, Key: Data.key };
+                    await ObjectStorage.send(new DeleteObjectCommand(deleteParams));
+                    return { message: "删除成功", type: "success" };
+                } catch (error) {
+                    console.log(error);
+                    return { error: error, message: "删除失败", type: "error" };
+                }
+            },
+            'GitHub': async () => {
+                try {
+                    await HttpRequester.delete(`https://api.github.com/repos/${ProgramConfigurations.Owner}/${ProgramConfigurations.Repository}/contents/${ProgramConfigurations.UploadPath}${Data.original_file_name}`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            "Authorization": 'Bearer ' + ProgramConfigurations.Token
+                        },
+                        data: JSON.stringify({
+                            message: 'Delete file',
+                            sha: Data.key
+                        })
+                    });
+                    return { message: "删除成功", type: "success" };
+                } catch (error) {
+                    console.error("请求错误:", error);
+                    if (error.response) {
+                        // 根据状态码提供更具体的错误信息
+                        let errorMessage = "";
+                        switch (error.response.status) {
+                            case 400:
+                                errorMessage = "请求无效，请检查请求格式。";
+                                break;
+                            case 401:
+                                errorMessage = "未授权：访问被拒绝，可能是因为Token无效。";
+                                break;
+                            case 403:
+                                errorMessage = "禁止访问：可能是因为Token没有足够的权限。";
+                                break;
+                            case 404:
+                                errorMessage = "资源未找到：请检查仓库名或路径是否正确。";
+                                break;
+                            case 422:
+                                errorMessage = "无法处理的实体：请求格式正确，但是由于含有语义错误，无法响应。";
+                                break;
+                            case 500:
+                                errorMessage = "内部服务器错误。";
+                                break;
+                            default:
+                                errorMessage = `未知错误，状态码：${error.response.status}`;
+                        }
+                        return { error: error, message: errorMessage, type: "error" };
+                    }
+                }
+
+
+            },
+        };
+        if (actions.hasOwnProperty(ProgramConfigurations.Program)) {
+            return await actions[ProgramConfigurations.Program]();
+        } else {
+            return { message: "没有数据", type: "error" }
+        }
+
+    }
+}
+export async function deleteSelectedImagesData(keys) {
+    const dataLoadingMode = localStorage.getItem('dataLoadingMode');
+    if (dataLoadingMode === "local") {
+        try {
+            await deleteFromDb(keys);
+            return { message: "删除成功", type: "success" };
+        } catch (error) {
+            return { error: error, message: "删除失败", type: "error" };
+        }
+    } else {
+        const ProgramConfigurations = await getChromeStorage("ProgramConfiguration");
+        const actions = {
+            'Lsky': async () => {
+                let results = []; // 用于收集每个删除操作的结果
+                for (const key of keys) {
+                    try {
+                        const response = await HttpRequester.delete(`https://${ProgramConfigurations.Host}/api/v1/images/${key}`, {
+                            headers: {
+                                "Accept": "application/json",
+                                "Authorization": ProgramConfigurations.Token
+                            }
+                        });
+                        // 操作成功，立即通知用户
+                        results.push({ key: key, message: response.data.message, type: "success" });
+                    } catch (error) {
+                        let errorMessage;
+                        switch (error.response.status) {
+                            case 401:
+                                errorMessage = "未登录或授权失败";
+                                break;
+                            case 403:
+                                errorMessage = "管理员关闭了接口功能或没有该接口权限";
+                                break;
+                            case 429:
+                                errorMessage = "超出请求配额，请求受限";
+                                break;
+                            case 500:
+                                errorMessage = "服务端出现异常";
+                                break;
+                            default:
+                                errorMessage = `未知错误，状态码: ${error.response.status}`;
+                        }
+                        results.push({ key: key, error: error, message: errorMessage, type: "error" });
+                    }
+                }
+                return results;
+            },
+            // 'SM_MS': async () => {
+            //     const response = await HttpRequester.get(`https://${ProgramConfigurations.Host}/api/v2/delete/${Data.key}`, {
+            //         headers: {
+            //             "Accept": "multipart/form-data",
+            //             "Authorization": ProgramConfigurations.Token
+            //         }
+            //     });
+            //     if (response.data.message === "File already deleted.") {
+            //         return { message: "删除失败，请清理缓存或刷新页面！", type: "info" }; // 使用自定义消息和一个更合适的类型
+            //     } else {
+            //         // 对于其他情况，直接使用响应中的消息和状态码
+            //         return { message: response.data.message, type: response.data.code };
+            //     }
+            // },
+            // 'Hellohao': async () => {
+            //     const response = await HttpRequester.post(`https://${ProgramConfigurations.Host}/api/deleteimg/`, {
+            //         "delkey": Data.key,
+            //         "token": ProgramConfigurations.Token,
+            //     }, {
+            //         headers: {
+            //             "Content-Type": "multipart/form-data"
+            //         }
+            //     });
+            //     return response.data.code === 200 ? { message: response.data.data, type: "success" } : { message: response.data.msg, type: "info" };
+            // },
+            // 'Tencent_COS': async () => {
+            //     try {
+            //         const ObjectStorage = await initObjectStorageClient();
+            //         if (ObjectStorage.type == "error") {
+            //             return { error: ObjectStorage.error, message: ObjectStorage.message };
+            //         }
+            //         await ObjectStorage.deleteObject({
+            //             Bucket: ProgramConfigurations.Bucket,
+            //             Region: ProgramConfigurations.Region,
+            //             Key: Data.key,
+            //         });
+            //         return { message: "删除成功", type: "success" };
+            //     } catch (error) {
+            //         return { error: error, message: "删除失败", type: "error" };
+            //     }
+
+            // },
+            // 'Aliyun_OSS': async () => {
+            //     try {
+            //         const ObjectStorage = await initObjectStorageClient();
+            //         if (ObjectStorage.type == "error") {
+            //             return { error: ObjectStorage.error, message: ObjectStorage.message };
+            //         }
+            //         await ObjectStorage.delete(Data.key);
+            //         return { message: "删除成功", type: "success" };
+            //     } catch (error) {
+            //         return { error: error, message: "删除失败", type: "error" };
+            //     }
+            // },
+            // 'AWS_S3': async () => {
+            //     try {
+            //         const ObjectStorage = await initObjectStorageClient();
+            //         if (ObjectStorage.type == "error") {
+            //             return { error: ObjectStorage.error, message: ObjectStorage.message };
+            //         }
+            //         const deleteParams = { Bucket: ProgramConfigurations.Bucket, Key: Data.key };
+            //         await ObjectStorage.send(new DeleteObjectCommand(deleteParams));
+            //         return { message: "删除成功", type: "success" };
+            //     } catch (error) {
+            //         console.log(error);
+            //         return { error: error, message: "删除失败", type: "error" };
+            //     }
+            // },
+            // 'GitHub': async () => {
+            //     try {
+            //         const response = await HttpRequester.delete(`https://api.github.com/repos/${ProgramConfigurations.Owner}/${ProgramConfigurations.Repository}/contents/${ProgramConfigurations.UploadPath}${Data.original_file_name}`, {
+            //             headers: {
+            //                 'Content-Type': 'application/json',
+            //                 "Authorization": 'Bearer ' + ProgramConfigurations.Token
+            //             },
+            //             data: JSON.stringify({
+            //                 message: 'Delete file',
+            //                 sha: Data.key
+            //             })
+            //         });
+            //         return { message: "删除成功", type: "success" };
+            //     } catch (error) {
+            //         console.error("请求错误:", error);
+            //         if (error.response) {
+            //             // 根据状态码提供更具体的错误信息
+            //             let errorMessage = "";
+            //             switch (error.response.status) {
+            //                 case 400:
+            //                     errorMessage = "请求无效，请检查请求格式。";
+            //                     break;
+            //                 case 401:
+            //                     errorMessage = "未授权：访问被拒绝，可能是因为Token无效。";
+            //                     break;
+            //                 case 403:
+            //                     errorMessage = "禁止访问：可能是因为Token没有足够的权限。";
+            //                     break;
+            //                 case 404:
+            //                     errorMessage = "资源未找到：请检查仓库名或路径是否正确。";
+            //                     break;
+            //                 case 422:
+            //                     errorMessage = "无法处理的实体：请求格式正确，但是由于含有语义错误，无法响应。";
+            //                     break;
+            //                 case 500:
+            //                     errorMessage = "内部服务器错误。";
+            //                     break;
+            //                 default:
+            //                     errorMessage = `未知错误，状态码：${error.response.status}`;
+            //             }
+            //             return { error: error, message: errorMessage, type: "error" };
+            //         }
+            //     }
+
+
+            // },
+        };
+        if (actions.hasOwnProperty(ProgramConfigurations.Program)) {
+            return await actions[ProgramConfigurations.Program]();
+        } else {
+            return { message: "没有数据", type: "error" }
+        }
     }
 }

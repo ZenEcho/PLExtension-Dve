@@ -1,13 +1,11 @@
 import { dbHelper } from '@/assets/js/db';
 import { taskQueue } from '@/assets/js/taskQueue';
 import { getChromeStorage } from '@/assets/js/public';
+import { initObjectStorageClient } from '@/assets/js/authObgStorage';
 import HttpRequester from '@/assets/js/httpRequester';
 import axios from 'axios';
 // ---打包要很jb久，测试时不打包
-// import COS from 'cos-js-sdk-v5';
-import OSS from 'ali-oss';
-// import { S3Client } from "@aws-sdk/client-s3";
-// import { Upload } from "@aws-sdk/lib-storage"; //这个上传可以监控进度
+import { Upload } from "@aws-sdk/lib-storage"; //这个上传可以监控进度
 
 function custom_replaceDate(inputString, file, ProgramConfigurations) {
     let currentDate = new Date();
@@ -70,14 +68,11 @@ function custom_replaceDateInObject(obj, file, ProgramConfigurations) {
 }
 export function setUpload(Dropzone) {
     return new Promise((resolve, reject) => {
-        getChromeStorage("ProgramConfiguration").then((result) => {
+        getChromeStorage("ProgramConfiguration").then(async (result) => {
             let ProgramConfigurations = result
             let delayUpload; // 声明 delayUpload 变量
-            if (!ProgramConfigurations || !ProgramConfigurations.Program) {
-                return reject({ error: {}, message: "没有安装图床程序,请前往配置信息页安装！" })
-            }
-            switch (ProgramConfigurations.Program) {
-                case 'Lsky':
+            const actions = {
+                'Lsky': async () => {
                     Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/api/v1/upload";
                     Dropzone.options.headers = { "Authorization": ProgramConfigurations.Token };
                     Dropzone.options.paramName = 'file';
@@ -91,16 +86,16 @@ export function setUpload(Dropzone) {
                         }
                         formData.append("permission", ProgramConfigurations.Permission);
                     })
-                    break;
-                case 'EasyImages':
+                },
+                'EasyImages': async () => {
                     Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/api/index.php";
                     Dropzone.options.paramName = 'image';
                     Dropzone.options.acceptedFiles = 'image/*';
                     Dropzone.on("sending", function (file, xhr, formData) {
                         formData.append("token", ProgramConfigurations.Token);
                     })
-                    break;
-                case 'ImgURL':
+                },
+                'ImgURL': async () => {
                     Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/api/v2/upload";
                     Dropzone.options.paramName = 'file';
                     Dropzone.options.acceptedFiles = 'image/*';
@@ -108,8 +103,8 @@ export function setUpload(Dropzone) {
                         formData.append("token", ProgramConfigurations.Token);
                         formData.append("uid", ProgramConfigurations.Uid);
                     })
-                    break;
-                case 'SM_MS':
+                },
+                'SM_MS': async () => {
                     Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/api/v2/upload";
                     Dropzone.options.headers = { "Authorization": ProgramConfigurations.Token };
                     Dropzone.options.paramName = 'smfile';
@@ -117,8 +112,8 @@ export function setUpload(Dropzone) {
                     Dropzone.on("sending", function (file, xhr, formData) {
                         formData.append("token", ProgramConfigurations.Token);
                     })
-                    break;
-                case 'Chevereto':
+                },
+                'Chevereto': async () => {
                     let Temporary_URL = ""
                     if (ProgramConfigurations.Expiration != "NODEL") {
                         Temporary_URL += "&expiration=" + ProgramConfigurations.Expiration
@@ -133,8 +128,9 @@ export function setUpload(Dropzone) {
                     Dropzone.options.headers = { "Authorization": ProgramConfigurations.Token };
                     Dropzone.options.paramName = 'source';
                     Dropzone.options.acceptedFiles = 'image/*';
-                    break;
-                case 'Hellohao':
+
+                },
+                'Hellohao': async () => {
                     Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/api/uploadbytoken/";
                     Dropzone.options.paramName = 'file';
                     Dropzone.options.acceptedFiles = 'image/*';
@@ -142,8 +138,8 @@ export function setUpload(Dropzone) {
                         formData.append("token", ProgramConfigurations.Token);
                         formData.append("source", ProgramConfigurations.Source);
                     })
-                    break;
-                case 'Imgur':
+                },
+                'Imgur': async () => {
                     Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/3/upload";
                     Dropzone.options.headers = { "Authorization": 'Client-ID ' + ProgramConfigurations.Token };
                     if (ProgramConfigurations.imgur_post_mode) {
@@ -152,8 +148,9 @@ export function setUpload(Dropzone) {
                         Dropzone.options.acceptedFiles = 'image/*';
                     }
                     Dropzone.options.paramName = ProgramConfigurations.imgur_post_mode ? "video" : "image";
-                    break;
-                case 'Custom':
+
+                },
+                'Custom': async () => {
                     Dropzone.options.maxFilesize = 5000
                     Dropzone.options.acceptedFiles = ""
                     Dropzone.options.autoProcessQueue = false
@@ -162,8 +159,8 @@ export function setUpload(Dropzone) {
                         ProgramConfigurations.Keyword_replacement1 = ProgramConfigurations.Keyword_replacement1.split(',')
                         ProgramConfigurations.Keyword_replacement2 = ProgramConfigurations.Keyword_replacement2.split(',')
                         if (ProgramConfigurations.Keyword_replacement1.length != ProgramConfigurations.Keyword_replacement2.length) {
-                            reject({ error: {}, message: "关键词和替换词的数量不一致" })
-                            return;
+                            return reject({ error: {}, message: "关键词和替换词的数量不一致" })
+
                         }
                     }
                     if (!ProgramConfigurations.Headers) {
@@ -172,8 +169,8 @@ export function setUpload(Dropzone) {
                         try {
                             ProgramConfigurations.Headers = JSON.parse(ProgramConfigurations.Headers);
                         } catch (error) {
-                            reject({ error: {}, message: chrome.i18n.getMessage("Headers_error") })
-                            return;
+                            return reject({ error: {}, message: chrome.i18n.getMessage("Headers_error") })
+
                         }
                     }
                     if (!ProgramConfigurations.Body) {
@@ -183,8 +180,8 @@ export function setUpload(Dropzone) {
                             ProgramConfigurations.Body = JSON.parse(ProgramConfigurations.Body);
                         } catch (error) {
                             console.log(error);
-                            reject({ error: {}, message: chrome.i18n.getMessage("Body_error") })
-                            return;
+                            return reject({ error: {}, message: chrome.i18n.getMessage("Body_error") })
+
                         }
                     }
 
@@ -257,31 +254,8 @@ export function setUpload(Dropzone) {
                     Dropzone.on("addedfile", function (file) {
                         delayUpload(file);
                     });
-                    break;
-                case 'Tencent_COS':
-                    let cos;
-                    // 初始化 COS 对象
-                    try {
-                        let getAuthorization = function (options, callback) {
-                            let authorization = COS.getAuthorization({
-                                SecretId: ProgramConfigurations.SecretId,
-                                SecretKey: ProgramConfigurations.SecretKey,
-                                Method: options.Method,
-                                Pathname: options.Pathname,
-                                Query: options.Query,
-                                Headers: options.Headers,
-                                Expires: 900,
-                            });
-                            callback({ Authorization: authorization });
-                        };
-                        cos = new COS({
-                            getAuthorization: getAuthorization,
-                            UploadCheckContentMd5: true,
-                            protocol: 'https:' // 强制使用 HTTPS 协议
-                        });
-                    } catch (error) {
-                        reject({ error: error, message: "腾讯云对象存储,初始化失败！" })
-                    }
+                },
+                'Tencent_COS': async () => {
                     //腾讯云cos拼接
                     if (!ProgramConfigurations.custom_DomainName) {
                         ProgramConfigurations.custom_DomainName = "https://" + ProgramConfigurations.Bucket + ".cos." + ProgramConfigurations.Region + ".myqcloud.com/"
@@ -289,7 +263,12 @@ export function setUpload(Dropzone) {
                     Dropzone.options.autoProcessQueue = false
                     Dropzone.options.acceptedFiles = ""
                     Dropzone.options.maxFilesize = 5000 //文件大小
-                    delayUpload = async function (file) {
+                    const ObjectStorage = await initObjectStorageClient();
+                    if (ObjectStorage.type == "error") {
+                        return reject({ error: ObjectStorage.error, message: ObjectStorage.message });
+                    }
+                    async function uploadFile(file) {
+
                         if (file.size > Dropzone.options.maxFilesize * 1024 * 1024) {
                             return;
                         }
@@ -304,7 +283,7 @@ export function setUpload(Dropzone) {
                             "/" +
                             file.name;
 
-                        await cos.uploadFile({
+                        await ObjectStorage.uploadFile({
                             Bucket: ProgramConfigurations.Bucket,
                             Region: ProgramConfigurations.Region,
                             Key: filename,
@@ -315,7 +294,7 @@ export function setUpload(Dropzone) {
                                 file.status = Dropzone.UPLOADING;
                                 Dropzone.emit("uploadprogress", file, progress, 100);
                             }
-                        }, function (err, data) {
+                        }, function (error, data) {
                             if (data) {
                                 file.status = Dropzone.SUCCESS
                                 Dropzone.emit("success", file, "上传完成");
@@ -329,23 +308,14 @@ export function setUpload(Dropzone) {
                     }
                     // 监听文件添加事件
                     Dropzone.on("addedfile", function (file) {
-                        delayUpload(file);
+                        uploadFile(file);
                         document.querySelector(".dz-remove").remove()
                     });
-                    break;
-                case 'Aliyun_OSS':
-                    let oss
-                    try {
-                        oss = new OSS({
-                            accessKeyId: ProgramConfigurations.SecretId,
-                            accessKeySecret: ProgramConfigurations.SecretKey,
-                            bucket: ProgramConfigurations.Bucket,
-                            endpoint: ProgramConfigurations.Endpoint,
-                            region: ProgramConfigurations.Region,
-                            secure: true //强制https
-                        });
-                    } catch (error) {
-                        reject({ error: error, message: "阿里云对象存储,初始化失败！" })
+                },
+                'Aliyun_OSS': async () => {
+                    const ObjectStorage = await initObjectStorageClient();
+                    if (ObjectStorage.type == "error") {
+                        return reject({ error: ObjectStorage.error, message: ObjectStorage.message });
                     }
                     //阿里云oss拼接
                     if (!ProgramConfigurations.custom_DomainName) {
@@ -369,7 +339,7 @@ export function setUpload(Dropzone) {
                         };
 
                         try {
-                            await oss.multipartUpload(filename, file, { progress: progressCallback });
+                            await ObjectStorage.multipartUpload(filename, file, { progress: progressCallback });
                             file.status = Dropzone.SUCCESS;
                             Dropzone.emit("success", file, "上传完成");
                             Dropzone.emit("complete", file);
@@ -384,28 +354,15 @@ export function setUpload(Dropzone) {
                         delayUpload(file);
                         document.querySelector(".dz-remove").remove()
                     });
-                    break;
-                case 'AWS_S3':
-                    let s3
-                    //AWS S3区域拼接
-                    if (!ProgramConfigurations.Endpoint) {
-                        ProgramConfigurations.Endpoint = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/"
-                    }
+                },
+                'AWS_S3': async () => {
                     //AWS S3拼接
                     if (!ProgramConfigurations.custom_DomainName) {
                         ProgramConfigurations.custom_DomainName = "https://s3." + ProgramConfigurations.Region + ".amazonaws.com/" + ProgramConfigurations.Bucket + "/"
                     }
-                    try {
-                        s3 = new S3Client({
-                            region: ProgramConfigurations.Region,
-                            credentials: {
-                                accessKeyId: ProgramConfigurations.SecretId,
-                                secretAccessKey: ProgramConfigurations.SecretKey
-                            },
-                            endpoint: ProgramConfigurations.Endpoint,
-                        });
-                    } catch (error) {
-                        reject({ error: error, message: "S3对象存储,初始化失败！" })
+                    const ObjectStorage = await initObjectStorageClient();
+                    if (ObjectStorage.type == "error") {
+                        return reject({ error: ObjectStorage.error, message: ObjectStorage.message });
                     }
                     Dropzone.options.autoProcessQueue = false
                     Dropzone.options.acceptedFiles = ""
@@ -444,13 +401,12 @@ export function setUpload(Dropzone) {
                         }
                         try {
                             const uploader = new Upload({
-                                client: s3,
+                                client: ObjectStorage,
                                 params: params, // 您已有的params
                             });
 
                             // 监听上传进度
                             uploader.on('httpUploadProgress', (progress) => {
-                                console.log(`上传进度：${progress.loaded} / ${progress.total}`);
                                 const percentage = Math.floor((progress.loaded / progress.total) * 100);
                                 file.upload.progress = percentage;
                                 file.status = Dropzone.UPLOADING;
@@ -474,8 +430,8 @@ export function setUpload(Dropzone) {
                         delayUpload(file);
                         document.querySelector(".dz-remove").remove()
                     });
-                    break;
-                case 'GitHub':
+                },
+                'GitHub': async () => {
                     Dropzone.options.autoProcessQueue = false
                     Dropzone.options.acceptedFiles = ""
                     Dropzone.options.maxFilesize = 5000
@@ -560,8 +516,8 @@ export function setUpload(Dropzone) {
                         delayUpload(files, 0);
                         document.querySelector(".dz-remove").remove()
                     });
-                    break;
-                case 'Telegra_ph':
+                },
+                'Telegra_ph': async () => {
                     Dropzone.options.maxFilesize = 5
                     if (ProgramConfigurations.custom_DomainName) {
                         Dropzone.options.url = ProgramConfigurations.custom_DomainName + "/upload";
@@ -571,15 +527,17 @@ export function setUpload(Dropzone) {
                     Dropzone.options.headers = { "Accept": "application/json" };
                     Dropzone.options.paramName = 'file';
                     Dropzone.options.acceptedFiles = '.jpeg,.jpg,.png,.gif,.tif,.bmp,.ico,.psd,.webp';
-                    break;
-                case "IMGDD":
+
+                },
+                'IMGDD': async () => {
                     Dropzone.options.maxFilesize = 5
                     Dropzone.options.url = "https://" + ProgramConfigurations.Host + "/api/v1/upload";
                     Dropzone.options.headers = { "Accept": "application/json" };
                     Dropzone.options.paramName = 'image';
                     Dropzone.options.acceptedFiles = '.jpeg,.jpg,.png,.gif,.bmp,.webp';
-                    break;
-                case 'fiftyEight':
+
+                },
+                'fiftyEight': async () => {
                     Dropzone.options.autoProcessQueue = false
                     Dropzone.options.maxFilesize = 5
                     Dropzone.options.url = "https://upload.58cdn.com.cn/json";
@@ -634,8 +592,8 @@ export function setUpload(Dropzone) {
                         delayUpload(file);
                         document.querySelector(".dz-remove").remove()
                     });
-                    break;
-                case 'BilibliBed':
+                },
+                'BilibliBed': async () => {
                     // Dropzone.options.url ="http://127.0.0.1:3000/Bed.Bilibli";
                     // Dropzone.options.headers = {
                     //     "biz": "new_dyn",
@@ -652,16 +610,16 @@ export function setUpload(Dropzone) {
                     //     formData.append("biz", "new_dyn");
                     //     formData.append("category", "category");
                     // })
-                    break;
-                case 'BaiJiaHao':
+                },
+                'BaiJiaHao': async () => {
                     Dropzone.options.url = "https://baijiahao.baidu.com/pcui/picture/upload";
                     Dropzone.options.paramName = 'media';
                     Dropzone.options.acceptedFiles = '.jpeg,.jpg,.png,.gif,.bmp,.ico,.webp';
                     Dropzone.on("sending", function (file, xhr, formData) {
                         formData.append("type", "image");
                     })
-                    break;
-                case 'toutiao':
+                },
+                'toutiao': async () => {
                     const randomAid = Math.floor(Math.random() * 24) + 1;
                     let url = `https://i.snssdk.com/feedback/image/v1/upload/?appkey=toutiao_web-web&aid=` + randomAid + `&app_name=toutiao_web`
                     Dropzone.options.url = url;
@@ -675,17 +633,23 @@ export function setUpload(Dropzone) {
                     Dropzone.on("sending", function (file, xhr, formData) {
                         formData.append("app_id", randomAid);
                     })
-                    break;
-                case 'toutiao2':
+                },
+                'toutiao2': async () => {
                     // Dropzone.options.url ="https://mp.toutiao.com/spice/image?upload_source=20020002&aid=1231&device_platform=web";
                     // Dropzone.options.paramName = 'image';
                     // Dropzone.options.acceptedFiles = '.jpeg,.jpg,.png,.gif,.bmp,.ico,.webp';
                     // Dropzone.options.headers = {
                     //     "Accept": "application/json, text/plain, */*",
                     // }
-                    break;
+                },
+            };
+            if (actions.hasOwnProperty(ProgramConfigurations.Program)) {
+                await actions[ProgramConfigurations.Program]()
+                return resolve(ProgramConfigurations);
+            } else {
+                return reject({ error: {}, message: "没有安装图床程序,请前往配置信息页安装！" })
             }
-            resolve(ProgramConfigurations)
+
         })
     });
 
