@@ -17,8 +17,9 @@
         </div>
         <n-spin :show="show">
             <ul class="p-2 buttons">
-                <li v-for="button in readbedFormData" :key="button.id" class="py-1 hover:bg-gray-400/20 hover:font-bold"
-                    :data-value="button.value" @click="bedButtonClick($event, button)">
+                <li v-for="button in readbedButtonForm" :key="button.id"
+                    class="py-1 hover:bg-gray-400/20 hover:font-bold" :data-value="button.value"
+                    @click="bedButtonClick($event, button)">
                     <button class="flex flex-row justify-between items-center w-full p-2 ">
                         <span class="flex flex-row items-center text-base">
                             <span class="mr-2 w-6 h-6" v-html="createButtonIconMarkup(button.icon)"></span>
@@ -26,7 +27,7 @@
                         </span>
                     </button>
                 </li>
-                <li v-if="readbedFormData.length < 1">
+                <li v-if="readbedButtonForm.length < 1">
                     <n-result status="500" title="这是什么?" description="其实是找不到配置啦">
                         <template #footer>
                             <n-button @click="onShowModal({ type: 'addButton', state: true })">找一找?</n-button>
@@ -50,7 +51,7 @@
         </div>
     </div>
 </template>
-  
+
 <script setup>
 import { dbHelper } from '@/assets/js/db';
 import { ref, inject, onMounted } from 'vue';
@@ -59,7 +60,7 @@ import { createButtonIconMarkup, getChromeStorage } from '@/assets/js/public';
 import { defineEmits } from 'vue';
 const emit = defineEmits(['foundData', 'addButton']);
 const onShowModal = inject('onShowModal');
-const readbedFormData = ref([]);
+const readbedButtonForm = ref([]);
 const show = ref(false);
 async function readbedButton() {
     show.value = true;
@@ -72,11 +73,10 @@ async function readbedButton() {
             onShowModal({ type: "addButton", state: true });
         }
 
-        readbedFormData.value = sortedResult;
+        readbedButtonForm.value = sortedResult;
 
         const storageResult = await getChromeStorage("ProgramConfiguration");
         if (!storageResult) return;
-
         let foundObject = bedFormData.find(item => item.name === storageResult.Program);
         if (foundObject) {
             emit('foundData', foundObject);
@@ -95,6 +95,7 @@ async function readbedButton() {
 onMounted(() => {
     readbedButton();
 });
+
 function bedButtonClick(element, bedData) {
     let buttons = element.currentTarget.parentNode.querySelectorAll("li")
     if (buttons) {
@@ -174,4 +175,3 @@ defineExpose({ readbedButton });
     transform: translateX(0);
 }
 </style>
-  

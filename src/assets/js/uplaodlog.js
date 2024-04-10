@@ -2,10 +2,6 @@ import { dbHelper } from '@/assets/js/db';
 import { getChromeStorage } from '@/assets/js/public';
 import { initObjectStorageClient } from '@/assets/js/authObgStorage';
 import HttpRequester from '@/assets/js/httpRequester';
-
-// import COS from 'cos-js-sdk-v5';
-// import OSS from 'ali-oss';
-// import { S3Client } from "@aws-sdk/client-s3";
 import { ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
 export async function getNetworkImagesData(networkPage = 1) {
     try {
@@ -102,7 +98,6 @@ export async function getNetworkImagesData(networkPage = 1) {
                     }
                 });
                 let imagesData = response.data.data.rows
-                console.log(response);
                 let transformedData = imagesData.map(imageData => ({
                     "file_size": imageData.sizes,
                     "img_file_size": `宽:不支持,高:不支持`,
@@ -329,14 +324,13 @@ function deleteFromDb(key) {
     });
 }
 export async function deleteImagesData(Data) {
-    console.log(Data);
     const dataLoadingMode = localStorage.getItem('dataLoadingMode');
     if (dataLoadingMode === "local") {
         try {
             await deleteFromDb(Data.key);
             return { message: "删除成功", type: "success" };
         } catch (error) {
-            return { error: error, message: "删除失败", type: "error" };
+            return { error: error, message: Data.original_file_name + "删除失败", type: "error" };
         }
     } else {
         const ProgramConfigurations = await getChromeStorage("ProgramConfiguration");
@@ -383,7 +377,7 @@ export async function deleteImagesData(Data) {
                     }
                 });
                 if (response.data.message === "File already deleted.") {
-                    return { message: "删除失败，请清理缓存或刷新页面！", type: "info" }; // 使用自定义消息和一个更合适的类型
+                    return { message: Data.original_file_name + "删除失败，请清理缓存或刷新页面！", type: "info" };
                 } else {
                     // 对于其他情况，直接使用响应中的消息和状态码
                     return { message: response.data.message, type: response.data.code };
@@ -413,7 +407,7 @@ export async function deleteImagesData(Data) {
                     });
                     return { message: "删除成功", type: "success" };
                 } catch (error) {
-                    return { error: error, message: "删除失败", type: "error" };
+                    return { error: error, message: Data.original_file_name + "删除失败", type: "error" };
                 }
 
             },
@@ -426,7 +420,7 @@ export async function deleteImagesData(Data) {
                     await ObjectStorage.delete(Data.key);
                     return { message: "删除成功", type: "success" };
                 } catch (error) {
-                    return { error: error, message: "删除失败", type: "error" };
+                    return { error: error, message: Data.original_file_name + "删除失败", type: "error" };
                 }
             },
             'AWS_S3': async () => {
@@ -440,7 +434,7 @@ export async function deleteImagesData(Data) {
                     return { message: "删除成功", type: "success" };
                 } catch (error) {
                     console.log(error);
-                    return { error: error, message: "删除失败", type: "error" };
+                    return { error: error, message: Data.original_file_name + "删除失败", type: "error" };
                 }
             },
             'GitHub': async () => {
@@ -501,27 +495,36 @@ export async function deleteImagesData(Data) {
 export async function deleteSelectedImagesData(keys) {
     const dataLoadingMode = localStorage.getItem('dataLoadingMode');
     if (dataLoadingMode === "local") {
-        try {
-            await deleteFromDb(keys);
-            return { message: "删除成功", type: "success" };
-        } catch (error) {
-            return { error: error, message: "删除失败", type: "error" };
+        let results = []; // 用于收集每个删除操作的结果
+        for (let i = 0; i < keys.length; i++) {
+            try {
+                await deleteFromDb(keys[i].key);
+                // 单个删除成功，将成功消息添加到结果数组中
+                results.push({ key: keys[i].key, message: "删除成功", type: "success" });
+            } catch (error) {
+                console.log(error);
+                // 单个删除失败，将错误消息添加到结果数组中
+                results.push({ key: keys[i].key, error: error, message: "删除失败", type: "error" });
+            }
         }
-    } else {
+
+        // 返回所有删除操作的结果
+        return results;
+    }
+    else {
         const ProgramConfigurations = await getChromeStorage("ProgramConfiguration");
         const actions = {
+            // 示例：使用并发控制删除GitHub上的图片
             'Lsky': async () => {
-                let results = []; // 用于收集每个删除操作的结果
-                for (const key of keys) {
+                const deleteImage = async (imgData) => {
                     try {
-                        const response = await HttpRequester.delete(`https://${ProgramConfigurations.Host}/api/v1/images/${key}`, {
+                        const response = await HttpRequester.delete(`https://${ProgramConfigurations.Host}/api/v1/images/${imgData.key}`, {
                             headers: {
                                 "Accept": "application/json",
                                 "Authorization": ProgramConfigurations.Token
                             }
                         });
-                        // 操作成功，立即通知用户
-                        results.push({ key: key, message: response.data.message, type: "success" });
+                        return { key: imgData.key, filename: imgData.filename, message: response.data.message, type: "success" };
                     } catch (error) {
                         let errorMessage;
                         switch (error.response.status) {
@@ -540,25 +543,43 @@ export async function deleteSelectedImagesData(keys) {
                             default:
                                 errorMessage = `未知错误，状态码: ${error.response.status}`;
                         }
-                        results.push({ key: key, error: error, message: errorMessage, type: "error" });
+                        return { key: imgData.key, filename: imgData.filename, error: error, message: errorMessage, type: "error" };
                     }
-                }
+                };
+
+                // 使用并发控制函数删除图片，假设 keys 是待删除的图片标识列表
+                const results = await concurrentControl(keys, deleteImage, 3); // 并发限制为3
                 return results;
             },
-            // 'SM_MS': async () => {
-            //     const response = await HttpRequester.get(`https://${ProgramConfigurations.Host}/api/v2/delete/${Data.key}`, {
-            //         headers: {
-            //             "Accept": "multipart/form-data",
-            //             "Authorization": ProgramConfigurations.Token
-            //         }
-            //     });
-            //     if (response.data.message === "File already deleted.") {
-            //         return { message: "删除失败，请清理缓存或刷新页面！", type: "info" }; // 使用自定义消息和一个更合适的类型
-            //     } else {
-            //         // 对于其他情况，直接使用响应中的消息和状态码
-            //         return { message: response.data.message, type: response.data.code };
-            //     }
-            // },
+
+            'SM_MS': async () => {
+                const deleteImage = async (imgData) => {
+                    try {
+                        const response = await HttpRequester.get(`https://${ProgramConfigurations.Host}/api/v2/delete/${imgData.key}`, {
+                            headers: {
+                                "Accept": "multipart/form-data",
+                                "Authorization": ProgramConfigurations.Token
+                            }
+                        });
+
+                        if (response.data.message === "File already deleted.") {
+                            return { key: imgData.key, filename: imgData.filename, message: imgData.filename + "：删除失败，请清理缓存或刷新页面！", type: "info" };
+                        } else {
+                            return { key: imgData.key, filename: imgData.filename, message: response.data.message, type: response.data.code };
+                        }
+                    } catch (error) {
+                        console.log(error);
+                        return { key: imgData.key, filename: imgData.filename, error: error, message: imgData.filename + "删除失败", type: "error" };
+                    }
+                };
+
+                // 使用并发控制函数处理删除操作
+                // 假设 keys 是需要删除的图片标识列表
+                const concurrentLimit = 3; // 设置并发限制为3
+                const results = await concurrentControl(keys, deleteImage, concurrentLimit);
+                return results;
+
+            },
             // 'Hellohao': async () => {
             //     const response = await HttpRequester.post(`https://${ProgramConfigurations.Host}/api/deleteimg/`, {
             //         "delkey": Data.key,
@@ -667,3 +688,34 @@ export async function deleteSelectedImagesData(keys) {
         }
     }
 }
+
+/**
+ * 并发执行异步任务的函数
+ * @param {Array} items - 待处理的项
+ * @param {Function} fn - 处理每一项的异步函数
+ * @param {Number} limit - 并发限制数
+ */
+async function concurrentControl(items, fn, limit) {
+    let index = 0;
+    let results = [];
+    let active = [];
+
+    const execute = async () => {
+        while (index < items.length) {
+            let item = items[index++];
+            let promise = Promise.resolve().then(() => fn(item)).catch(e => e);
+            results.push(promise);
+
+            let e = promise.then(() => active.splice(active.indexOf(e), 1));
+            active.push(e);
+
+            if (active.length >= limit) {
+                await Promise.race(active);
+            }
+        }
+    };
+
+    await execute();
+    return Promise.all(results);
+}
+

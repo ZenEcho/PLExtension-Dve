@@ -643,10 +643,12 @@ export function setUpload(Dropzone) {
                     // }
                 },
             };
-            if (actions.hasOwnProperty(ProgramConfigurations.Program)) {
-                await actions[ProgramConfigurations.Program]()
-                return resolve(ProgramConfigurations);
-            } else {
+            try {
+                if (actions.hasOwnProperty(ProgramConfigurations.Program)) {
+                    await actions[ProgramConfigurations.Program]()
+                    return resolve(ProgramConfigurations);
+                }
+            } catch (error) {
                 return reject({ error: {}, message: "没有安装图床程序,请前往配置信息页安装！" })
             }
 

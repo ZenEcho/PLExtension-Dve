@@ -9,8 +9,9 @@
                     class="flex flex-row justify-between items-center p-1 hover:bg-gray-100">
                     <span class="w-[32px] mr-1" v-html="createIconMarkup(config)"></span>
                     <div class="BedConfigName w-full" @dblclick="enableEditing(config, $event)">
-                        <span v-if="!config.isEditing" :data-old-value="config.ConfigName" title="双击修改">{{ config.ConfigName
-                        }}</span>
+                        <span v-if="!config.isEditing" :data-old-value="config.ConfigName" title="双击修改">{{
+                            config.ConfigName
+                            }}</span>
                         <input v-else class="border focus-visible:border-blue-400 focus-visible:outline-none w-full"
                             type="text" v-model="config.ConfigName" @blur="disableEditing(config)"
                             @keyup.enter="disableEditing(config)">
@@ -27,7 +28,8 @@
                                 </g>
                             </svg>
                         </button>
-                        <button @click="shareButton(config)" type="button" class="BedConfigShare hover:text-blue-300 mx-1"
+                        <button @click="shareButton(config)" type="button"
+                            class="BedConfigShare hover:text-blue-300 mx-1"
                             :title="'分享:[' + config.ConfigName + ' | ' + config.data.Program + ']'">
                             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
                                 xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20">
@@ -71,28 +73,29 @@
                     viewBox="0 0 512 512">
                     <path d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192s192-86 192-192z" fill="none"
                         stroke="currentColor" stroke-miterlimit="10" stroke-width="32"></path>
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"
-                        d="M256 176v160"></path>
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"
-                        d="M336 256H176"></path>
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="32" d="M256 176v160"></path>
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="32" d="M336 256H176"></path>
                 </svg>
                 导入</button>
             <button type="button" class="mx-1 flex flex-row items-center px-2 py-1 bg-slate-100 hover:bg-slate-50">
                 <svg class="w-5 mr-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                     viewBox="0 0 512 512">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"
-                        d="M448 448V240"></path>
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"
-                        d="M64 240v208"></path>
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="32" d="M448 448V240"></path>
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="32" d="M64 240v208"></path>
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="32"
                         d="M382.47 48H129.53c-21.79 0-41.47 12-49.93 30.46L36.3 173c-14.58 31.81 9.63 67.85 47.19 69h2c31.4 0 56.85-25.18 56.85-52.23c0 27 25.46 52.23 56.86 52.23s56.8-23.38 56.8-52.23c0 27 25.45 52.23 56.85 52.23s56.86-23.38 56.86-52.23c0 28.85 25.45 52.23 56.85 52.23h1.95c37.56-1.17 61.77-37.21 47.19-69l-43.3-94.54C423.94 60 404.26 48 382.47 48z">
                     </path>
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"
-                        d="M32 464h448"></path>
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"
-                        d="M136 288h80a24 24 0 0 1 24 24v88h0h-128h0v-88a24 24 0 0 1 24-24z"></path>
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"
-                        d="M288 464V312a24 24 0 0 1 24-24h64a24 24 0 0 1 24 24v152"></path>
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="32" d="M32 464h448"></path>
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="32" d="M136 288h80a24 24 0 0 1 24 24v88h0h-128h0v-88a24 24 0 0 1 24-24z"></path>
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="32" d="M288 464V312a24 24 0 0 1 24-24h64a24 24 0 0 1 24 24v152"></path>
                 </svg>
                 商店
             </button>
@@ -275,8 +278,7 @@ const configAppend = () => {
 };
 
 window.addEventListener('message', function (event) {
-    console.log(event.data);
-    if (event.data.type === 'Refresh' || data === "[configRecord]") {
+    if (event.data.type === 'Refresh') {
         readBedConfig()
     }
 });

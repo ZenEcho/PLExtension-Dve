@@ -6,8 +6,8 @@
                 <div v-if="isCloseCors(props.formGroups.name)">
                     <button type="button" class="mb-3 w-full flex flex-col items-center" @click="CorsProxyState(true)"
                         v-if="!CorsProxy">
-                        <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                            viewBox="0 0 20 20">
+                        <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20">
                             <g fill="none">
                                 <path
                                     d="M15.794 8.733a.75.75 0 0 1-.026 1.06l-5.25 5.001a.75.75 0 0 1-1.035 0l-5.25-5a.75.75 0 0 1 1.034-1.087l4.734 4.508l4.733-4.508a.75.75 0 0 1 1.06.026zm0-4a.75.75 0 0 1-.026 1.06l-5.25 5.001a.75.75 0 0 1-1.035 0l-5.25-5a.75.75 0 0 1 1.034-1.087l4.734 4.509l4.733-4.51a.75.75 0 0 1 1.06.027z"
@@ -27,8 +27,8 @@
                     </div>
                     <button type="button" class="mb-3 w-full flex flex-col items-center" @click="CorsProxyState(false)"
                         v-if="CorsProxy">
-                        <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                            viewBox="0 0 24 24">
+                        <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
                             <path d="M6 17.59L7.41 19L12 14.42L16.59 19L18 17.59l-6-6z" fill="currentColor"></path>
                             <path d="M6 11l1.41 1.41L12 7.83l4.59 4.58L18 11l-6-6z" fill="currentColor"></path>
                         </svg>
@@ -130,9 +130,15 @@
             </n-collapse>
         </div>
         <div v-else>
-            <n-result status="418" title="我是个杯具" description="一切尽在不言中">
+            <n-result v-if="readbedButtonForm.length < 1" status="418" title="我是个杯具" description="一切尽在不言中">
                 <template #footer>
                     <n-button @click="onShowModal({ type: 'addButton', state: true })">没有安装图床？点我安装！</n-button>
+                </template>
+            </n-result>
+
+            <n-result v-else status="warning" title="警告" description="在它变成错误以前一般不会有人管它">
+                <template #footer>
+                    <n-button @click="goToConfig()">点击左侧程序进行信息配置吧</n-button>
                 </template>
             </n-result>
         </div>
@@ -143,12 +149,13 @@
 
     </form>
 </template>
-  
+
 <script setup>
 import { defineProps, ref, watchEffect, inject, defineEmits } from "vue";
 import { storeBedConfig, autoExpand, storProgramConfiguration, getChromeStorage } from '@/assets/js/public';
 import HttpRequester from '@/assets/js/httpRequester';
 import { useNotification } from 'naive-ui';
+import { dbHelper } from '@/assets/js/db';
 const onShowModal = inject('onShowModal');
 const props = defineProps({
     formGroups: Object
@@ -157,7 +164,7 @@ const notification = useNotification();
 const formContainer = ref(null);
 const show = ref(false);
 const CorsProxy = ref(false); // 初始为 false
-
+const readbedButtonForm = ref([]);
 const createFormElement = (element) => {
     const el = document.createElement(element.type);
     // 设置元素的属性
@@ -204,29 +211,29 @@ const emits = defineEmits(['submit-success']);
 watchEffect(() => {
     if (props.formGroups && props.formGroups.element) {
         show.value = true
-        if (formContainer.value) {
-            formContainer.value.innerHTML = '';
-            props.formGroups.element.forEach(element => {
-                formContainer.value.appendChild(createFormElement(element));
-            });
-
-            // 延迟100毫秒加载数据
-            setTimeout(() => {
-                getChromeStorage("ProgramConfiguration").then((result) => {
-                    show.value = false;
-                    if (!result) return;
-                    let newData = { ...result };
-                    delete newData.Program;
-                    let ids = extractIds(props.formGroups.element);
-                    setFormValues(newData, ids);
-                });
-            }, 100);
-        }
-
+        updateFormGroups(props.formGroups)
     }
 
 });
-
+function updateFormGroups(data) {
+    if (formContainer.value) {
+        formContainer.value.innerHTML = '';
+        data.element.forEach((element) => {
+            formContainer.value.appendChild(createFormElement(element));
+        });
+    }
+    // 延迟100毫秒加载数据
+    setTimeout(() => {
+        getChromeStorage("ProgramConfiguration").then((result) => {
+            show.value = false;
+            if (!result) return;
+            let newData = { ...result };
+            delete newData.Program;
+            let ids = extractIds(data.element);
+            setFormValues(newData, ids);
+        });
+    }, 100);
+}
 function extractIds(elements) {
     const ids = [];
     elements.forEach(element => {
@@ -388,7 +395,36 @@ function handleCollapseClick({ expanded }) {
         });
     }
 }
+async function goToConfig() {
+    try {
+        const dbResult = await dbHelper("exeButtons");
+        const { db } = dbResult;
+        const sortedResult = await db.getSortedByIndex();
+        let formData = {
+            Program: sortedResult[0].value
+        }
+        storProgramConfiguration(formData).then((data,error) => {
+            //刷新当前页面
+            window.location.reload();
+        });
+    } catch (error) {
+        console.error("Error processing data:", error);
+    }
+}
 
+async function readbedButton() {
+
+    try {
+        const dbResult = await dbHelper("exeButtons");
+        const { db } = dbResult;
+        const sortedResult = await db.getSortedByIndex();
+        readbedButtonForm.value = sortedResult
+
+    } catch (error) {
+        console.error("Error processing data:", error);
+    }
+}
+readbedButton()
 // 保存
 function handleSubmit(event) {
     event.preventDefault();

@@ -109,7 +109,7 @@
         <div class="flex flex-wrap justify-center" id="image-scroll-container" v-if="imagesData.length > 0">
           <n-image-group>
 
-            <n-card v-for="( item, index ) in  imagesData " :key="index" :data-key="item.key" :data-url="item.url"
+            <n-card v-for="( item, index ) in imagesData " :key="index" :data-key="item.key" :data-url="item.url"
               :data-filename="item.original_file_name"
               class="image-card w-[25%] min-w-[256px] max-w-[320px] flex flex-col m-1 relative dark:bg-gray-100/90"
               size="small" hoverable @click="handleImageCardClick($event, item)" closable
@@ -124,8 +124,8 @@
 
                   <n-image class="h-[200px] flex justify-center" :src="item.url" object-fit="cover" lazy
                     :intersection-observer-options="{
-              root: '#image-scroll-container'
-            }" :fallback-src="fallbackImage">
+                      root: '#image-scroll-container'
+                    }" :fallback-src="fallbackImage">
                     <template #placeholder>
                       <div class="w-[300px] h-[200px] flex justify-center">
                         <n-spin size="large" />
@@ -332,7 +332,10 @@ function handleSelectedDelete() {
   let images = document.querySelectorAll(".image-card.active")
   let keys = []
   images.forEach((imageCard) => {
-    keys.push(imageCard.dataset.key);
+    keys.push({
+      key: imageCard.dataset.key,
+      filename: imageCard.dataset.filename
+    });
   });
   deleteSelectedImagesData(keys).then((results) => {
     results.forEach((result) => {
@@ -384,6 +387,7 @@ function loadImages() {
   getChromeStorage("UploadLog").then((result) => {
     let imagesDATA = result;
     if (!result) {
+      imagesStorageData.value = [];
       return;
     }
     dbHelper("Uploads").then(result => {
@@ -398,18 +402,19 @@ function loadImages() {
       db.getAll().then((UploadLog) => {
         imagesStorageData.value = UploadLog;
         pageChange(page.value)
-        imagesBoxLoading.value = false;
-        console.log("图片记录：", UploadLog);
+        console.log("本地图片：", UploadLog);
       })
     });
 
+  }).finally(() => {
+    imagesBoxLoading.value = false;
   })
 }
 // 网络图片加载
 function loadNetImages(networkPage = 1) {
   imagesBoxLoading.value = true;
   getNetworkImagesData(networkPage).then((result) => {
-    console.log(result);
+    console.log("网络图片：", result);
     if (result.type == "error") {
       showMessage(result)
     }
@@ -417,6 +422,7 @@ function loadNetImages(networkPage = 1) {
     imagesData.value = result.type === "error" ? [] : result.data;
     page.value = result.type === "error" ? 1 : result.page;
     pageSize.value = result.type === "error" ? 20 : result.pageSize;
+  }).finally(() => {
     imagesBoxLoading.value = false;
   })
 }
