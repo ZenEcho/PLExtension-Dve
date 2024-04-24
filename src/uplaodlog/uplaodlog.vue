@@ -190,7 +190,7 @@ import { ref, onMounted } from 'vue';
 import { getChromeStorage, getFormatFileSize, copyText, generateLink } from '@/assets/js/public';
 import fallbackImage from '../assets/images/logo256.png';
 import { dbHelper } from '@/assets/js/db';
-import { getNetworkImagesData, deleteImagesData, deleteSelectedImagesData } from '@/assets/js/uplaodlog';
+import { getNetworkImagesData, deleteImagesData } from '@/assets/js/uplaodlog';
 import { retry } from 'ali-oss/lib/common/utils/retry';
 
 const dropdown = ref(null);
@@ -308,59 +308,75 @@ function handleUnSelectedAll() {
 // 删除
 function handleClose(item, index) {
   imagesBoxLoading.value = true;
-  let key = item.key
-  deleteImagesData(item).then((result) => {
-    if (result.type == "success") {
-      if (dataLoadingMode.value === "local") {
-        imagesStorageData.value = imagesStorageData.value.filter(image => image.key !== key);
-      } else {
-        imagesStorageData.value.data = imagesStorageData.value.data.filter(image => image.key !== key);
-      }
-      imagesData.value = imagesData.value.filter(image => image.key !== key);
-    }
+  let key = [{
+    key: item.key,
+    filename: item.original_file_name
+  }];
+  let showMessageCount = 0; // 初始化消息显示计数器
+  deleteImagesData(key, result => {
+    if (!result) { return };
     showMessage(result);
-  }).catch((err) => {
-    console.error(err);
+    checkLoadingState();
+    if (result.type !== "success") return;
+    dataLoadingMode.value === "local" ? imagesStorageData.value = imagesStorageData.value.filter(image => image.key !== result.key) : imagesStorageData.value.data = imagesStorageData.value.data.filter(image => image.key !== result.key);
+    imagesData.value = imagesData.value.filter(image => image.key !== result.key);
+  }).catch((error) => {
+    console.error(error);
     showMessage({ message: "删除操作失败", type: "error" });
+    checkLoadingState();
   }).finally(() => {
-    imagesBoxLoading.value = false;
+    document.querySelectorAll(".image-card.active").forEach((imageCard) => {
+      imageCard.classList.remove('active');
+    });
   })
+  function checkLoadingState() {
+    showMessageCount++;
+    if (showMessageCount >= key.length) {
+      imagesBoxLoading.value = false;
+      showMessageCount = 0
+    }
+  }
 }
 // 删除选中
 function handleSelectedDelete() {
   imagesBoxLoading.value = true;
-  let images = document.querySelectorAll(".image-card.active")
-  let keys = []
+  let images = document.querySelectorAll(".image-card.active");
+  let keys = [];
   images.forEach((imageCard) => {
     keys.push({
       key: imageCard.dataset.key,
       filename: imageCard.dataset.filename
     });
   });
-  deleteSelectedImagesData(keys).then((results) => {
-    results.forEach((result) => {
-      showMessage(result); // 对每个结果显示消息
-      if (result.type === "success") {
-        if (dataLoadingMode.value === "local") {
-          imagesStorageData.value = imagesStorageData.value.filter(image => image.key !== result.key);
-        } else {
-          imagesStorageData.value.data = imagesStorageData.value.data.filter(image => image.key !== result.key);
-        }
-        imagesData.value = imagesData.value.filter(image => image.key !== result.key);
-      }
-    });
-  }).catch((err) => {
-    console.error(err);
+
+  let showMessageCount = 0; // 初始化消息显示计数器
+
+  deleteImagesData(keys, result => {
+    if (!result) { return };
+    showMessage(result);
+    checkLoadingState();
+    if (result.type !== "success") return;
+    dataLoadingMode.value === "local" ? imagesStorageData.value = imagesStorageData.value.filter(image => image.key !== result.key) : imagesStorageData.value.data = imagesStorageData.value.data.filter(image => image.key !== result.key);
+    imagesData.value = imagesData.value.filter(image => image.key !== result.key);
+  }).catch((error) => {
+    console.error(error);
     showMessage({ message: "删除操作失败", type: "error" });
+    checkLoadingState();
   }).finally(() => {
-    imagesBoxLoading.value = false;
     images.forEach((imageCard) => {
       imageCard.classList.remove('active');
     });
-
   });
 
+  function checkLoadingState() {
+    showMessageCount++;
+    if (showMessageCount >= keys.length) {
+      imagesBoxLoading.value = false;
+      showMessageCount = 0
+    }
+  }
 }
+
 // 缩进后的动作
 function handleIndentSelectedOperation(key) {
   const operation = operateSelect.value.find(op => op.key === key);

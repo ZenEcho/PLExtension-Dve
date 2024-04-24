@@ -257,19 +257,20 @@ const configReplace = () => {
 const configAppend = () => {
     let value = textareaData.value;
     parseJsonInput(value).then(newArray => {
-        dbHelper("BedConfigStore").then(result => {
-            const { db } = result;
-            db.add(newArray).then(() => {
-                notification.success({
-                    title: "成功",
-                    content: chrome.i18n.getMessage("Load") + chrome.i18n.getMessage("successful") + ",即将重新加载页面！",
-                    duration: 3000,
-                })
-                setTimeout(function () {
-                    window.location.reload();
-                }, 1000); // 延迟
-            })
-        })
+        console.log(newArray);
+        // dbHelper("BedConfigStore").then(result => {
+        //     const { db } = result;
+        //     db.add(newArray).then(() => {
+        //         notification.success({
+        //             title: "成功",
+        //             content: chrome.i18n.getMessage("Load") + chrome.i18n.getMessage("successful") + ",即将重新加载页面！",
+        //             duration: 3000,
+        //         })
+        //         setTimeout(function () {
+        //             window.location.reload();
+        //         }, 1000); // 延迟
+        //     })
+        // })
 
     }).catch(error => {
         console.error(error);

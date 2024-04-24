@@ -65,6 +65,7 @@ export async function initObjectStorageClient() {
         },
 
     };
+    console.log(ProgramConfigurations.Program);
     if (actions.hasOwnProperty(ProgramConfigurations.Program)) {
         return await actions[ProgramConfigurations.Program]();
     } else {

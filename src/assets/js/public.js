@@ -365,7 +365,9 @@ export function parseJsonInput(inputValue) {
             if (Array.isArray(jsonArray) || (typeof jsonArray === 'object' && jsonArray !== null)) {
                 if (jsonArray.length === 0) { return; }
                 let newArray = []
+              
                 for (const item of jsonArray) {
+                    console.log(item);
                     if (Object.keys(item).length === 0) {
                         continue;
                     }
@@ -378,9 +380,12 @@ export function parseJsonInput(inputValue) {
                             data: newItem,
                             ConfigName: item.ConfigName || chrome.i18n.getMessage("Config"),
                         });
-
                     } else {
                         newArray.push({ ...item, id: generateUniqueId() });
+                    }
+
+                    if (item.data) {
+                        
                     }
 
                 }
