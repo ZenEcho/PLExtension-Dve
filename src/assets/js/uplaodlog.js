@@ -259,6 +259,7 @@ export async function getNetworkImagesData(networkPage = 1) {
                         "uploadTime": "GitHub不支持",
                         "upload_domain_name": ProgramConfigurations.Program,
                         "url": imageData.download_url,
+                        "type": imageData.type,
                     }));
                     return {
                         data: transformedData,

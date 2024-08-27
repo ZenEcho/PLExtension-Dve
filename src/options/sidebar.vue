@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gray-200  sidebar dark:bg-gray-500 min-w-48">
+    <div class="bg-gray-50  sidebar dark:bg-gray-500 min-w-48">
         <div class="px-4 border-b flex flex-row items-center h-12 text-lg border-gray-400 dark:border-gray-200">
             <span><svg t="1703828985261" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
                     p-id="19530" width="24" height="24">
@@ -119,7 +119,7 @@ defineExpose({ readbedButton });
 </script>
 <style scoped>
 .buttons {
-    height: calc(100vh - 161px);
+    height: calc(100vh - 168px);
     overflow: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -132,7 +132,7 @@ defineExpose({ readbedButton });
 .add-button {
     position: relative;
     width: 100%;
-    height: 48px;
+    height: 40px;
     cursor: pointer;
     display: flex;
     align-items: center;

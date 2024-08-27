@@ -1,14 +1,12 @@
 <template>
   <div class=" dark:bg-gray-200 min-w-[640px]  min-h-[500px]">
-    <header class="shadow bg-blue-600 dark:bg-gray-700 sticky top-0 z-10" style="height: 65px;">
-      <Navbar> </Navbar>
-    </header>
+    <Navbar />
     <div class="p-6 h-[calc(100vh-165px)] overflow-auto">
       <div>
         <div class="flex flex-col items-center justify-center">
           通知
         </div>
-        <div class="flex flex-row flex-wrap items-center justify-end m-3 border-b py-2">
+        <div class="flex flex-row flex-wrap items-center justify-end m-3 border-b py-2 dark:border-gray-400">
           <button type="button" @click="handleDataLoadingMode"
             class="m-1 px-4 py-1  dark:bg-gray-600 rounded-md border text-white dark:text-gray-100"
             :class="dataLoadingMode == 'local' ? 'bg-blue-600' : ' bg-sky-600'">
@@ -104,44 +102,79 @@
             </svg>
           </n-dropdown>
         </div>
+
+        <div class="m-3 border-b py-2 dark:border-gray-400" v-if="dataLoadingMode != 'local'">
+          <n-message-provider>
+            <PathPage @path-saved="dataLoad" @UploadPath-Refresh="UploadPathRefresh" :UploadPath="UploadPath">
+            </PathPage>
+          </n-message-provider>
+        </div>
+
       </div>
       <n-spin :show="imagesBoxLoading" size="large">
         <div class="flex flex-wrap justify-center" id="image-scroll-container" v-if="imagesData.length > 0">
           <n-image-group>
-
-            <n-card v-for="( item, index ) in imagesData " :key="index" :data-key="item.key" :data-url="item.url"
+            <n-card v-for="(item, index) in imagesData" :key="item.key" :data-key="item.key" :data-url="item.url"
               :data-filename="item.original_file_name"
               class="image-card w-[25%] min-w-[256px] max-w-[320px] flex flex-col m-1 relative dark:bg-gray-100/90"
               size="small" hoverable @click="handleImageCardClick($event, item)" closable
-              @close="handleClose(item, index)">
+              @close="handleClose(item, index)" :type="item.type || 'none'">
               <template #header>
-                <n-ellipsis expand-trigger="click" line-clamp="1" :tooltip="false">
+                <n-ellipsis expand-trigger="click" line-clamp="1">
                   {{ item.original_file_name }}
                 </n-ellipsis>
               </template>
               <n-popover trigger="hover" class="dark:bg-gray-600/80 dark:text-gray-100">
                 <template #trigger>
+                  <div class="flex justify-center items-center h-full w-full">
+                    <div v-if="item.type == 'image'">
+                      <n-image class="h-[200px] flex justify-center" :src="item.url" object-fit="cover" lazy
+                        :intersection-observer-options="{ root: '#image-scroll-container' }"
+                        :fallback-src="fallbackImage">
+                        <template #placeholder>
+                          <div class="w-[300px] h-[200px] flex justify-center">
+                            <n-spin size="large" />
+                          </div>
+                        </template>
+                      </n-image>
+                    </div>
+                    <!-- <div v-else-if="item.type == 'dir'">
+                      <n-image :src="getImageSrc('images/fileicon/file.png')" class="h-[200px] flex justify-center"
+                        preview-disabled @click="handlePathClick($event, item)" />
+                    </div> -->
 
-                  <n-image class="h-[200px] flex justify-center" :src="item.url" object-fit="cover" lazy
-                    :intersection-observer-options="{
-                      root: '#image-scroll-container'
-                    }" :fallback-src="fallbackImage">
-                    <template #placeholder>
-                      <div class="w-[300px] h-[200px] flex justify-center">
-                        <n-spin size="large" />
+                    <div v-else-if="item.type == 'editable'" class="w-full">
+                      <n-progress type="circle" :percentage="item.progress || 0"
+                        class="absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 z-10"
+                        v-show="item.progress >= 1 && item.progress < 100" />
+                      <n-input type="textarea" placeholder="点击加载内容！" class="min-h-[200px]"
+                        @click="handleEditingContent($event, item)" v-model:value="item.NetResponseText" />
+
+                    </div>
+                    <div v-else-if="item.type == 'video'">
+                      <video controls>
+                        <source :src="item.url">
+                      </video>
+                    </div>
+                    <div v-else>
+                      <div v-if="item.type in imageMap">
+                        <n-image :src="getImageSrc(imageMap[item.type])" class="h-[200px] flex justify-center"
+                          preview-disabled @click="item.type === 'dir' ? handlePathClick($event, item) : null" />
                       </div>
-                    </template>
-                  </n-image>
+                      <div v-else>
+                        <n-image :src="getImageSrc('images/fileicon/unknown.png')" class="h-[200px] flex justify-center"
+                          preview-disabled />
+                      </div>
+                    </div>
 
+                  </div>
                 </template>
                 <template #default>
-                  <div>
-                    <p>文件名称：{{ item.original_file_name }}</p>
-                    <p>文件大小：{{ getFormatFileSize(item.file_size) }}</p>
-                    <p>上传程序：{{ item.uploadExe }}</p>
-                    <p>上传域名：{{ item.upload_domain_name }}</p>
-                    <p>上传时间：{{ item.uploadTime }}</p>
-                  </div>
+                  <p>文件名称：{{ item.original_file_name }}</p>
+                  <p>文件大小：{{ getFormatFileSize(item.file_size) }}</p>
+                  <p>上传程序：{{ item.uploadExe }}</p>
+                  <p>上传域名：{{ item.upload_domain_name }}</p>
+                  <p>上传时间：{{ item.uploadTime }}</p>
                 </template>
               </n-popover>
               <template #footer>
@@ -149,7 +182,7 @@
                   <button type="button"
                     class="px-4 py-1 mx-1 rounded border text-sky-600 border-sky-500 dark:border-gray-500 dark:text-gray-500">插入</button>
                   <n-dropdown ref="dropdown" trigger="hover" :options="urlType" @select="handleCopy($event, item)"
-                    class=" dark:bg-gray-50">
+                    class="dark:bg-gray-50">
                     <button type="button"
                       class="px-4 py-1 mx-1 rounded text-gray-100 bg-sky-500 active:bg-sky-600 dark:bg-gray-500 dark:active:bg-gray-600"
                       @click="handleCopy(Copy_Selected_Mode, item)">复制</button>
@@ -179,20 +212,23 @@
       </div>
     </div>
   </div>
+
   <n-message-provider>
     <Messagetag ref="messageRef" />
   </n-message-provider>
 </template>
 <script setup>
+import PathPage from '@/uplaodlog/path.vue';
 import Navbar from '@/components/header.vue';
 import Messagetag from '@/components/message.vue';
+import { getFileType } from '@/assets/js/arrayObjectData';
 import { ref, onMounted } from 'vue';
 import { getChromeStorage, getFormatFileSize, copyText, generateLink } from '@/assets/js/public';
 import fallbackImage from '../assets/images/logo256.png';
 import { dbHelper } from '@/assets/js/db';
 import { getNetworkImagesData, deleteImagesData } from '@/assets/js/uplaodlog';
 import { retry } from 'ali-oss/lib/common/utils/retry';
-
+import { trTR } from 'naive-ui';
 const dropdown = ref(null);
 const messageRef = ref(null);
 const imagesStorageData = ref([]) // 图片总数据
@@ -202,6 +238,8 @@ const pageSize = ref(10) // 每页显示数量
 const Copy_Selected_Mode = ref("URL") // 
 const imagesBoxLoading = ref(true)  // 图片盒子加载
 const dataLoadingMode = ref(localStorage.dataLoadingMode || "local")  // 本地or网络
+const UploadPath = ref(); //上传路径
+
 const pageSizes = [
   {
     label: '10/页',
@@ -224,7 +262,6 @@ const pageSizes = [
     value: 50
   }
 ];
-
 const urlType = ref([
   { key: 'URL', label: 'URL' },
   { key: 'HTML', label: 'HTML' },
@@ -241,6 +278,27 @@ function showMessage(payload) {
     messageRef.value.showMessage(payload);
   }
 };
+// 图片资源
+const imageMap = {
+  dir: 'images/fileicon/dir.png',
+  ae: 'images/fileicon/ae.png',
+  ai: 'images/fileicon/ai.png',
+  ar: 'images/fileicon/ar.png',
+  asp: 'images/fileicon/asp.png',
+  dll: 'images/fileicon/dll.png',
+  exe: 'images/fileicon/exe.png',
+  link: 'images/fileicon/link.png',
+  prproj: 'images/fileicon/pr.png',
+  psd: 'images/fileicon/ps.png',
+  compressedfile: 'images/fileicon/zip.png',
+  word: 'images/fileicon/WORD.png',
+  excel: 'images/fileicon/excel.png',
+  powerPoint: 'images/fileicon/powerPoint.png',
+};
+const getImageSrc = (imageName) => {
+  console.log(imageName);
+    return new URL(`../assets/${imageName}`, import.meta.url).href;
+}
 function pageChange(page) {
   requestAnimationFrame(() => {
     if (dataLoadingMode.value == "local" || imagesStorageData.value.data.length > imagesStorageData.value.pageSize) {
@@ -252,8 +310,6 @@ function pageChange(page) {
     }
   });
 }
-
-
 function pageSizeChange() {
   if (dataLoadingMode.value == "local") {
     pageChange(page.value)
@@ -263,6 +319,54 @@ function pageSizeChange() {
     return;
   }
 };
+// 点击路径跳转
+function handlePathClick(e, i) {
+  UploadPath.value = i.original_file_name + "/"
+}
+const UploadPathRefresh = (newPath) => {
+  UploadPath.value = newPath
+}
+//加载可编辑内容
+const handleEditingContent = (e, item) => {
+  if (item.progress != null) {
+    return;
+  };
+  // 如果item.file_size大于5MB片大小，则不加载!
+  if (item.file_size > 1024 * 1024 * 5) {
+    item.NetResponseText = "加载大于5MB的文本将会影响浏览器性能,请下载查看！";
+    return;
+  }
+
+  let xhr = new XMLHttpRequest();
+  xhr.open('GET', item.url, true);
+  xhr.responseType = 'text';
+
+  xhr.onprogress = function (event) {
+    if (event.lengthComputable) {
+      item.progress = Math.floor((event.loaded / event.total) * 100);
+    } else {
+      item.progress = event.loaded;
+    }
+  };
+
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      item.NetResponseText = xhr.response;
+      item.NetResponseStatus = 200;
+      console.log({ status: 'loaded', responseText: xhr.response });
+    } else {
+      item.NetResponseStatus = 404;
+      item.NetResponseText = "加载失败:" + xhr.status;
+    }
+  };
+  xhr.onerror = function () {
+    item.NetResponseStatus = 502;
+    item.NetResponseText = "网络错误或请求被阻止:";
+  };
+
+  xhr.send();
+}
+
 // 复制操作
 function copyOperation(urls, mode) {
   if (urls.length < 1) return;
@@ -287,10 +391,12 @@ function handleSelectedCopy(mode) {
 }
 // 点击卡片选中
 function handleImageCardClick(event) {
-  // 阻止点到img 和按钮
-  if (event.target.closest('img') || event.target.closest('button') || event.target.closest('svg')) return;
+  const selectors = ['img', 'button', 'svg', 'video', '[type="editable"]', '.n-card-header'];
+  // 判断点击的元素是否匹配任意一个选择器
+  if (selectors.some(selector => event.target.closest(selector))) return;
   event.currentTarget.classList.toggle('active');
 }
+
 // 反选
 function handleSelectedAll() {
   let images = document.querySelectorAll(".image-card")
@@ -339,8 +445,10 @@ function handleClose(item, index) {
 }
 // 删除选中
 function handleSelectedDelete() {
-  imagesBoxLoading.value = true;
   let images = document.querySelectorAll(".image-card.active");
+  if (images.length < 1) return;
+
+  imagesBoxLoading.value = true; //加载
   let keys = [];
   images.forEach((imageCard) => {
     keys.push({
@@ -376,7 +484,6 @@ function handleSelectedDelete() {
     }
   }
 }
-
 // 缩进后的动作
 function handleIndentSelectedOperation(key) {
   const operation = operateSelect.value.find(op => op.key === key);
@@ -434,6 +541,17 @@ function loadNetImages(networkPage = 1) {
     if (result.type == "error") {
       showMessage(result)
     }
+    result.data.forEach(item => {
+      try {
+        if (item.type == 'dir') { return; };
+        const fileExtension = item.url.toLowerCase().match(/\.[0-9a-z]+$/);
+        item.type = getFileType(fileExtension[0]);
+      } catch (error) {
+        item.type = "none";
+      }
+
+    });
+
     imagesStorageData.value = result.type === "error" ? { "total": 1 } : result;
     imagesData.value = result.type === "error" ? [] : result.data;
     page.value = result.type === "error" ? 1 : result.page;

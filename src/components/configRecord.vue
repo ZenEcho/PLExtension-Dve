@@ -1,7 +1,20 @@
 <template>
     <div class="bg-gray-50">
-        <div class="border-l-4 text-lg font-bold p-1">
+        <div class="border-l-4 text-lg font-bold p-1 relative">
             <span class="ml-1">配置记录</span>
+            <span class="ml-1">({{ BedConfigStore.length }})</span>
+            <button type="button" title="删除全部配置" class="right-0 absolute px-1" @click="clearAllConfig"> <svg
+                    t="1717059862678" class="w-8" viewBox="0 0 1024 1024" version="1.1"
+                    xmlns="http://www.w3.org/2000/svg" p-id="8404">
+                    <path
+                        d="M405.448649 538.291892l-1.383784 11.07027-12.454054 77.491892h26.291892l-11.070271-77.491892z"
+                        fill="#707070" p-id="8405"></path>
+                    <path
+                        d="M705.72973 373.621622H318.27027c-6.918919 0-13.837838 6.918919-13.837838 13.837837v401.297298c0 23.524324 17.989189 41.513514 41.513514 41.513513h332.108108c23.524324 0 41.513514-17.989189 41.513514-41.513513V387.459459c0-6.918919-6.918919-13.837838-13.837838-13.837837zM459.416216 678.054054h-31.827027c-1.383784 0-1.383784 0-1.383784-1.383784l-2.767567-20.756756h-37.362162l-2.767568 20.756756c0 1.383784 0 1.383784-1.383784 1.383784h-30.443243c-1.383784 0-1.383784 0-1.383784-1.383784l34.594595-189.578378c0-1.383784 0-1.383784 1.383784-1.383784h40.129729c1.383784 0 1.383784 0 1.383784 1.383784L459.416216 678.054054c0-1.383784 0 0 0 0z m109.318919-1.383784c0 1.383784 0 1.383784 0 0l-89.945946 1.383784c-1.383784 0-1.383784 0-1.383784-1.383784V487.091892c0-1.383784 0-1.383784 1.383784-1.383784h30.443243c1.383784 0 1.383784 0 1.383784 1.383784v157.751351H567.351351c1.383784 0 1.383784 0 1.383784 1.383784v30.443243z m110.702703 0c0 1.383784 0 1.383784-1.383784 1.383784h-89.945946c-1.383784 0-1.383784 0-1.383784-1.383784V487.091892c0-1.383784 0-1.383784 1.383784-1.383784h30.443243c1.383784 0 1.383784 0 1.383784 1.383784v157.751351H678.054054c1.383784 0 1.383784 0 1.383784 1.383784v30.443243zM747.243243 249.081081H547.978378v-41.513513c0-6.918919-6.918919-13.837838-13.837837-13.837838h-55.351352c-8.302703 0-13.837838 6.918919-13.837838 13.837838v41.513513H276.756757c-6.918919 0-13.837838 6.918919-13.837838 13.837838v55.351351c0 6.918919 6.918919 13.837838 13.837838 13.837838h470.486486c6.918919 0 13.837838-6.918919 13.837838-13.837838v-55.351351c0-6.918919-6.918919-13.837838-13.837838-13.837838z"
+                        fill="#707070" p-id="8406"></path>
+                </svg></button>
+
+
         </div>
         <div class="mt-1 border-t">
             <div v-if="BedConfigStore.length > 0">
@@ -116,11 +129,16 @@
 
     </div>
 </template>
+
 <script setup>
 import { ref, inject, nextTick, toRaw } from 'vue';
 import { dbHelper } from '@/assets/js/db';
 import { createIconMarkup, storExeButtons, parseJsonInput } from '@/assets/js/public';
 import { useNotification } from 'naive-ui';
+import { useMessage, useDialog } from "naive-ui";
+const message = useMessage();
+const dialog = useDialog();
+
 const notification = useNotification();
 const showMessage = inject('showMessage');
 const importState = ref(false);
@@ -215,6 +233,29 @@ function deleteButton(config) {
     }
 
 }
+// 删除全部配置
+function clearAllConfig() {
+    // 弹出确认提示
+    if (BedConfigStore.value.length > 0) {
+        dialog.warning({
+            title: '警告',
+            content: '你确定删除全部配置？',
+            negativeText: '确定',
+            onNegativeClick: () => {
+                dbHelper("BedConfigStore").then(result => {
+                    const { db } = result;
+                    db.clear().then(() => {
+                        BedConfigStore.value = [];
+                        message.success(chrome.i18n.getMessage("Delete_successful"))
+                    })
+                })
+
+            }
+        })
+    }
+
+
+}
 //全部分享按钮
 function allShareButton() {
     if (BedConfigStore.value.length > 0) {
@@ -258,19 +299,19 @@ const configAppend = () => {
     let value = textareaData.value;
     parseJsonInput(value).then(newArray => {
         console.log(newArray);
-        // dbHelper("BedConfigStore").then(result => {
-        //     const { db } = result;
-        //     db.add(newArray).then(() => {
-        //         notification.success({
-        //             title: "成功",
-        //             content: chrome.i18n.getMessage("Load") + chrome.i18n.getMessage("successful") + ",即将重新加载页面！",
-        //             duration: 3000,
-        //         })
-        //         setTimeout(function () {
-        //             window.location.reload();
-        //         }, 1000); // 延迟
-        //     })
-        // })
+        dbHelper("BedConfigStore").then(result => {
+            const { db } = result;
+            db.add(newArray).then(() => {
+                notification.success({
+                    title: "成功",
+                    content: chrome.i18n.getMessage("Load") + chrome.i18n.getMessage("successful") + ",即将重新加载页面！",
+                    duration: 3000,
+                })
+                setTimeout(function () {
+                    window.location.reload();
+                }, 1000); // 延迟
+            })
+        })
 
     }).catch(error => {
         console.error(error);

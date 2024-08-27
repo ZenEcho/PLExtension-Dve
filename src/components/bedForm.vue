@@ -37,7 +37,8 @@
                 </div>
 
             </n-spin>
-            <n-collapse v-if="props.formGroups.name === 'Custom'" @item-header-click="handleCollapseClick">
+            <n-collapse display-directive="show" v-show="props.formGroups.name === 'Custom'"
+                @item-header-click="handleCollapseClick">
                 <n-collapse-item title="上传前设置" name="1">
                     <div class="flex flex-row items-center my-1">
                         <label class="switch flex">
@@ -219,6 +220,7 @@ function updateFormGroups(data) {
     if (formContainer.value) {
         formContainer.value.innerHTML = '';
         data.element.forEach((element) => {
+            console.log(element);
             formContainer.value.appendChild(createFormElement(element));
         });
     }
@@ -372,29 +374,35 @@ function setFormValues(result, ids) {
     }
     isCorsProxyState()
 }
-function handleCollapseClick({ expanded }) {
-    if (expanded) {
-        let ids = [
-            "custom_Base64Upload",
-            "custom_Base64UploadRemovePrefix",
-            "custom_BodyUpload",
-            "custom_BodyStringify",
-            "custom_ReturnJson",
-            "custom_KeywordReplacement",
-        ]
-        getChromeStorage("ProgramConfiguration").then((result) => {
-            ids.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    const type = element.type ? element.type.toLowerCase() : null;
-                    if (type === 'checkbox') {
+function handleCollapseClick(event) {
+    if (event.expanded) {
+        const idGroups = {
+            1: [
+                "custom_Base64Upload",
+                "custom_Base64UploadRemovePrefix",
+                "custom_BodyUpload",
+                "custom_BodyStringify",
+            ],
+            2: [
+                "custom_ReturnJson",
+                "custom_KeywordReplacement",
+            ]
+        };
+
+        const ids = idGroups[event.name];
+        if (ids) {
+            getChromeStorage("ProgramConfiguration").then((result) => {
+                ids.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element && element.type && element.type.toLowerCase() === 'checkbox') {
                         element.checked = result[id] || false;
                     }
-                }
+                });
             });
-        });
+        }
     }
 }
+
 async function goToConfig() {
     try {
         const dbResult = await dbHelper("exeButtons");
@@ -403,7 +411,7 @@ async function goToConfig() {
         let formData = {
             Program: sortedResult[0].value
         }
-        storProgramConfiguration(formData).then((data,error) => {
+        storProgramConfiguration(formData).then((data, error) => {
             //刷新当前页面
             window.location.reload();
         });

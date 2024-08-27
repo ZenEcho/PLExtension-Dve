@@ -239,47 +239,6 @@ export async function storExeButtons(data) {
     });
 }
 
-// export function LocalStorage(data) {
-//     let pluginPopup = chrome.runtime.getURL("popup.html");
-//     let currentURL = window.location.href;
-//     return new Promise((resolveC, rejectC) => {
-//         let filename = data.file.name || data.file.file.name;
-//         let imageUrl = data.url
-//         let MethodName = data.MethodName || "normal";
-//         let uploadDomainName = data.uploadDomainName || data.Program;
-//         if (pluginPopup != currentURL) {
-//             chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
-//         }
-//         chrome.storage.local.get('UploadLog', function (result) {
-//             let UploadLog = result.UploadLog || [];
-//             if (!Array.isArray(UploadLog)) {
-//                 UploadLog = [];
-//             }
-//             let d = new Date();
-//             let UploadLogData = {
-//                 key: crypto.randomUUID(),
-//                 url: imageUrl,
-//                 uploadExe: data.Program + "-" + MethodName,
-//                 upload_domain_name: uploadDomainName,
-//                 original_file_name: filename,
-//                 file_size: data.file.file.size,
-//                 img_file_size: "宽:不支持,高:不支持",
-//                 uploadTime: d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日" + d.getHours() + "时" + d.getMinutes() + "分" + d.getSeconds() + "秒"
-//             }
-//             if (typeof UploadLog !== 'object') {
-//                 UploadLog = JSON.parse(UploadLog);
-//             }
-//             UploadLog.push(UploadLogData);
-//             chrome.storage.local.set({ 'UploadLog': UploadLog }, function () {
-//                 if (window.location.href.startsWith('http')) {
-//                     chrome.runtime.sendMessage({ Loudspeaker: chrome.i18n.getMessage("Upload_prompt2") });
-//                     AutoInsertFun(imageUrl, false)
-//                 }
-//                 resolveC(true);
-//             })
-//         });
-//     });
-// }
 
 // 存储上传记录的
 export async function LocalStorage(data) {
@@ -344,79 +303,147 @@ export function autoExpand(element) {
  */
 export function parseJsonInput(inputValue) {
     return new Promise((resolve, reject) => {
-        if (!inputValue || inputValue.trim() == "") {
-            return reject({
-                type: "error", message: {
-                    title: "失败",
-                    content: "导入配置:输入内容为空",
-                    duration: 3000,
-                    keepAliveOnHover: true, placement: 'bottom'
-                }
-            });
+        // 检查输入是否为空
+        if (!inputValue || inputValue.trim() === "") {
+            return reject(createError("导入配置:输入内容为空"));
         }
+
         try {
             // 检查是否需要将输入包裹在数组中
-            if (inputValue.trim().startsWith('{') && inputValue.trim().endsWith('}')) {
-                inputValue = '[' + inputValue + ']';
-            }
+            inputValue = wrapInputInArray(inputValue.trim());
             // 尝试将字符串解析为JSON
             let jsonArray = JSON.parse(inputValue);
             // 检测解析后的值是否为数组或对象
-            if (Array.isArray(jsonArray) || (typeof jsonArray === 'object' && jsonArray !== null)) {
+            if (isValidJson(jsonArray)) {
                 if (jsonArray.length === 0) { return; }
-                let newArray = []
-              
-                for (const item of jsonArray) {
-                    console.log(item);
-                    if (Object.keys(item).length === 0) {
-                        continue;
-                    }
-                    if (!item.data) {
-                        const newItem = { ...item }
-                        delete newItem.ConfigName
-                        delete newItem.ConfigTime
-                        newArray.push({
-                            id: generateUniqueId(),
-                            data: newItem,
-                            ConfigName: item.ConfigName || chrome.i18n.getMessage("Config"),
-                        });
-                    } else {
-                        newArray.push({ ...item, id: generateUniqueId() });
-                    }
-
-                    if (item.data) {
-                        
-                    }
-
-                }
-                resolve(newArray)
+                let newArray = processJsonArray(jsonArray);
+                resolve(newArray);
                 if (newArray.length === 1) {
                     storExeButtons(newArray[0]).then(() => {
-                        localStorage.options_webtitle_status = 1
-                    })
+                        localStorage.options_webtitle_status = 1;
+                    });
                 }
             } else {
-                reject({
-                    type: "error", message: {
-                        title: "失败",
-                        content: "导入配置:无法处理数据,请查看报错!",
-                        duration: 3000,
-                        keepAliveOnHover: true, placement: 'bottom'
-                    }
-                });
+                reject(createError("导入配置:无法处理数据,请查看报错!"));
             }
         } catch (error) {
             console.error(error);
-            reject({
-                type: "error", message: {
-                    title: "失败",
-                    content: "导入配置:转换或者数据处理过程中出错了,详细错误请查看开发者工具(F12)!",
-                    duration: 3000,
-                    keepAliveOnHover: true, placement: 'bottom'
-                }
-            });
+            reject(createError("导入配置:转换或者数据处理过程中出错了,详细错误请查看开发者工具(F12)!"));
         }
-    })
+    });
+}
+
+function wrapInputInArray(input) {
+    if (input.startsWith('{') && input.endsWith('}')) {
+        return '[' + input + ']';
+    }
+    return input;
+}
+
+function isValidJson(jsonArray) {
+    return Array.isArray(jsonArray) || (typeof jsonArray === 'object' && jsonArray !== null);
+}
+
+function processJsonArray(jsonArray) {
+    let newArray = [];
+    const versionCheck = compareVersions("1.1.8.1");
+    for (const item of jsonArray) {
+        if (Object.keys(item).length === 0) {
+            continue;
+        }
+        if (!item.data) {
+            const newItem = { ...item }
+            delete newItem.ConfigName
+            delete newItem.ConfigTime
+            newArray.push({
+                id: generateUniqueId(),
+                data: oldVersionTransformData(newItem),
+                ConfigName: item.ConfigName || chrome.i18n.getMessage("Config"),
+            });
+
+        } else {
+            item.data = oldVersionTransformData(item.data)
+            newArray.push({ ...item, id: generateUniqueId() });
+        }
+    }
+    return newArray;
+}
+function oldVersionTransformData(oldData) {
+    const fieldMapping = {
+        options_UploadPath: 'UploadPath', //路径
+        options_exe: 'Program',// 程序
+        options_host: 'Host', //√
+        options_token: 'Token',//token
+        options_album_id: 'Album_id',//相册ip
+        options_expiration_select: 'Expiration', //有效期
+        options_nsfw_select: 'Nsfw', //nsfw
+        options_source: 'Source', //来源
+        options_AppId: 'AppId',//  AppId
+        options_Bucket: 'Bucket', // 存储桶
+        options_Custom_domain_name: 'custom_DomainName', // 自定义域名
+        options_Region: 'Region', // 地域
+        options_SecretId: 'SecretId', // 密钥
+        options_SecretKey: 'SecretKey', // 密钥
+        options_uid: 'Uid', // uid
+        options_imgur_post_mode: 'imgur_post_mode', // 模式
+        options_Endpoint: 'Endpoint', // 端点
+        options_owner: 'Owner',
+        options_repository: 'Repository',
+        options_parameter: 'Parameter',
+        options_return_success: 'return_success',
+        Keyword_replacement1: 'Keyword_replacement1',
+        Keyword_replacement2: 'Keyword_replacement2',
+        custom_Base64Upload: 'custom_Base64Upload',
+        custom_Base64UploadRemovePrefix: 'custom_Base64UploadRemovePrefix',
+        custom_BodyStringify: 'custom_BodyStringify',
+        custom_BodyUpload: 'custom_BodyUpload',
+        custom_KeywordReplacement: 'custom_KeywordReplacement',
+        custom_ReturnAppend: 'custom_ReturnAppend',
+        custom_ReturnJson: 'custom_ReturnJson',
+        custom_ReturnPrefix: 'custom_ReturnPrefix',
+        options_Body: 'Body',
+        options_Headers: 'Headers',
+        options_apihost: 'Url',
+        requestMethod: 'requestMethod'
+    };
+    const valueMapping = {
+        Program: {
+            "GitHubUP": "GitHub",
+            "imgdd": "IMGDD",
+            "UserDiy": "Custom",
+            "BaiJiaHaoBed": "BaiJiaHao",
+            "toutiaoBed": "toutiao",
+        },
+        // Host: {
+        //     "pnglog.com": "google.com"
+        // }
+    };
+    let newData = {};
+    for (const [oldKey, oldValue] of Object.entries(oldData)) {
+        const newKey = fieldMapping[oldKey] || oldKey;
+        newData[newKey] = oldValue;
+    }
+
+    // 根据 valueMapping 进行特定值的转换
+    for (const [field, mappings] of Object.entries(valueMapping)) {
+        if (field in newData && newData[field] in mappings) {
+            newData[field] = mappings[newData[field]];
+        }
+    }
+
+    return newData;
+}
+function createError(content) {
+    return {
+        type: "error",
+        message: {
+            title: "失败",
+            content,
+            duration: 3000,
+            keepAliveOnHover: true,
+            placement: 'bottom'
+        }
+    };
 }
 
 /**
@@ -467,11 +494,32 @@ export function getFormatFileSize(size) {
     if (isNaN(size)) {
         return 'Invalid size';
     }
-    const units = ["byte", "KB", "MB", "GB", "TB","PB","EB","ZB","YB","BB","NB","DB","CB","XB","?B"];
+    const units = ["byte", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB", "BB", "NB", "DB", "CB", "XB", "?B"];
     let index = 0;
     while (size >= 1024 && index < units.length - 1) {
         size /= 1024;
         index++;
     }
     return size.toFixed(2) + units[index];
+}
+
+//使用判断当前版本
+export function compareVersions(version) {
+    const v1Parts = version.split('.').map(Number);
+    const v2Parts = chrome.runtime.getManifest().version.split('.').map(Number);
+    const length = Math.max(v1Parts.length, v2Parts.length);
+
+    for (let i = 0; i < length; i++) {
+        const v1 = v1Parts[i] || 0;
+        const v2 = v2Parts[i] || 0;
+
+        if (v1 > v2) {
+            return 1;
+        }
+        if (v1 < v2) {
+            return -1;
+        }
+    }
+
+    return 0;
 }
