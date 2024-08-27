@@ -14,7 +14,7 @@
       </div>
       <div class="w-full">
         <SiteTitle />
-        <div class="w-full p-8">
+        <div class="p-8">
           <div class="flex justify-center">
             <Dropzone class="w-full max-w-5xl" @success-links="handleLinks"
               @filePreviewElements="handlefilePreviewElements">
@@ -31,7 +31,7 @@
             </n-space>
           </div>
         </div>
-        <div class="w-full p-8">
+        <div class="p-8">
           <div class="flex justify-center">
             <div v-if="links.length > 0"
               class="flex flex-row shadow rounded-lg max-sm:flex-col w-full max-w-6xl border dark:shadow-lg dark:border-gray-300">

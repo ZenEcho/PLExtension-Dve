@@ -2,43 +2,26 @@
   <n-notification-provider :placement='"bottom-right"'>
 
     <main class="dark:bg-gray-200 min-w-[640px] min-h-svh">
-      <Navbar />
       <div class="flex flex-row">
-        <Sidebar class="sticky h-full max-sm:hidden top-[80px] sidebar " @foundData="handleFoundData"
-          @addButton="onShowModal" ref="sidebarRef"></Sidebar>
-        <div
-          class="fixed flex w-7 top-1/2 hover:text-gray-700/50 max-sm:left-0 text-gray-500 dark:text-gray-700 max-sm:hidden"
-          @click="toggleSidebar($event)" :class="hiddenSidebar ? 'left-0' : 'left-44'">
-          <svg v-if="!hiddenSidebar" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-            viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 7l-5 5l5 5"></path>
-              <path d="M17 7l-5 5l5 5"></path>
-            </g>
-          </svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M7 7l5 5l-5 5"></path>
-              <path d="M13 7l5 5l-5 5"></path>
-            </g>
-          </svg>
-        </div>
-        <div class="w-full  bg-gray-100"
-          :class="hiddenSidebar ? 'h-[calc(100vh-65px)] overflow-auto' : 'overflow-hidden'">
-          <SiteTitle />
-          <div class="w-full px-3 flex flex-row max-lg:flex-col">
+        <SideNavigation @foundData="handleFoundData" @addButton="onShowModal" ref="sidebarRef" />
+        <div class="flex flex-row">
+          <div class="w-full  bg-gray-100"
+            :class="hiddenSidebar ? 'h-[calc(100vh-65px)] overflow-auto' : 'overflow-hidden'">
+            <SiteTitle />
+            <div class="w-full px-3 flex flex-row max-lg:flex-col">
 
-            <BedForm class="min-w-[400px]  w-full h-full shadow-xl  border rounded-lg bg-gray-50 p-2 dark:bg-gray-100"
-              :form-groups="formGroups" @submit-success="handleBedFormSubmit" />
-            <n-dialog-provider>
-              <n-message-provider>
-                <ConfigRecord
-                  class="max-lg:my-3 min-w-96 h-full lg:ml-2 p-2 border rounded-lg bg-gray-50 shadow-xl dark:bg-gray-100"
-                  ref="configRecordRef">
-                </ConfigRecord>
-              </n-message-provider>
-            </n-dialog-provider>
+              <BedForm class="min-w-[400px]  w-full h-full shadow-xl  border rounded-lg bg-gray-50 p-2 dark:bg-gray-100"
+                :form-groups="formGroups" @submit-success="handleBedFormSubmit" />
+              <n-dialog-provider>
+                <n-message-provider>
+                  <ConfigRecord
+                    class="max-lg:my-3 min-w-96 h-full lg:ml-2 p-2 border rounded-lg bg-gray-50 shadow-xl dark:bg-gray-100"
+                    ref="configRecordRef">
+                  </ConfigRecord>
+                </n-message-provider>
+              </n-dialog-provider>
 
+            </div>
           </div>
         </div>
       </div>
@@ -55,11 +38,12 @@
   </n-notification-provider>
 </template>
 <script setup>
-import Navbar from '@/components/header.vue'
+import SideNavigation from '@/components/header/SideNavigation.vue';
 import SiteTitle from '@/components/siteTitle.vue';
 import BedForm from '@/components/bedForm.vue'
 import ConfigRecord from '@/components/configRecord.vue'
 import Sidebar from './sidebar.vue'
+import NewSidebar from './NewSidebar.vue'
 import Messagetag from '@/components/message.vue';
 import ButtomModal from '@/components/buttomModal.vue';
 import { ref, provide } from 'vue';

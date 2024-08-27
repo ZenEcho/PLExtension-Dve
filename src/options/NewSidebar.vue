@@ -48,6 +48,8 @@ const onShowModal = inject('onShowModal');
 const readbedButtonForm = ref([]);
 const show = ref(false);
 async function readbedButton() {
+    console.log(1);
+    
     show.value = true;
     try {
         const dbResult = await dbHelper("exeButtons");

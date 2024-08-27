@@ -1,5 +1,4 @@
 <template>
-    <!-- <header class="shadow bg-blue-600 dark:bg-gray-700 sticky top-0 z-10"> -->
     <header class="shadow dark:bg-gray-700 top-0 z-10 h-full w-[210px] border-r">
         <div>
             <!-- logo -->
@@ -8,30 +7,33 @@
                 <span class=" ml-4 text-2xl text-gray-800 dark:text-gray-200">Puplaod</span>
             </div>
         </div>
-        <n-divider title-placement="left" class="m-0 text-sm">
+        <n-divider title-placement="left" class="m-0 text-sm dark:text-gray-200">
             我的上传
         </n-divider>
-        <ul class="flex flex-col w-11/12  max-sm:w-full">
-            <li v-for="item in headerData" :key="item.i18n"
+        <ul class="flex flex-col w-11/12  max-sm:w-full list-none p-0">
+            <li v-for="item in headerData" :key="item.link"
                 class="nav-item text-gray-800 px-3 py-2  max-sm:border-transparent max-sm:hidden hover:text-gray-700">
 
-                <a v-if="item.text != '配置信息'" :href="item.link"
-                    class="flex flex-row h-full text-base items-center dark:text-gray-200">
+                <a :href="item.link"
+                    class="flex flex-row text-gray-800  h-full text-base items-center dark:text-gray-200 text-decoration-none">
                     <span :class="{ ' text-gray-600 dark:text-blue-400': isCurrentPage(item.link) }" class="mr-1 h-6"
                         v-html="item.icon"></span>
-                    <span :class="{ 'font-bold  text-gray-600  dark:text-blue-400': isCurrentPage(item.link) }">{{
-                        item.text
-                    }}
-                    </span>
-                </a>
-                <a v-else :href="item.link" class="flex flex-row h-full text-base items-center dark:text-gray-200">
-                    <span :class="{ ' text-gray-600 dark:text-blue-400': isCurrentPage(item.link) }" class="mr-1 h-6"
-                        v-html="item.icon"></span>
-                    <span :class="{ 'font-bold  text-gray-600  dark:text-blue-400': isCurrentPage(item.link) }">{{
-                        item.text
-                        }}</span>
-                </a>
 
+                    <div class="flex flex-row w-full justify-between">
+                        <span :class="{ 'font-bold  text-gray-600  dark:text-blue-400': isCurrentPage(item.link) }">{{
+                            item.text
+                            }}</span>
+                        <span v-if="item.text == '配置信息'" class="h-[24px] w-[24px]">
+                            <div v-if="isCurrentPage(item.link) == true"
+                                class="i-material-symbols-light-keyboard-arrow-down w-full h-full">
+                            </div>
+                            <div v-else class="i-material-symbols-light:keyboard-arrow-up w-full h-full"></div>
+                        </span>
+                    </div>
+                </a>
+                <div v-if="isCurrentPage(item.link) == true && item.text == '配置信息'">
+                    <NewSidebar @foundData="handleFoundData" @addButton="onShowModal"  ref="sidebarRef" />
+                </div>
             </li>
             <li class="nav-item text-gray-800 px-3 py-2  list-none flex sm:hidden border-b border-transparent">
                 <button class="w-6 flex" type="button " @click="activate">
@@ -46,30 +48,12 @@
                 </button>
             </li>
             <li class="nav-item text-gray-800 px-3 list-none flex border-b border-transparent dark:text-gray-200">
-                <button class="w-6 flex" type="button " @click="toggleDarkMode">
+                <button class=" w-10 h-10 flex border-0 bg-transparent text-gray-800  dark:text-gray-200" type="button "
+                    @click="toggleDarkMode">
 
-                    <svg v-show="!isDarkMode" xmlns="http://www.w3.org/2000/svg" class="w-full h-full"
-                        xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
-                        <path
-                            d="M160 136c0-30.62 4.51-61.61 16-88C99.57 81.27 48 159.32 48 248c0 119.29 96.71 216 216 216c88.68 0 166.73-51.57 200-128c-26.39 11.49-57.38 16-88 16c-119.29 0-216-96.71-216-216z"
-                            fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="32">
-                        </path>
-                    </svg>
-
-                    <svg v-show="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="w-full h-full"
-                        xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
-                        <path d="M16 12.005a4 4 0 1 1-4 4a4.005 4.005 0 0 1 4-4m0-2a6 6 0 1 0 6 6a6 6 0 0 0-6-6z"
-                            fill="currentColor"></path>
-                        <path d="M5.394 6.813l1.414-1.415l3.506 3.506L8.9 10.318z" fill="currentColor"></path>
-                        <path d="M2 15.005h5v2H2z" fill="currentColor"></path>
-                        <path d="M5.394 25.197L8.9 21.691l1.414 1.415l-3.506 3.505z" fill="currentColor"></path>
-                        <path d="M15 25.005h2v5h-2z" fill="currentColor"></path>
-                        <path d="M21.687 23.106l1.414-1.415l3.506 3.506l-1.414 1.414z" fill="currentColor"></path>
-                        <path d="M25 15.005h5v2h-5z" fill="currentColor"></path>
-                        <path d="M21.687 8.904l3.506-3.506l1.414 1.415l-3.506 3.505z" fill="currentColor"></path>
-                        <path d="M15 2.005h2v5h-2z" fill="currentColor"></path>
-                    </svg>
+                    <div v-show="!isDarkMode" class="i-material-symbols-light:mode-night-outline  w-full h-full"></div>
+                    <div v-show="isDarkMode" class="i-material-symbols-light:light-mode-outline w-full h-full ">
+                    </div>
                 </button>
             </li>
         </ul>
@@ -80,6 +64,9 @@
 <script setup>
 import { ref, computed, watchEffect } from 'vue';
 import { headerData } from '@/assets/js/arrayObjectData';
+import NewSidebar from '@/options/NewSidebar.vue'
+import { defineEmits } from 'vue';
+const emit = defineEmits(['foundData', 'addButton']);
 const active = ref(false);
 const activate = () => {
     active.value = true;
@@ -92,13 +79,22 @@ const currentFilename = computed(() => {
 const isCurrentPage = (link) => {
     return currentFilename.value === link;
 };
-
 const isDarkMode = ref(localStorage.getItem('darkMode') === 'true');
-
 const toggleDarkMode = () => {
     isDarkMode.value = !isDarkMode.value;
     localStorage.setItem('darkMode', isDarkMode.value.toString());
 };
+
+
+
+
+const handleFoundData = (data) => {
+    emit('foundData', data);
+}
+const onShowModal = () => {
+    emit('addButton', { type: "addButton", state: true });
+}
+
 watchEffect(() => {
     if (isDarkMode.value) {
         document.body.classList.add('dark');

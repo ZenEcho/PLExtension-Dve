@@ -3,7 +3,7 @@
         <template #default>
             <div class="flex flex-wrap justify-center border-y-2 py-2 max-h-[700px] overflow-auto installButton">
                 <div v-for="item in  buttonsData " :key="item.value" @click="onClick($event, item)" :data-id="item.value"
-                    class="m-1 flex flex-row items-center justify-center w-48 h-20 border hover:bg-gray-50 select-none rounded-sm">
+                    class="m-1 flex flex-row items-center justify-center w-48 h-20 border hover:bg-gray-50 select-none rounded-sm border-solid border-gray-200">
                     <div v-html="createButtonIconMarkup(item.icon)" class="w-8 h-8 mr-1"></div>
                     <div class="text-lg">{{ item.text }}</div>
                 </div>
@@ -32,6 +32,8 @@ import { dbHelper } from '@/assets/js/db';
 const emit = defineEmits(['addButton']);
 const selectedData = [];
 function onClick(event, item) {
+    console.log(event, item);
+    
     event.currentTarget.classList.toggle('active');
 
     if (event.currentTarget.classList.contains('active')) {

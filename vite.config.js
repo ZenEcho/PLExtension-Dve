@@ -5,7 +5,8 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
-// https://vitejs.dev/config/
+import Unocss from 'unocss/vite'
+import { presetWind, presetIcons, presetUno } from 'unocss'
 export default defineConfig({
   server: {
     open: '/popup.html'
@@ -13,7 +14,12 @@ export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
-
+    Unocss({
+      presets: [
+        presetWind(),  // 这个是可选的
+        presetIcons(), // 确保已经启用了 Icons 预设
+      ],
+    }),
     Components({
       resolvers: [NaiveUiResolver()]
     })
