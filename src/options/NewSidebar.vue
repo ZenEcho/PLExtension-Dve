@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gray-50  sidebar dark:bg-gray-500 min-w-48">
+    <div class="sidebar">
         <n-spin :show="show">
             <ul class="p-2 buttons">
                 <li v-for="button in readbedButtonForm" :key="button.id"
@@ -48,8 +48,6 @@ const onShowModal = inject('onShowModal');
 const readbedButtonForm = ref([]);
 const show = ref(false);
 async function readbedButton() {
-    console.log(1);
-    
     show.value = true;
     try {
         const dbResult = await dbHelper("exeButtons");
@@ -106,7 +104,8 @@ defineExpose({ readbedButton });
 </script>
 <style scoped>
 .buttons {
-    height: calc(100vh - 168px);
+    /* height: calc(100vh - 168px); */
+
     overflow: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;

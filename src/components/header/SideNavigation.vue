@@ -1,5 +1,5 @@
 <template>
-    <header class="shadow dark:bg-gray-700 top-0 z-10 h-full w-[210px] border-r">
+    <header class="shadow dark:bg-gray-700 top-0 z-10 h-full min-w-[210px] border-r">
         <div>
             <!-- logo -->
             <div class="flex flex-row items-center justify-center h-16  my-2">
@@ -12,7 +12,8 @@
         </n-divider>
         <ul class="flex flex-col w-11/12  max-sm:w-full list-none p-0">
             <li v-for="item in headerData" :key="item.link"
-                class="nav-item text-gray-800 px-3 py-2  max-sm:border-transparent max-sm:hidden hover:text-gray-700">
+                class="nav-item text-gray-800 pl-2  py-2  max-sm:border-transparent max-sm:hidden hover:text-gray-700"
+                :data-url="item.link">
 
                 <a :href="item.link"
                     class="flex flex-row text-gray-800  h-full text-base items-center dark:text-gray-200 text-decoration-none">
@@ -22,7 +23,7 @@
                     <div class="flex flex-row w-full justify-between">
                         <span :class="{ 'font-bold  text-gray-600  dark:text-blue-400': isCurrentPage(item.link) }">{{
                             item.text
-                            }}</span>
+                        }}</span>
                         <span v-if="item.text == '配置信息'" class="h-[24px] w-[24px]">
                             <div v-if="isCurrentPage(item.link) == true"
                                 class="i-material-symbols-light-keyboard-arrow-down w-full h-full">
@@ -32,7 +33,7 @@
                     </div>
                 </a>
                 <div v-if="isCurrentPage(item.link) == true && item.text == '配置信息'">
-                    <NewSidebar @foundData="handleFoundData" @addButton="onShowModal"  ref="sidebarRef" />
+                    <NewSidebar @foundData="handleFoundData" @addButton="onShowModal" ref="newSidebarRef" />
                 </div>
             </li>
             <li class="nav-item text-gray-800 px-3 py-2  list-none flex sm:hidden border-b border-transparent">
@@ -66,6 +67,7 @@ import { ref, computed, watchEffect } from 'vue';
 import { headerData } from '@/assets/js/arrayObjectData';
 import NewSidebar from '@/options/NewSidebar.vue'
 import { defineEmits } from 'vue';
+const newSidebarRef = ref(null);
 const emit = defineEmits(['foundData', 'addButton']);
 const active = ref(false);
 const activate = () => {

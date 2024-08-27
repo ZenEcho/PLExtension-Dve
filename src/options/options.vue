@@ -1,21 +1,20 @@
 <template>
   <n-notification-provider :placement='"bottom-right"'>
 
-    <main class="dark:bg-gray-200 min-w-[640px] min-h-svh">
+    <main class="dark:bg-gray-200  min-h-svh bg-gray-50">
       <div class="flex flex-row">
-        <SideNavigation @foundData="handleFoundData" @addButton="onShowModal" ref="sidebarRef" />
-        <div class="flex flex-row">
-          <div class="w-full  bg-gray-100"
-            :class="hiddenSidebar ? 'h-[calc(100vh-65px)] overflow-auto' : 'overflow-hidden'">
+        <SideNavigation @foundData="handleFoundData" @addButton="onShowModal" ref="sideNavRef" />
+        <div class="px-2 flex flex-row w-[calc(100vw-210px)]">
+          <div class="w-full ">
             <SiteTitle />
-            <div class="w-full px-3 flex flex-row max-lg:flex-col">
+            <div class="w-full flex flex-row max-lg:flex-col">
 
-              <BedForm class="min-w-[400px]  w-full h-full shadow-xl  border rounded-lg bg-gray-50 p-2 dark:bg-gray-100"
+              <BedForm class="lg:w-full p-2 h-full shadow-xl rounded-lg bg-gray-50  dark:bg-gray-100"
                 :form-groups="formGroups" @submit-success="handleBedFormSubmit" />
               <n-dialog-provider>
                 <n-message-provider>
                   <ConfigRecord
-                    class="max-lg:my-3 min-w-96 h-full lg:ml-2 p-2 border rounded-lg bg-gray-50 shadow-xl dark:bg-gray-100"
+                    class="max-lg:my-3 min-w-96 h-full lg:ml-2 p-2 shadow-xl rounded-lg bg-gray-50 dark:bg-gray-100"
                     ref="configRecordRef">
                   </ConfigRecord>
                 </n-message-provider>
@@ -52,7 +51,7 @@ const formGroups = ref('');
 const messageRef = ref(null);
 const showModal = ref(false);
 const configRecordRef = ref(null);
-const sidebarRef = ref(null);
+const sideNavRef = ref(null);
 
 
 function handleFoundData(data) {
@@ -67,7 +66,8 @@ function onShowModal(data) {
   if (data.type == "addButton") {
     showModal.value = data.state;
     if (data.state == false) {
-      sidebarRef.value.readbedButton()
+      // sideNavRef.value.readbedButton() 子组件的方法
+      sideNavRef.value.$refs.newSidebarRef[0].readbedButton(); //孙组件的方法
     }
   }
 
