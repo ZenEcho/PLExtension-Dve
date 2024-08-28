@@ -220,7 +220,6 @@ function updateFormGroups(data) {
     if (formContainer.value) {
         formContainer.value.innerHTML = '';
         data.element.forEach((element) => {
-            console.log(element);
             formContainer.value.appendChild(createFormElement(element));
         });
     }
@@ -498,7 +497,7 @@ function handleSubmit(event) {
     let buttons = document.querySelectorAll(".buttons li")
     if (buttons) {
         buttons.forEach(button => {
-            button.classList.remove('bg-green-400/50', 'font-bold');
+            button.classList.remove('bg-green-400/50');
         });
         document.querySelector(".buttons li[data-value='" + props.formGroups.name + "']").classList.add('bg-green-400/50', 'font-bold')
     }

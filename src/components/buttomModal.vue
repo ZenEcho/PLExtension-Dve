@@ -32,8 +32,6 @@ import { dbHelper } from '@/assets/js/db';
 const emit = defineEmits(['addButton']);
 const selectedData = [];
 function onClick(event, item) {
-    console.log(event, item);
-    
     event.currentTarget.classList.toggle('active');
 
     if (event.currentTarget.classList.contains('active')) {

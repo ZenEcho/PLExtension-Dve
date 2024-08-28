@@ -8,13 +8,13 @@
         <div v-html="SpinConfig.alert.template"></div>
       </n-alert>
     </template>
-    <main class="dark:bg-gray-200 min-w-[640px]  min-h-[500px] h-screen flex flex-row">
+    <main class="dark:bg-gray-200  flex flex-row">
       <div>
         <Navbar />
       </div>
-      <div class="w-full">
+      <div class="w-full px-6">
         <SiteTitle />
-        <div class="p-8">
+        <div>
           <div class="flex justify-center">
             <Dropzone class="w-full max-w-5xl" @success-links="handleLinks"
               @filePreviewElements="handlefilePreviewElements">
@@ -31,9 +31,9 @@
             </n-space>
           </div>
         </div>
-        <div class="p-8">
+        <div>
           <div class="flex justify-center">
-            <div v-if="links.length > 0"
+            <div
               class="flex flex-row shadow rounded-lg max-sm:flex-col w-full max-w-6xl border dark:shadow-lg dark:border-gray-300">
               <div
                 class="p-1 text-center flex flex-col border-r-2 w-36 max-sm:flex-row max-sm:w-full max-sm:justify-center dark:border-gray-300">
