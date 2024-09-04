@@ -1,7 +1,9 @@
 <template>
-  <div class=" dark:bg-gray-200 flex flex-row">
-    <Navbar/>
-    <div>
+  <div class="dark:bg-neutral-100  flex flex-row min-h-[500px] min-w-[500px] bg-neutral-50">
+    <div class=" h-screen">
+      <Navbar></Navbar>
+    </div>
+    <div class="w-full h-screen overflow-auto">
       <div class="p-6">
         <div>
           <div class="flex flex-col items-center justify-center">
@@ -128,22 +130,16 @@
                 <n-popover trigger="hover" class="dark:bg-gray-600/80 dark:text-gray-100">
                   <template #trigger>
                     <div class="flex justify-center items-center h-full w-full">
-                      <div v-if="item.type == 'image'">
-                        <n-image class="h-[200px] flex justify-center" :src="item.url" object-fit="cover" lazy
-                          :intersection-observer-options="{ root: '#image-scroll-container' }"
-                          :fallback-src="fallbackImage">
-                          <template #placeholder>
-                            <div class="w-[300px] h-[200px] flex justify-center">
-                              <n-spin size="large" />
-                            </div>
-                          </template>
-                        </n-image>
-                      </div>
-                      <!-- <div v-else-if="item.type == 'dir'">
-                      <n-image :src="getImageSrc('images/fileicon/file.png')" class="h-[200px] flex justify-center"
-                        preview-disabled @click="handlePathClick($event, item)" />
-                    </div> -->
-
+                      <n-image v-if="item.type == 'image'" class="h-[200px] w-full flex justify-center" :src="item.url"
+                        object-fit="cover" height="100%" width="100%" lazy
+                        :intersection-observer-options="{ root: '#image-scroll-container' }"
+                        :fallback-src="fallbackImage">
+                        <template #placeholder>
+                          <div class="w-[300px] h-[200px] flex justify-center">
+                            <n-spin size="large" />
+                          </div>
+                        </template>
+                      </n-image>
                       <div v-else-if="item.type == 'editable'" class="w-full">
                         <n-progress type="circle" :percentage="item.progress || 0"
                           class="absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 z-10"
@@ -152,8 +148,8 @@
                           @click="handleEditingContent($event, item)" v-model:value="item.NetResponseText" />
 
                       </div>
-                      <div v-else-if="item.type == 'video'">
-                        <video controls>
+                      <div v-else-if="item.type == 'video'" class="w-full h-full">
+                        <video controls class="w-full h-full">
                           <source :src="item.url">
                         </video>
                       </div>
@@ -525,6 +521,15 @@ function loadImages() {
         })
       }
       db.getAll().then((UploadLog) => {
+        UploadLog.forEach(item => {
+          try {
+            if (item.type == 'dir') { return; };
+            const fileExtension = item.url.toLowerCase().match(/\.[0-9a-z]+$/);
+            item.type = getFileType(fileExtension[0]);
+          } catch (error) {
+            item.type = "none";
+          }
+        });
         imagesStorageData.value = UploadLog;
         pageChange(page.value)
         console.log("本地图片：", UploadLog);

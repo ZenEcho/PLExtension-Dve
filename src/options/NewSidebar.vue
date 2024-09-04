@@ -1,7 +1,7 @@
 <template>
     <div class="sidebar">
         <n-spin :show="show">
-            <ul class="py-2 buttons list-none pl-2">
+            <ul class="py-2  !pb-0 buttons list-none pl-2">
                 <li v-for="button in readbedButtonForm" :key="button.id" class="py-2 group" :data-value="button.value"
                     @click="bedButtonClick($event, button)">
                     <button class="flex flex-row text-base items-center w-full">
@@ -25,12 +25,12 @@
                 </li>
             </ul>
         </n-spin>
-        <div class="flex flex-col items-center">
-            <n-divider dashed class="!m-0 !mt-2 text-sm dark:text-gray-200 !mb-2" />
+        <!-- <div class="flex flex-col items-center">
+            <n-divider dashed class="!m-0 !mt-1 text-sm dark:text-gray-200 !mb-1" />
             <button @click="addButtonClick()" type="button"
                 class="i-ph:plus-fill h-8 w-full text-gray-700 dark:text-gray-300">
             </button>
-        </div>
+        </div> -->
     </div>
 </template>
 

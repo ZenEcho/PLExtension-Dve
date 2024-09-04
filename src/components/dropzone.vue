@@ -32,7 +32,6 @@ onMounted(() => {
     addRemoveLinks: true,
     forceFallback: false,
     maxThumbnailFilesize: 50,//缩略图MB
-
     // autoProcessQueue: false, //自动上传
     // parallelUploads: 1, // 每次上传1个
     dictDefaultMessage: "<div class='flex flex-col items-center'>" + SvgData + "<span> 点击上传 / 拖拽上传 / 粘贴上传 </span></div>",

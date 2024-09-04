@@ -619,29 +619,6 @@ export function setUpload(Dropzone) {
                         formData.append("type", "image");
                     })
                 },
-                'toutiao': async () => {
-                    const randomAid = Math.floor(Math.random() * 24) + 1;
-                    let url = `https://i.snssdk.com/feedback/image/v1/upload/?appkey=toutiao_web-web&aid=` + randomAid + `&app_name=toutiao_web`
-                    Dropzone.options.url = url;
-                    Dropzone.options.paramName = 'image';
-                    Dropzone.options.acceptedFiles = '.jpeg,.jpg,.png,.gif,.bmp,.ico,.webp';
-                    Dropzone.options.headers = {
-                        "Accept": "application/json, text/plain, */*",
-                        "Referer": "https://helpdesk.bytedance.com/",
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.31"
-                    };
-                    Dropzone.on("sending", function (file, xhr, formData) {
-                        formData.append("app_id", randomAid);
-                    })
-                },
-                'toutiao2': async () => {
-                    // Dropzone.options.url ="https://mp.toutiao.com/spice/image?upload_source=20020002&aid=1231&device_platform=web";
-                    // Dropzone.options.paramName = 'image';
-                    // Dropzone.options.acceptedFiles = '.jpeg,.jpg,.png,.gif,.bmp,.ico,.webp';
-                    // Dropzone.options.headers = {
-                    //     "Accept": "application/json, text/plain, */*",
-                    // }
-                },
             };
             try {
                 if (actions.hasOwnProperty(ProgramConfigurations.Program)) {
@@ -654,7 +631,6 @@ export function setUpload(Dropzone) {
 
         })
     });
-
 }
 
 

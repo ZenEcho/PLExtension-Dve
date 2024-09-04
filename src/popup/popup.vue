@@ -8,19 +8,19 @@
         <div v-html="SpinConfig.alert.template"></div>
       </n-alert>
     </template>
-    <main class="dark:bg-gray-200  flex flex-row">
+    <main class="bg-neutral-50 dark:bg-neutral-100  flex flex-row h-screen  min-h-[500px] min-w-[500px]">
       <div>
         <Navbar />
       </div>
-      <div class="w-full px-6">
+      <div class="w-full px-6 overflow-auto">
         <SiteTitle />
         <div>
           <div class="flex justify-center">
-            <Dropzone class="w-full max-w-5xl" @success-links="handleLinks"
+            <Dropzone class="w-full max-w-6xl" @success-links="handleLinks"
               @filePreviewElements="handlefilePreviewElements">
             </Dropzone>
           </div>
-          <div class=" pt-8">
+          <div class="pt-8 py-4 max-w-6xl mx-auto">
             <span>盘络共传：</span>
             <!-- <span class="text-blue-600">{{ ProgramConfiguration.Program }}</span> -->
             <span class="text-blue-600">选择同步上传的配置！</span>
@@ -33,10 +33,10 @@
         </div>
         <div>
           <div class="flex justify-center">
-            <div
+            <div v-if="links.length > 0"
               class="flex flex-row shadow rounded-lg max-sm:flex-col w-full max-w-6xl border dark:shadow-lg dark:border-gray-300">
               <div
-                class="p-1 text-center flex flex-col border-r-2 w-36 max-sm:flex-row max-sm:w-full max-sm:justify-center dark:border-gray-300">
+                class="p-1 text-center flex flex-col border-r-2 w-36 max-sm:p-0 max-sm:flex-row max-sm:w-full max-sm:justify-center dark:border-gray-300">
                 <button class="p-4 hover:bg-slate-100 hover:text-blue-900 border-b-2 truncate dark:border-gray-300"
                   type="button" v-for="option in urlType" :key="option.value"
                   :class="{ 'border-b-2 border-blue-400 text-blue-900 font-bold': selectedType === option.value }"
@@ -44,7 +44,7 @@
                   {{ option.label }}
                 </button>
               </div>
-              <div class="p-1 custom-width max-sm:w-full">
+              <div class="w-full overflow-auto">
                 <div class="flex flex-row justify-end border-b-2 select-none dark:border-gray-300">
                   <button class="p-4 hover:bg-slate-100 truncate text-blue-600 flex items-center" type="button">
                     <svg class="h-5 mr-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"

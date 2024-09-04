@@ -1,6 +1,9 @@
 <template>
     <div class="py-4 my-4 text-center">
-        <a class="text-4xl text-blue-500" href="#">{{ webtitle || "盘络上传" }}</a>
+        <n-ellipsis style="max-width: 500px" class="text-[2.25rem] text-blue-500">
+            {{ webtitle || "盘络上传" }}
+        </n-ellipsis>
+
     </div>
 </template>
 <script setup>

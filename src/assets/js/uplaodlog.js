@@ -522,30 +522,6 @@ export async function deleteImagesData(keys, callback) {
  * @param {Function} fn - 处理每一项的异步函数
  * @param {Number} limit - 并发限制数
  */
-// async function concurrentControl(items, fn, limit) {
-//     let index = 0;
-//     let results = [];
-//     let active = [];
-
-//     const execute = async () => {
-//         while (index < items.length) {
-//             let item = items[index++];
-//             let promise = Promise.resolve().then(() => fn(item)).catch(e => e);
-//             results.push(promise);
-
-//             let e = promise.then(() => active.splice(active.indexOf(e), 1));
-//             active.push(e);
-
-//             if (active.length >= limit) {
-//                 await Promise.race(active);
-//             }
-//         }
-//     };
-
-//     await execute();
-//     return Promise.all(results);
-// }
-
 async function concurrentControl(items, fn, limit, callback) {
     let index = 0;
     let active = [];
@@ -569,7 +545,6 @@ async function concurrentControl(items, fn, limit, callback) {
     };
 
     await execute();
-    // await Promise.all(active); 
 }
 
 

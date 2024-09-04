@@ -1,10 +1,11 @@
 <template>
   <n-notification-provider :placement='"bottom-right"'>
 
-    <main class="dark:bg-gray-200  min-h-svh bg-gray-50">
-      <div class="flex flex-row">
-        <SideNavigation @foundData="handleFoundData" @addButton="onShowModal" ref="sideNavRef" />
-        <div class="px-2 flex flex-row w-[calc(100vw-210px)]">
+    <main class="dark:bg-neutral-100 overflow-x-hidden min-h-[500px] min-w-[500px] bg-neutral-50">
+      <div class="flex flex-row h-screen">
+        <SideNavigation @foundData="handleFoundData" @addButton="onShowModal" ref="sideNavRef" :isOpenMenu="isOpenMenu"
+          @update:isOpenMenu="refresh" />
+        <div class="px-2 flex flex-row w-full overflow-auto">
           <div class="w-full ">
             <SiteTitle />
             <div class="w-full flex flex-row max-lg:flex-col">
@@ -41,19 +42,18 @@ import SideNavigation from '@/components/header/SideNavigation.vue';
 import SiteTitle from '@/components/siteTitle.vue';
 import BedForm from '@/components/bedForm.vue'
 import ConfigRecord from '@/components/configRecord.vue'
-import Sidebar from './sidebar.vue'
-import NewSidebar from './NewSidebar.vue'
 import Messagetag from '@/components/message.vue';
 import ButtomModal from '@/components/buttomModal.vue';
-import { ref, provide } from 'vue';
-const hiddenSidebar = ref('');
+import { ref, provide, onMounted } from 'vue';
 const formGroups = ref('');
 const messageRef = ref(null);
 const showModal = ref(false);
 const configRecordRef = ref(null);
 const sideNavRef = ref(null);
-
-
+const isOpenMenu = ref(false);
+onMounted(() => {
+  isOpenMenu.value = true
+})
 function handleFoundData(data) {
   if (data) {
     formGroups.value = data;
@@ -62,12 +62,18 @@ function handleFoundData(data) {
   }
 
 }
+// 孙组件刷新
+const refresh = () => {
+  sideNavRef.value.$refs.newSidebarRef[0].readbedButton(); //孙组件的方法
+}
+
+//显示安装弹窗
 function onShowModal(data) {
   if (data.type == "addButton") {
     showModal.value = data.state;
     if (data.state == false) {
       // sideNavRef.value.readbedButton() 子组件的方法
-      sideNavRef.value.$refs.newSidebarRef[0].readbedButton(); //孙组件的方法
+      refresh()
     }
   }
 
@@ -79,11 +85,6 @@ const handleBedFormSubmit = () => {
   }
 };
 
-function toggleSidebar(event) {
-  const sidebar = event.currentTarget.parentNode.querySelector(".sidebar");
-  sidebar.classList.toggle("hidden");
-  hiddenSidebar.value = sidebar.classList.contains("hidden");
-}
 function showMessage(message) {
   if (messageRef.value) {
     messageRef.value.showMessage(message);
@@ -92,8 +93,3 @@ function showMessage(message) {
 provide('showMessage', showMessage);
 provide('onShowModal', onShowModal);
 </script>
-<style scoped>
-.height {
-  height: calc(100vh - 65px);
-}
-</style>
