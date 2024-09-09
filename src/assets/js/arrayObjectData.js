@@ -1019,7 +1019,7 @@ export const bedFormData = [
           {
             type: 'div',
             attributes: {
-              class: 'w-1/2 mr-1  flex flex-col',
+              class: 'w-full mr-1  flex flex-col',
             },
             children: [
               {
@@ -1044,7 +1044,7 @@ export const bedFormData = [
           {
             type: 'div',
             attributes: {
-              class: 'w-1/2 ml-1 flex flex-col',
+              class: 'w-full ml-1 flex flex-col',
             },
             children: [
               {
@@ -1077,7 +1077,7 @@ export const bedFormData = [
           {
             type: 'div',
             attributes: {
-              class: 'w-1/2 mr-1  flex flex-col',
+              class: 'w-full mr-1  flex flex-col',
             },
             children: [
               {
@@ -1102,7 +1102,7 @@ export const bedFormData = [
           {
             type: 'div',
             attributes: {
-              class: 'w-1/2 mr-1  flex flex-col',
+              class: 'w-full mr-1  flex flex-col',
             },
             children: [
               {

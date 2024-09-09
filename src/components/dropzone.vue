@@ -48,7 +48,6 @@ onMounted(() => {
   });
   show.value = false
   setUpload(uploader).then(res => {
-    console.log(res);
     ProgramConfigurations = res
     DropzoneSuccess()
     DropzoneError()
@@ -229,7 +228,17 @@ function DropzoneSuccess() {
       "uploadDomainName": ProgramConfigurations.Host
     }
     taskQueue(() => LinksGo(info));
-    taskQueue(() => LocalStorage(storData));
+    const currentDate = new Date();
+    taskQueue(() => LocalStorage({
+      key: crypto.randomUUID(),
+      url: imageUrl,
+      uploadExe: `${storData.Program}-normal`,
+      upload_domain_name: storData.uploadDomainName,
+      original_file_name: storData.file.file.name,
+      file_size: storData.file.file.size,
+      img_file_size: "宽:不支持,高:不支持",
+      uploadTime: `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日${currentDate.getHours()}时${currentDate.getMinutes()}分${currentDate.getSeconds()}秒`
+    }));
   })
   uploader.on("complete", function (file) {
     filePreviewElements.value.push(file.previewElement);

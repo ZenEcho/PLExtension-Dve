@@ -1,8 +1,5 @@
 <template>
   <n-spin :show="SpinConfig.spin === 'show'">
-    <template #description v-if="SpinConfig.template">
-      <div v-html="SpinConfig.template"></div>
-    </template>
     <template #description v-if="SpinConfig.alert.template">
       <n-alert :title="SpinConfig.alert.title || '标题'" :type="SpinConfig.alert.type || 'error'">
         <div v-html="SpinConfig.alert.template"></div>
@@ -196,7 +193,6 @@ const ProgramConfiguration = ref([]);
 const targetPrograms = ref([]);
 getChromeStorage("ProgramConfiguration").then((result) => {
   ProgramConfiguration.value = result;
-  console.log(ProgramConfiguration.value.Program);
 })
 const readBedConfig = () => {
   dbHelper("BedConfigStore").then(result => {

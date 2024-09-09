@@ -7,6 +7,7 @@ import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import Unocss from 'unocss/vite'
 import { presetWind, presetIcons, presetUno } from 'unocss'
+
 export default defineConfig({
   server: {
     open: '/popup.html'
@@ -35,12 +36,12 @@ export default defineConfig({
         // 在这里设置资产文件命名策略
         chunkFileNames: 'static/js/[name]-[hash].js',
         entryFileNames: (chunkInfo) => {
-          // 如果是background.js，直接放在dist根目录
+          const contentFiles = ['content', 'getAPI', 'notification'];
           if (chunkInfo.name === 'background') {
             return '[name].js';
           }
-          if (chunkInfo.name === 'content') {
-            return 'static/content/[name].js';
+          if (contentFiles.includes(chunkInfo.name)) {
+            return `static/content/${chunkInfo.name === 'notification' ? 'notification/' : ''}[name].js`;
           }
           return 'static/js/[name]-[hash].js';
         },
@@ -51,7 +52,9 @@ export default defineConfig({
         options: resolve(__dirname, 'options.html'),
         uplaodLog: resolve(__dirname, 'uplaodlog.html'),
         background: resolve(__dirname, 'src/background/background.js'),
-        content: resolve(__dirname, 'src/content/content.js')
+        content: resolve(__dirname, 'src/content/content.js'),
+        getAPI: resolve(__dirname, 'src/content/getAPI.js'),
+        notification: resolve(__dirname, 'src/content/notification/notification.js') // 添加 notification 文件路径
       },
     }
   }

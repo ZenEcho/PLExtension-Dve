@@ -11,14 +11,15 @@ import { getChromeStorage } from '@/assets/js/public';
 import { ref } from 'vue';
 import HttpRequester from '@/assets/js/httpRequester';
 const webtitle = ref(null);
+
 getChromeStorage("ProgramConfiguration").then((result) => {
     webtitle.value = localStorage.webtitle
     const titleMapping = {
-        "Custom": "Custom_Upload",
+        "Custom": "自定义上传",
         "GitHub": "GitHub",
-        "Tencent_COS": "Tencent_COS",
-        "Aliyun_OSS": "Alibaba_OSS",
-        "AWS_S3": "AWS_S3"
+        "Tencent_COS": "腾讯 COS",
+        "Aliyun_OSS": "阿里巴巴 OSS",
+        "AWS_S3": "AWS S3"
     };
     if (!result || !result.Program) return;
     const Program = result.Program;
@@ -27,7 +28,11 @@ getChromeStorage("ProgramConfiguration").then((result) => {
         localStorage.webtitle_status = 0;
         webtitle.value = localStorage.webtitle;
     }
-    if (localStorage.webtitle_status == 1) {
+});
+
+// 更新标题
+function updateTitle() {
+    getChromeStorage("ProgramConfiguration").then((result) => {
         function fetchTitle(url) {
             return HttpRequester.get(url)
                 .then(response => {
@@ -51,7 +56,25 @@ getChromeStorage("ProgramConfiguration").then((result) => {
                 localStorage.webtitle = chrome.i18n.getMessage("app_name");
                 webtitle.value = localStorage.webtitle;
             });
-    }
 
+    });
+}
+
+if (localStorage.webtitle_status == 1) {
+    updateTitle()
+}
+window.addEventListener('message', function (event) {
+    const { content, data } = event.data;
+    if (content == 'webtitle' && data == 'update') {
+        updateTitle()
+    }
+});
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.webTitleNotice) {
+        if (request.webTitleNotice.update) {
+            updateTitle()
+        }
+    }
 });
 </script>

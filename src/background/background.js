@@ -1,5 +1,7 @@
 import { getChromeStorage } from '@/assets/js/public';
-
+import { taskQueue } from '@/assets/js/taskQueue';
+import { LocalStorage, storButtons } from '@/assets/js/public';
+import { dbHelper } from '@/assets/js/db';
 const DEFAULT_SETTINGS = {
 	uploadArea: {
 		width: 32,
@@ -212,13 +214,29 @@ function handleContextMenuClick(info) {
 
 	}
 }
-
+/**
+   * 判断两个数据对象的所有属性值是否相同，排除 'ConfigName' 属性。
+   *
+   * @param {Object} data1 - 第一个数据对象。
+   * @param {Object} data2 - 第二个数据对象。
+   * @returns {boolean} - 如果数据对象的所有属性值（排除 'ConfigName'）相同，则返回 true，否则返回 false。
+   */
+function isSameData(data1, data2) {
+	const excludedProps = ['ConfigName'];
+	for (const key of Object.keys(data2)) {
+		if (!excludedProps.includes(key) && data1[key] !== data2[key]) {
+			return false;
+		}
+	}
+	return true;
+}
 /**
  * 处理消息事件
  * @param {object} request - 请求对象
  * @param {object} sender - 发送者对象
  * @param {function} sendResponse - 响应回调函数
  */
+let TabId;
 function handleMessage(request, sender, sendResponse) {
 	if (request.action === "getStorage") {
 		getChromeStorage().then(storage => {
@@ -227,8 +245,10 @@ function handleMessage(request, sender, sendResponse) {
 		return true;  // 表示将异步发送响应
 	}
 	if (request.uploadMessage) {
+
 		// 收到上传信息
 		const { data, uploadMode, type } = request.uploadMessage;
+
 		if (type == "link") {
 			fetchImageBlob(data)
 				.then(blob => {
@@ -250,6 +270,108 @@ function handleMessage(request, sender, sendResponse) {
 			uploadFilesSequentially(files);
 		}
 	}
+	if (request.notification) {
+		// diffuseNotification 扩散通知
+		const { system, injectPage, progressBar } = request.notification;
+		if (system) {
+			showNotification(system.title, system.content, false);
+		}
+		if (injectPage) {
+			chrome.tabs.query({ active: true }, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id, { diffuseNotification: { "injectPage": injectPage } })
+			});
+		}
+		if (progressBar) {
+			if (progressBar.status == 1) {
+				chrome.tabs.query({ active: true }, function (tabs) {
+					TabId = tabs[0].id;
+					chrome.tabs.sendMessage(TabId,
+						{
+							diffuseNotification:
+							{
+								progressBar: { "filename": progressBar.filename, "status": progressBar.status, "isCurrentTabId": true }
+							}
+						}
+					)
+				});
+			}
+			if (progressBar.status == 2 || progressBar.status == 0) {
+				chrome.tabs.query({ active: true }, function (tabs) {
+					let currentTabId = tabs[0].id;
+					if (TabId == currentTabId) { //如果是提示状态初始页
+						chrome.tabs.sendMessage(currentTabId,
+							{
+								diffuseNotification: {
+									progressBar:
+										{ "filename": progressBar.filename, "status": progressBar.status, "isCurrentTabId": true }
+								}
+							})
+					} else {
+						// 新页面更新状态
+						chrome.tabs.sendMessage(currentTabId,
+							{
+								diffuseNotification: {
+									progressBar:
+										{ "filename": progressBar.filename, "status": progressBar.status, "isCurrentTabId": false }
+								}
+							})
+						if (TabId) {
+							// 初始页更新状态
+							chrome.tabs.sendMessage(TabId, { diffuseNotification: { progressBar: { "filename": progressBar.filename, "status": progressBar.status, "isCurrentTabId": true } } })
+						}
+					}
+				});
+			}
+		}
+	}
+	if (request.loadConfig) {
+		const { external } = request.loadConfig;
+		storButtons(external).then(() => {
+			dbHelper("BedConfigStore").then(result => {
+				// 处理获取到的配置数据
+				const { db } = result;
+				db.getAll().then(BedConfig => {
+					if (!BedConfig.some(existingData => isSameData(existingData.data, external.data))) {
+						external.id = crypto.randomUUID()
+						external.index = 1000 + BedConfig.length + 1
+						BedConfig.push(external);
+						db.put(external).then(() => {
+							chrome.tabs.query({ active: true }, function (tabs) {
+								chrome.tabs.sendMessage(tabs[0].id, {
+									diffuseNotification: {
+										"injectPage": {
+											title: "导入成功",
+											type: "success",
+											content: "外部数据导入成功,使用时请刷新一次页面以便扩展完成初始化",
+											duration: 10,
+										}
+									}
+								}).then(() => {
+								});
+							});
+						})
+
+					}
+
+				})
+
+
+			}).catch(error => {
+				console.error("Error opening database:", error);
+			});
+		})
+	}
+	if (request.webtitle) {
+		if (request.webtitle) {
+			chrome.tabs.query({ active: true }, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id, { webTitleNotice: request.webtitle })
+			});
+		}
+
+	}
+	if (request.getXsrfToken) {
+		getXsrfToken(request.url);
+	}
 }
 async function uploadFilesSequentially(files) {
 	for (let file of files) {
@@ -260,7 +382,7 @@ async function uploadFilesSequentially(files) {
 		}
 	}
 }
-async function fetchUpload(imgUrl, blob, uploadMode = "", callback = () => { }) {
+async function fetchUpload(imgUrl, blob, uploadMode = "normal", callback = () => { }) {
 	const d = new Date();
 	const storage = await getChromeStorage();
 	const { ProgramConfiguration } = storage;
@@ -275,6 +397,8 @@ async function fetchUpload(imgUrl, blob, uploadMode = "", callback = () => { }) 
 	const imageExtension = getImageFileExtension(imgUrl, blob);
 	const fileName = `${ProgramConfiguration.Program}_${uploadMode}_${d.getTime()}.${imageExtension}`;
 	const file = new File([blob], fileName, { type: `image/${imageExtension}` });
+	const currentDate = new Date();
+	uploadProgressDiffuse(1, fileName)
 
 	// 构建表单数据
 	const formData = new FormData();
@@ -398,6 +522,7 @@ async function fetchUpload(imgUrl, blob, uploadMode = "", callback = () => { }) 
 			case 'Telegra_ph':
 				if (res.error) {
 					showNotification(null, res.error);
+					uploadProgressDiffuse(0, fileName)
 					return;
 				}
 				imageUrl = `https://telegra.ph${res[0].src}`;
@@ -414,13 +539,71 @@ async function fetchUpload(imgUrl, blob, uploadMode = "", callback = () => { }) 
 			default:
 				throw new Error("Unsupported program configuration");
 		}
-
-		console.log(imageUrl);
+		uploadProgressDiffuse(2, fileName)
+		taskQueue(() => LocalStorage({
+			key: crypto.randomUUID(),
+			url: imageUrl,
+			uploadExe: `${ProgramConfiguration.Program}-${uploadMode}`,
+			upload_domain_name: ProgramConfiguration.Host,
+			original_file_name: file.name,
+			file_size: file.size,
+			img_file_size: "宽:不支持,高:不支持",
+			uploadTime: `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日${currentDate.getHours()}时${currentDate.getMinutes()}分${currentDate.getSeconds()}秒`
+		}));
 		callback(imageUrl);
 	} catch (error) {
 		console.error(error);
 		callback(null, new Error(chrome.i18n.getMessage("Upload_prompt3")));
 		showNotification(null, `${chrome.i18n.getMessage("Upload_prompt4")}${error.toString()}`);
+		uploadProgressDiffuse(0, fileName)
+	}
+}
+/**
+ * 上传进度分发
+ */
+let currentTabId1;
+function uploadProgressDiffuse(status, filename) {
+	if (status == 1) {
+		try {
+			chrome.tabs.query({ active: true }, function (tabs) {
+				currentTabId1 = tabs[0].id;
+				chrome.tabs.sendMessage(currentTabId1, { diffuseNotification: { progressBar: { "filename": filename, "status": 1, "IsCurrentTabId": true } } })
+			});
+
+		} catch (error) {
+			console.log(error)
+		}
+	}
+	if (status == 2) {
+		try {
+			chrome.tabs.query({ active: true }, function (tabs) {
+				let currentTabId = tabs[0].id;
+				if (currentTabId1 == currentTabId) {
+					chrome.tabs.sendMessage(currentTabId, { diffuseNotification: { progressBar: { "filename": filename, "status": 2, "IsCurrentTabId": true } } })
+				} else {
+					chrome.tabs.sendMessage(currentTabId, { diffuseNotification: { progressBar: { "filename": filename, "status": 2, "IsCurrentTabId": false } } })
+					chrome.tabs.sendMessage(currentTabId1, { diffuseNotification: { progressBar: { "filename": filename, "status": 2, "IsCurrentTabId": true } } })
+				}
+
+			});
+		} catch (error) {
+			console.log(error);
+		}
+	}
+	if (status == 0) {
+		try {
+			chrome.tabs.query({ active: true }, function (tabs) {
+				let currentTabId = tabs[0].id;
+				if (currentTabId1 == currentTabId) {
+					chrome.tabs.sendMessage(currentTabId, { diffuseNotification: { progressBar: { "filename": filename, "status": 0, "IsCurrentTabId": true } } })
+				} else {
+					chrome.tabs.sendMessage(currentTabId, { diffuseNotification: { progressBar: { "filename": filename, "status": 0, "IsCurrentTabId": false } } })
+					chrome.tabs.sendMessage(currentTabId1, { diffuseNotification: { progressBar: { "filename": filename, "status": 0, "IsCurrentTabId": true } } })
+				}
+			});
+		} catch (error) {
+			console.log(error);
+		}
 	}
 }
 
@@ -466,6 +649,20 @@ async function fetchImageBlob(url) {
 			console.error(error);
 			throw new Error('Failed to fetch image blob');
 		});
+}
+function getXsrfToken(url) {
+	chrome.cookies.get({ url: url, name: 'XSRF-TOKEN' }, function (cookie) {
+		if (cookie) {
+			chrome.tabs.query({ active: true }, function (tabs) {
+				TabId = tabs[0].id;
+				chrome.tabs.sendMessage(TabId, { XSRF_TOKEN: decodeURIComponent(cookie.value) }, function (response) {
+					if (chrome.runtime.lastError) {
+						return;
+					}
+				});
+			});
+		}
+	});
 }
 
 

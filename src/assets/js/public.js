@@ -160,7 +160,7 @@ export async function storProgramConfiguration(data) {
                     const existingData = result.ProgramConfiguration || {};
                     const updatedData = { ...existingData, ...data };
                     PCLocalStorage.set({ "ProgramConfiguration": updatedData }, function () {
-                        localStorage.webtitle_status = 1
+                        chrome.runtime.sendMessage({ webtitle: { update: true } });
                         resolve({ type: "success" });
                     });
                 }
@@ -196,7 +196,7 @@ export function getChromeStorage(key) {
 }
 
 // 存储安装图床的
-export async function storExeButtons(data) {
+export async function storButtons(data) {
     return new Promise((resolve, reject) => {
         let filteredData = buttonsData.filter(Data => {
             return Data.value === data.data.Program;
@@ -213,7 +213,7 @@ export async function storExeButtons(data) {
         }
         storProgramConfiguration(data.data)
             .then(() => {
-                if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+                if (location.protocol === 'http') {
                     chrome.storage.local.set({ "exeButtons": indexedData }, function () {
                         if (chrome.runtime.lastError) {
                             reject(chrome.runtime.lastError);
@@ -243,40 +243,36 @@ export async function storExeButtons(data) {
 // 存储上传记录的
 export async function LocalStorage(data) {
     const pluginPopupURL = chrome.runtime.getURL("popup.html");
-    const currentURL = window.location.href;
-    const filename = data.file.name || data.file.file.name;
+    const currentURL = location.href;
+    const filename = data.original_file_name;
     const imageUrl = data.url;
-    const methodName = data.MethodName || "normal";
-    const uploadDomainName = data.uploadDomainName || data.Program;
 
     if (pluginPopupURL !== currentURL) {
-        chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
+        // chrome.runtime.sendMessage({ "Progress_bar": { "filename": filename, "status": 2 } });
     }
 
     try {
         const { UploadLog: existingUploadLog } = await chrome.storage.local.get('UploadLog');
         const uploadLog = Array.isArray(existingUploadLog) ? existingUploadLog : [];
-
-        const currentDate = new Date();
         const uploadLogEntry = {
-            key: crypto.randomUUID(),
-            url: imageUrl,
-            uploadExe: `${data.Program}-${methodName}`,
-            upload_domain_name: uploadDomainName,
-            original_file_name: filename,
-            file_size: data.file.file.size,
-            img_file_size: "宽:不支持,高:不支持",
-            uploadTime: `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日${currentDate.getHours()}时${currentDate.getMinutes()}分${currentDate.getSeconds()}秒`
+            key: data.key,
+            url: data.url,
+            uploadExe: data.uploadExe,
+            upload_domain_name: data.upload_domain_name,
+            original_file_name: data.original_file_name,
+            file_size: data.file_size,
+            img_file_size: data.img_file_size,
+            uploadTime: data.uploadTime
         };
-
         uploadLog.push(uploadLogEntry);
 
         await chrome.storage.local.set({ 'UploadLog': uploadLog });
-
         if (currentURL.startsWith('http')) {
             const uploadPromptMessage = chrome.i18n.getMessage("Upload_prompt2");
+            console.log(uploadPromptMessage);
+
             chrome.runtime.sendMessage({ Loudspeaker: uploadPromptMessage });
-            AutoInsertFun(imageUrl, false);
+            // AutoInsertFun(imageUrl, false);
         }
 
         return true;
@@ -319,7 +315,7 @@ export function parseJsonInput(inputValue) {
                 let newArray = processJsonArray(jsonArray);
                 resolve(newArray);
                 if (newArray.length === 1) {
-                    storExeButtons(newArray[0]).then(() => {
+                    storButtons(newArray[0]).then(() => {
                         localStorage.options_webtitle_status = 1;
                     });
                 }
@@ -458,8 +454,20 @@ export function copyText(value, callback) {
             callback({ message: "复制成功！", type: "success" });
         })
         .catch(err => {
-            callback({ message: "复制失败！", type: "error" });
-            throw new Error("复制操作失败：" + err.message);
+            // 备用复制方法
+            const textArea = document.createElement("textarea");
+            textArea.value = value;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                callback({ message: "复制成功！", type: "success" });
+            } catch (err) {
+                callback({ message: "复制失败,请手动复制！", type: "error" });
+                throw new Error("备用复制操作失败：" + err.message);
+            } finally {
+                document.body.removeChild(textArea);
+            }
         });
 }
 

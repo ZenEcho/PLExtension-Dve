@@ -368,7 +368,7 @@ const handleEditingContent = (e, item) => {
 // 复制操作
 function copyOperation(urls, mode) {
   if (urls.length < 1) return;
-  const copiedUrls = urls.map(url => generateLink(mode, url.url, url.filename));
+  const copiedUrls = urls.map(url => generateLink(mode, url.url, url.original_file_name));
   copyText(copiedUrls.join("\n"), showMessage);
   chrome.storage.local.set({ 'Copy_Selected_Mode': mode }, function () {
     Copy_Selected_Mode.value = mode;

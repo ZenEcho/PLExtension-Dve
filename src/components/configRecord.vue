@@ -133,7 +133,7 @@
 <script setup>
 import { ref, inject, nextTick, toRaw } from 'vue';
 import { dbHelper } from '@/assets/js/db';
-import { createIconMarkup, storExeButtons, parseJsonInput } from '@/assets/js/public';
+import { createIconMarkup, storButtons, parseJsonInput } from '@/assets/js/public';
 import { useNotification } from 'naive-ui';
 import { useMessage, useDialog } from "naive-ui";
 const message = useMessage();
@@ -190,7 +190,7 @@ const disableEditing = (config) => {
     });
 };
 function addButton(config) {
-    storExeButtons(config).then(result => {
+    storButtons(config).then(result => {
         notification.success({
             title: "成功",
             content: chrome.i18n.getMessage("Load") + chrome.i18n.getMessage("successful") + ",即将重新加载页面！",
@@ -298,7 +298,6 @@ const configReplace = () => {
 const configAppend = () => {
     let value = textareaData.value;
     parseJsonInput(value).then(newArray => {
-        console.log(newArray);
         dbHelper("BedConfigStore").then(result => {
             const { db } = result;
             db.add(newArray).then(() => {
